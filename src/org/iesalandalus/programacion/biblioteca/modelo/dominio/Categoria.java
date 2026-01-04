@@ -1,16 +1,17 @@
-package org.iesalandalus.programacion.modelo;
+package org.iesalandalus.programacion.biblioteca.modelo.dominio;
 
 public enum Categoria {
     NOVELA,
     ENSAYO,
-    HISTORIA,
+    INFANTIL,
+    COMIC,
     POESIA,
-    TECNOLOGIA;
+    TECNICO,
+    OTROS;
 
     @Override
     public String toString() {
-        String nombre = name();
-        return nombre;
+        return name();
     }
 
     // Método estático para obtener la categoria por su índice
