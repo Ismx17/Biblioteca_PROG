@@ -17,6 +17,9 @@ public class Direccion {
         if (cp == null || cp.trim().isEmpty()) {
             throw new IllegalArgumentException("ERROR: El código postal no puede ser nulo o vacío.");
         }
+        if (!cp.matches(CP_PATTERN)) {
+            throw new IllegalArgumentException("ERROR: El código postal no es válido.");
+        }
         if (localidad == null || localidad.trim().isEmpty()) {
             throw new IllegalArgumentException("ERROR: La localidad no puede ser nula o vacía.");
         }

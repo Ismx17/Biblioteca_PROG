@@ -137,14 +137,20 @@ public class Libro {
         }
         this.autores = new ArrayList<>();
         for (Autor autor : autores) {
+            if (autor == null) {
+                throw new IllegalArgumentException("ERROR: El autor no puede ser nulo.");
+            }
             this.autores.add(autor);
         }
     }
 
     public String autoresComoCadena() {
         StringBuilder sb = new StringBuilder();
-        for (Autor autor : autores) {
-            sb.append(autor.getNombreCompleto()).append(", ");
+        for (int i = 0; i < autores.size(); i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(autores.get(i).getNombreCompleto());
         }
         return sb.toString();
     }
@@ -158,10 +164,8 @@ public class Libro {
     }
 
     public void devolverUnidad() {
-        if (unidadesDisponibles < 0) {
-            throw new IllegalArgumentException("ERROR: Las unidades disponibles del libro no pueden ser negativas.");
+        unidadesDisponibles++;
     }
-}
 
     @Override
     public boolean equals(Object obj) {

@@ -100,7 +100,7 @@ public class Usuario {
             return false;
         }
         Usuario usuario = (Usuario) obj;
-        return id.equals(usuario.id) && nombre.equals(usuario.nombre) && email.equals(usuario.email) && direccion.equals(usuario.direccion);
+        return id.equals(usuario.id) && nombre.equals(usuario.nombre) && email.equals(usuario.email) && Objects.equals(direccion, usuario.direccion);
     }
 
     @Override

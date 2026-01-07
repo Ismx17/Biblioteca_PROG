@@ -1,5 +1,6 @@
 package org.iesalandalus.programacion.biblioteca.modelo.dominio;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class Prestamo {
 
@@ -53,10 +54,10 @@ public class Prestamo {
     }
 
     public int diasDeRetraso() {
-        return fDevolucion.compareTo(fLimite);
-    }
-
-    public boolean diasRetraso() {
-        
+        if (fDevolucion == null) {
+            throw new IllegalArgumentException("ERROR: La fecha de devolución no puede ser nula.");
+        }
+        long dias = ChronoUnit.DAYS.between(fLimite, fDevolucion);
+        return (int) Math.max(0, dias);
     }
 }
