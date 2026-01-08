@@ -102,9 +102,9 @@ public class Direccion {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        Direccion other = (Direccion) obj;
-        return Objects.equals(cp, other.cp) && Objects.equals(localidad, other.localidad)
-                && Objects.equals(numero, other.numero) && Objects.equals(via, other.via);
+        Direccion direccion = (Direccion) obj;
+        return Objects.equals(cp, direccion.cp) && Objects.equals(localidad, direccion.localidad)
+                && Objects.equals(numero, direccion.numero) && Objects.equals(via, direccion.via);
     }
 
     @Override
