@@ -85,9 +85,6 @@ public class Usuario {
     }
 
     public void setDireccion(Direccion direccion) {
-        if (direccion == null) {
-            throw new IllegalArgumentException("ERROR: La dirección del usuario no puede ser nula.");
-        }
         this.direccion = direccion;
     }
 

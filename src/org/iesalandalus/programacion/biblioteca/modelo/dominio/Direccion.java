@@ -1,4 +1,5 @@
 package org.iesalandalus.programacion.biblioteca.modelo.dominio;
+import java.util.Objects;
 
 public class Direccion {
     public static final String CP_PATTERN = "^\\d{5}$";
@@ -74,6 +75,24 @@ public class Direccion {
             throw new IllegalArgumentException("ERROR: La localidad no puede ser nula o vacía.");
         }
         this.localidad = localidad;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(cp, localidad, numero, via);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Direccion other = (Direccion) obj;
+        return Objects.equals(cp, other.cp) && Objects.equals(localidad, other.localidad)
+                && Objects.equals(numero, other.numero) && Objects.equals(via, other.via);
     }
 
     @Override
