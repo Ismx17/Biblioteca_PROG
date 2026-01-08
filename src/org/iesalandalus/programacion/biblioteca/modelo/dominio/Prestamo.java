@@ -1,6 +1,7 @@
 package org.iesalandalus.programacion.biblioteca.modelo.dominio;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 public class Prestamo {
 
@@ -21,28 +22,47 @@ public class Prestamo {
         if (fInicio == null) {
             throw new IllegalArgumentException("ERROR: La fecha de inicio no puede ser nula.");
         }
-        this.libro = libro;
-        this.usuario = usuario;
+        if (libro.getUnidadesDisponibles() <= 0) {
+            throw new IllegalArgumentException("ERROR: No hay unidades disponibles del libro.");
+        }
+        
+        this.libro = new Libro(libro);
+        this.usuario = new Usuario(usuario);
         this.fInicio = fInicio;
         this.fLimite = fInicio.plusDays(30);
         this.devuelto = false;
         this.fDevolucion = null;
+        
+        // Descontar unidad al crear el préstamo
+        this.libro.tomarPrestado();
+    }
+
+    public Prestamo(Prestamo prestamo) {
+        if (prestamo == null) {
+            throw new IllegalArgumentException("ERROR: El préstamo no puede ser nulo.");
+        }
+        this.libro = new Libro(prestamo.libro);
+        this.usuario = new Usuario(prestamo.usuario);
+        this.fInicio = prestamo.fInicio;
+        this.fLimite = prestamo.fLimite;
+        this.devuelto = prestamo.devuelto;
+        this.fDevolucion = prestamo.fDevolucion;
     }
 
     public Libro getLibro() {
-        return libro;
+        return new Libro(libro);  
     }
 
     public Usuario getUsuario() {
-        return usuario;
+        return new Usuario(usuario);  
     }
 
     public LocalDate getfInicio() {
-        return fInicio;
+        return fInicio;  
     }
 
     public LocalDate getfLimite() {
-        return fLimite;
+        return fLimite;  
     }
 
     public boolean isDevuelto() {
@@ -50,45 +70,66 @@ public class Prestamo {
     }
 
     public LocalDate getfDevolucion() {
-        return fDevolucion;
+        return fDevolucion;  
     }
 
     public int diasDeRetraso() {
-        if (fDevolucion == null) {
-            throw new IllegalArgumentException("ERROR: La fecha de devolución no puede ser nula.");
+        LocalDate fechaReferencia = (devuelto) ? fDevolucion : LocalDate.now();
+        
+        if (fechaReferencia.isAfter(fLimite)) {
+            return (int) ChronoUnit.DAYS.between(fLimite, fechaReferencia);
         }
-        if (fDevolucion.isAfter(fLimite)) {
-            long dias = ChronoUnit.DAYS.between(fLimite, fDevolucion);
-            return (int) Math.max(0, dias);
-        } else {
-            return 0;
-        }
+        return 0;
     }
 
     public boolean estaVencido() {
         return !devuelto && LocalDate.now().isAfter(fLimite);
     }
 
-    public void marcarDevuelto(LocalDate fecha, boolean ejecutarDevolucionLibro) {
+    public void marcarDevuelto(LocalDate fecha) {
         if (devuelto) {
-            throw new IllegalArgumentException("El libro ya ha sido devuelto");
+            throw new IllegalArgumentException("ERROR: El libro ya ha sido devuelto.");
         }
         if (fecha == null) {
-            throw new IllegalArgumentException("ERROR: La fecha de devolucion no puede ser nula.");
+            throw new IllegalArgumentException("ERROR: La fecha de devolución no puede ser nula.");
         }
         if (fecha.isBefore(fInicio)) {
-            throw new IllegalArgumentException("ERROR: La fecha de devolucion no puede ser anterior a la fecha de inicio.");
+            throw new IllegalArgumentException("ERROR: La fecha de devolución no puede ser anterior a la fecha de inicio.");
         }
+        
         devuelto = true;
         fDevolucion = fecha;
-        if (ejecutarDevolucionLibro && libro != null) {
-            libro.devolverUnidad();
-        }
+        libro.devolverUnidad();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        
+        Prestamo prestamo = (Prestamo) obj;
+        return Objects.equals(libro.getIsbn(), prestamo.libro.getIsbn()) &&
+               Objects.equals(usuario.getId(), prestamo.usuario.getId()) &&
+               Objects.equals(fInicio, prestamo.fInicio);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(libro.getIsbn(), usuario.getId(), fInicio);
     }
 
     @Override
     public String toString() {
-        return "Prestamo [fInicio=" + fInicio + ", fLimite=" + fLimite + ", devuelto=" + devuelto + ", fDevolucion="
-                + fDevolucion + ", usuario=" + usuario + ", libro=" + libro + "]";
+        String estadoDevolucion = devuelto ? 
+            ", devuelto el " + fDevolucion : 
+            ", no devuelto"; 
+        
+        return "Prestamo [" +
+               "libro=" + libro.getTitulo() + 
+               ", usuario=" + usuario.getNombre() +
+               ", inicio=" + fInicio +
+               ", límite=" + fLimite +
+               estadoDevolucion +
+               "]";
     }
 }
