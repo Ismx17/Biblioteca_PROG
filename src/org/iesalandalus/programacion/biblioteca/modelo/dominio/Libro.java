@@ -42,7 +42,8 @@ public class Libro {
         this.numAutores = 0;
     }
 
-    public Libro(Libro libro) {
+    // Constructor copia
+    public Libro(Libro libro) { 
         if (libro == null) {
             throw new IllegalArgumentException("ERROR: El libro no puede ser nulo.");
         }
@@ -51,10 +52,10 @@ public class Libro {
         this.categoria = libro.categoria;
         this.anio = libro.anio;
         this.unidadesDisponibles = libro.unidadesDisponibles;
-        this.autores = new Autor[MAX_AUTORES];
+        this.autores = new Autor[MAX_AUTORES]; 
         this.numAutores = libro.numAutores;
-        for (int i = 0; i < libro.numAutores; i++) {
-            this.autores[i] = new Autor(libro.autores[i]);
+        for (int i = 0; i < libro.numAutores; i++) { // Recorre el array dee autores
+            this.autores[i] = new Autor(libro.autores[i]); // Crea una copia del autor
         }
     }
 
@@ -77,7 +78,6 @@ public class Libro {
     }
 
     public void setTitulo(String titulo) {
-
         if (titulo == null || titulo.trim().isEmpty()) {
             throw new IllegalArgumentException("ERROR: El título del libro no puede ser nulo o vacío.");
         }
@@ -130,11 +130,11 @@ public class Libro {
     }
 
     public Autor[] getAutores() {
-        Autor[] copiaAutores = new Autor[numAutores];
+        Autor[] copiaAutores = new Autor[numAutores]; // Crea un array de autores con el tamaño correcto
         for (int i = 0; i < numAutores; i++) {
-            copiaAutores[i] = autores[i];
+            copiaAutores[i] = new Autor(autores[i]); // Crea una copia del autor
         }
-        return copiaAutores;
+        return copiaAutores; // Devuelve una copia del array de autores
     }
 
     public void setAutores(Autor[] autores) {
@@ -144,53 +144,53 @@ public class Libro {
         if (autores.length > MAX_AUTORES) {
             throw new IllegalArgumentException("ERROR: El libro no puede tener más de 2 autores.");
         }
-        this.autores = new Autor[MAX_AUTORES];
-        this.numAutores = 0;
-        for (Autor autor : autores) {
+        this.autores = new Autor[MAX_AUTORES]; // Crea un array de autores con el tamaño correcto
+        this.numAutores = 0; // Reinicia el numero de autores a 0
+        for (Autor autor : autores) { // Recorre el array dee autores
             if (autor == null) {
                 throw new IllegalArgumentException("ERROR: El autor no puede ser nulo.");
             }
-            this.autores[numAutores] = autor;
-            numAutores++;
+            this.autores[numAutores] = autor; // Copia los autores al array
+            numAutores++; // Incrementa el numero de autores 
         }
     }
 
     public String autoresComoCadena() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < numAutores; i++) {
+        StringBuilder sb = new StringBuilder(); // Crea un objeto StringBuilder para construir la cadena
+        for (int i = 0; i < numAutores; i++) { // Recorre el array de autores
             if (i > 0) {
-                sb.append(", ");
+                sb.append(", "); // Agrega una coma y un espacio si no es el primer autor
             }
-            sb.append(autores[i].getNombreCompleto());
+            sb.append(autores[i].getNombreCompleto()); // Agrega el nombre completo del autor a la cadena
         }
-        return sb.toString();
+        return sb.toString(); // Devuelve la cadena resuultante
     }
 
     public void tomarPrestado() {
         if (unidadesDisponibles > 0) {
-            unidadesDisponibles--;
+            unidadesDisponibles--; // Decrementa el numero de unidades disponibles
         } else {
             throw new IllegalArgumentException("ERROR: No hay unidades disponibles del libro.");
         }
     }
 
     public void devolverUnidad() {
-        unidadesDisponibles++;
+        unidadesDisponibles++; // Incrementa el numero de unidades disponibles
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj) { // Comprueba si son el mismo objeto
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) { // Comprueba si el objeto es nulo o de una clase diferente
             return false;
         }
-        Libro libro = (Libro) obj;
-        boolean autoresIguales = (numAutores == libro.numAutores);
-        if (autoresIguales) {
-            for (int i = 0; i < numAutores; i++) {
-                if (!autores[i].equals(libro.autores[i])) {
+        Libro libro = (Libro) obj; // Convierte el objeto a Libro
+        boolean autoresIguales = (numAutores == libro.numAutores); // Comprueba si tienen el mismo número de autores
+        if (autoresIguales) { 
+            for (int i = 0; i < numAutores; i++) { 
+                if (!autores[i].equals(libro.autores[i])) { // Compara los autores para ver si son iguales
                     autoresIguales = false;
                     break;
                 }
