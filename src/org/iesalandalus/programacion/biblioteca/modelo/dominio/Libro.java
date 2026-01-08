@@ -1,7 +1,5 @@
 package org.iesalandalus.programacion.biblioteca.modelo.dominio;
 import java.util.Objects;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Libro {
     private static final String ISBN_PATTERN = "^\\d{13}$";
@@ -11,7 +9,8 @@ public class Libro {
     private Categoria categoria;
     private int unidadesDisponibles;
     private int anio;
-    private List<Autor> autores;
+    private Autor[] autores;
+    private int numAutores;
 
     // Creacion del constructor
     public Libro(String isbn, String titulo, int anio, Categoria categoria, int unidadesDisponibles) {
@@ -39,7 +38,8 @@ public class Libro {
         this.categoria = categoria;
         this.anio = anio;
         this.unidadesDisponibles = unidadesDisponibles;
-        this.autores = new ArrayList<>();
+        this.autores = new Autor[MAX_AUTORES];
+        this.numAutores = 0;
     }
 
     public Libro(Libro libro) {
@@ -51,7 +51,11 @@ public class Libro {
         this.categoria = libro.categoria;
         this.anio = libro.anio;
         this.unidadesDisponibles = libro.unidadesDisponibles;
-        this.autores = new ArrayList<>(libro.autores);
+        this.autores = new Autor[MAX_AUTORES];
+        this.numAutores = libro.numAutores;
+        for (int i = 0; i < libro.numAutores; i++) {
+            this.autores[i] = new Autor(libro.autores[i]);
+        }
     }
 
     public String getIsbn() {
@@ -118,14 +122,19 @@ public class Libro {
         if (autor == null) {
             throw new IllegalArgumentException("ERROR: El autor no puede ser nulo.");
         }
-        if (autores.size() >= MAX_AUTORES) {
+        if (numAutores >= MAX_AUTORES) {
             throw new IllegalArgumentException("ERROR: El libro no puede tener más de 2 autores.");
         }
-        autores.add(autor);
+        autores[numAutores] = autor;
+        numAutores++;
     }
 
     public Autor[] getAutores() {
-        return autores.toArray(new Autor[0]);
+        Autor[] copiaAutores = new Autor[numAutores];
+        for (int i = 0; i < numAutores; i++) {
+            copiaAutores[i] = autores[i];
+        }
+        return copiaAutores;
     }
 
     public void setAutores(Autor[] autores) {
@@ -135,22 +144,24 @@ public class Libro {
         if (autores.length > MAX_AUTORES) {
             throw new IllegalArgumentException("ERROR: El libro no puede tener más de 2 autores.");
         }
-        this.autores = new ArrayList<>();
+        this.autores = new Autor[MAX_AUTORES];
+        this.numAutores = 0;
         for (Autor autor : autores) {
             if (autor == null) {
                 throw new IllegalArgumentException("ERROR: El autor no puede ser nulo.");
             }
-            this.autores.add(autor);
+            this.autores[numAutores] = autor;
+            numAutores++;
         }
     }
 
     public String autoresComoCadena() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < autores.size(); i++) {
+        for (int i = 0; i < numAutores; i++) {
             if (i > 0) {
                 sb.append(", ");
             }
-            sb.append(autores.get(i).getNombreCompleto());
+            sb.append(autores[i].getNombreCompleto());
         }
         return sb.toString();
     }
@@ -176,11 +187,20 @@ public class Libro {
             return false;
         }
         Libro libro = (Libro) obj;
-        return isbn.equals(libro.isbn) && titulo.equals(libro.titulo) && categoria.equals(libro.categoria) && anio == libro.anio && unidadesDisponibles == libro.unidadesDisponibles && Objects.equals(autores, libro.autores);
+        boolean autoresIguales = (numAutores == libro.numAutores);
+        if (autoresIguales) {
+            for (int i = 0; i < numAutores; i++) {
+                if (!autores[i].equals(libro.autores[i])) {
+                    autoresIguales = false;
+                    break;
+                }
+            }
+        }
+        return isbn.equals(libro.isbn) && titulo.equals(libro.titulo) && categoria.equals(libro.categoria) && anio == libro.anio && unidadesDisponibles == libro.unidadesDisponibles && autoresIguales;
     }
 
     public int hashCode() {
-        return Objects.hash(isbn, titulo, categoria, anio, unidadesDisponibles, autores);
+        return Objects.hash(isbn, titulo, categoria, anio, unidadesDisponibles, autores[0], autores[1]);
     }
 
     @Override
