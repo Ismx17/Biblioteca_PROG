@@ -176,11 +176,11 @@ public class Libro {
             return false;
         }
         Libro libro = (Libro) obj;
-        return isbn.equals(libro.isbn) && titulo.equals(libro.titulo) && categoria.equals(libro.categoria) && anio == libro.anio && unidadesDisponibles == libro.unidadesDisponibles;
+        return isbn.equals(libro.isbn) && titulo.equals(libro.titulo) && categoria.equals(libro.categoria) && anio == libro.anio && unidadesDisponibles == libro.unidadesDisponibles && Objects.equals(autores, libro.autores);
     }
 
     public int hashCode() {
-        return Objects.hash(isbn, titulo, categoria, anio, unidadesDisponibles);
+        return Objects.hash(isbn, titulo, categoria, anio, unidadesDisponibles, autores);
     }
 
     @Override

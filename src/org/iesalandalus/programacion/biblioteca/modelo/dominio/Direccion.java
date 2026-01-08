@@ -30,6 +30,18 @@ public class Direccion {
         this.localidad = localidad;
     }
 
+    // Constructor copia que permite que cada Usuario tenga su propia dirección independiente, 
+    // protegiendo la integridad de los datos cuando se duplican objetos.
+    public Direccion(Direccion direccion) {
+        if (direccion == null) {
+            throw new IllegalArgumentException("ERROR: La dirección no puede ser nula.");
+        }
+        this.via = direccion.via;
+        this.numero = direccion.numero;
+        this.cp = direccion.cp;
+        this.localidad = direccion.localidad;
+    }
+
     public String getVia() {
         return via;
     }

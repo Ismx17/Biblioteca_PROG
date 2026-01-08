@@ -38,7 +38,9 @@ public class Usuario {
         this.id = usuario.id;
         this.nombre = usuario.nombre;
         this.email = usuario.email;
-        this.direccion = usuario.direccion;
+        if (usuario.direccion != null) {
+            this.direccion = new Direccion(usuario.direccion);
+        }
     }
 
     public String getId() {
