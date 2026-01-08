@@ -83,7 +83,6 @@ public class Prestamo {
         fDevolucion = fecha;
         if (ejecutarDevolucionLibro && libro != null) {
             libro.devolverUnidad();
-            System.out.println("El libro ha sido devuelto correctamente.");
         }
     }
 
