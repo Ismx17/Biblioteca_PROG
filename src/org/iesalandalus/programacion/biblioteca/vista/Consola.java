@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Categoria;
+import org.iesalandalus.programacion.biblioteca.modelo.dominio.Direccion;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Libro;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Prestamo;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Usuario;
@@ -64,8 +65,20 @@ public class Consola {
         String id = entrada.nextLine();
         System.out.print("Introduce el correo: ");
         String correo = entrada.nextLine();
-        
-        return new Usuario(id, nombre, correo);
+        Direccion direccion = leerDireccion();
+        return new Usuario(id, nombre, correo, direccion);
+    }
+
+    private static Direccion leerDireccion() {
+        System.out.print("Introduce la vía: ");
+        String via = entrada.nextLine();
+        System.out.print("Introduce el número: ");
+        String numero = entrada.nextLine();
+        System.out.print("Introduce el código postal: ");
+        String cp = entrada.nextLine();
+        System.out.print("Introduce la localidad: ");
+        String localidad = entrada.nextLine();
+        return new Direccion(via, numero, cp, localidad);
     }
 
     public static LocalDate leerFecha(String mensaje) {
@@ -167,7 +180,7 @@ public class Consola {
             System.out.print("Introduce el ID del usuario a borrar: ");
             String id = entrada.nextLine();
             // Creamos un usuario ficticio solo con el ID para la búsqueda
-            Usuario usuario = new Usuario(id, "Ficticio", "a@a.com");
+            Usuario usuario = new Usuario(id, "Ficticio", "a@a.com", new Direccion("Ficticia", "1", "11111", "Ficticia"));
             if (usuarios.baja(usuario)) {
                 System.out.println("Usuario borrado correctamente.");
             } else {
@@ -199,7 +212,7 @@ public class Consola {
             }
             System.out.print("Introduce el ID del usuario: ");
             String id = entrada.nextLine();
-            Usuario usuario = usuarios.buscar(new Usuario(id, "Ficticio", "a@a.com"));
+            Usuario usuario = usuarios.buscar(new Usuario(id, "Ficticio", "a@a.com", new Direccion("Ficticia", "1", "11111", "Ficticia")));
             if (usuario == null) {
                 System.out.println("ERROR: No se encuentra el usuario.");
                 return;
@@ -233,7 +246,7 @@ public class Consola {
         try {
             System.out.print("Introduce el ID del usuario: ");
             String id = entrada.nextLine();
-            Usuario usuario = usuarios.buscar(new Usuario(id, "Ficticio", "a@a.com"));
+            Usuario usuario = usuarios.buscar(new Usuario(id, "Ficticio", "a@a.com", new Direccion("Ficticia", "1", "11111", "Ficticia")));
             if (usuario == null) {
                 System.out.println("ERROR: No se encuentra el usuario.");
                 return;
