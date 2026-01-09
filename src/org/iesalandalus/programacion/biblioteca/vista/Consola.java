@@ -1,4 +1,4 @@
-package org.iesalandalus.vista;
+package org.iesalandalus.programacion.biblioteca.vista;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
