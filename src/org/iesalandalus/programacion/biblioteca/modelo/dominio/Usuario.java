@@ -3,14 +3,14 @@ import java.util.Objects;
 
 public class Usuario {
 
-    private static final String ID_PATTERN = "^[A-Z0-9]{8}$";
+    private static final String ID_PATTERN = "^\\d{8}[A-Za-z]$";
     private static final String EMAIL_BASIC = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
     private String id;
     private String nombre;
     private String email;
     private Direccion direccion;
 
-    public Usuario(String id, String nombre, String email) {
+    public Usuario(String id, String nombre, String email, Direccion direccion) {
         if (id == null || id.trim().isEmpty()) {
             throw new IllegalArgumentException("ERROR: El ID del usuario no puede ser nulo o vacío.");
         }
@@ -26,9 +26,13 @@ public class Usuario {
         if (!email.matches(EMAIL_BASIC)) {
             throw new IllegalArgumentException("ERROR: El email del usuario no es válido.");
         }
+        if (direccion == null) {
+            throw new IllegalArgumentException("ERROR: La direccion del usuario no puede ser nula.");
+        }
         this.id = id;
         this.nombre = nombre;
         this.email = email;
+        this.direccion = direccion;
     }
 
     public Usuario(Usuario usuario) {
