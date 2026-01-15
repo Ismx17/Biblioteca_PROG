@@ -109,13 +109,13 @@ public class Prestamo {
         
         Prestamo prestamo = (Prestamo) obj;
         return Objects.equals(libro.getIsbn(), prestamo.libro.getIsbn()) &&
-               Objects.equals(usuario.getId(), prestamo.usuario.getId()) &&
+               Objects.equals(usuario.getDni(), prestamo.usuario.getDni()) &&
                Objects.equals(fInicio, prestamo.fInicio);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(libro.getIsbn(), usuario.getId(), fInicio);
+        return Objects.hash(libro.getIsbn(), usuario.getDni(), fInicio);
     }
 
     @Override

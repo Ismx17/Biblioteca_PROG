@@ -35,7 +35,7 @@ public class Prestamos {
                     indice = i;
                 }
             } else {
-                if (prestamos[i].getUsuario().getId().equals(usuario.getId())) {
+                if (prestamos[i].getUsuario().getDni().equals(usuario.getDni())) {
                     if (prestamos[i].estaVencido()) {
                         throw new IllegalArgumentException("ERROR: El usuario tiene un préstamo vencido.");
                     }
@@ -60,7 +60,7 @@ public class Prestamos {
             throw new IllegalArgumentException("ERROR: La fecha no puede ser anterior a la actual.");
         }
         for (int i = 0; i < prestamos.length; i++) {
-            if (prestamos[i] != null && prestamos[i].getLibro().getIsbn().equals(isbn) && prestamos[i].getUsuario().getId().equals(idUsuario) && !prestamos[i].isDevuelto()) {
+            if (prestamos[i] != null && prestamos[i].getLibro().getIsbn().equals(isbn) && prestamos[i].getUsuario().getDni().equals(idUsuario) && !prestamos[i].isDevuelto()) {
                 prestamos[i].marcarDevuelto(fecha);
                 return true;
             }
@@ -74,14 +74,14 @@ public class Prestamos {
         }
         int contador = 0;
         for (Prestamo prestamo : prestamos) {
-            if (prestamo != null && prestamo.getUsuario().getId().equals(usuario.getId())) {
+            if (prestamo != null && prestamo.getUsuario().getDni().equals(usuario.getDni())) {
                 contador++;
             }
         }
         Prestamo[] copiaPrestamos = new Prestamo[contador];
         int j = 0;
         for (Prestamo prestamo : prestamos) {
-            if (prestamo != null && prestamo.getUsuario().getId().equals(usuario.getId())) {
+            if (prestamo != null && prestamo.getUsuario().getDni().equals(usuario.getDni())) {
                 copiaPrestamos[j++] = new Prestamo(prestamo);
             }
         }

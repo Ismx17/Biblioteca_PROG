@@ -19,7 +19,7 @@ public class Usuarios {
         int indice = -1;
         for (int i = 0; i < usuarios.length; i++) {
             if (usuarios[i] != null) {
-                if (usuarios[i].getId().equals(usuario.getId())) {
+                if (usuarios[i].getDni().equals(usuario.getDni())) {
                     throw new IllegalArgumentException("ERROR: Ya existe un usuario con ese ID.");
                 }
             } else if (indice == -1) {
@@ -37,7 +37,7 @@ public class Usuarios {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
         }
         for (int i = 0; i < usuarios.length; i++) {
-            if (usuarios[i] != null && usuarios[i].getId().equals(usuario.getId())) {
+            if (usuarios[i] != null && usuarios[i].getDni().equals(usuario.getDni())) {
                 usuarios[i] = null;
                 return true;
             }
@@ -50,7 +50,7 @@ public class Usuarios {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
         }
         for (int i = 0; i < usuarios.length; i++) {
-            if (usuarios[i] != null && usuarios[i].getId().equals(usuario.getId())) {
+            if (usuarios[i] != null && usuarios[i].getDni().equals(usuario.getDni())) {
                 return new Usuario(usuarios[i]);
             }
         }

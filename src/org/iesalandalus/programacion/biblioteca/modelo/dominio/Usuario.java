@@ -3,18 +3,18 @@ import java.util.Objects;
 
 public class Usuario {
 
-    private static final String ID_PATTERN = "^\\d{8}[A-Za-z]$";
+    private static final String DNI_PATTERN = "^\\d{8}[A-Za-z]$";
     private static final String EMAIL_BASIC = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
-    private String id;
+    private String dni;
     private String nombre;
     private String email;
     private Direccion direccion;
 
-    public Usuario(String id, String nombre, String email, Direccion direccion) {
-        if (id == null || id.trim().isEmpty()) {
+    public Usuario(String dni, String nombre, String email, Direccion direccion) {
+        if (dni == null || dni.trim().isEmpty()) {
             throw new IllegalArgumentException("ERROR: El ID del usuario no puede ser nulo o vacío.");
         }
-        if (!id.matches(ID_PATTERN)) {
+        if (!dni.matches(DNI_PATTERN)) {
             throw new IllegalArgumentException("ERROR: El ID del usuario no es válido.");
         }
         if (nombre == null || nombre.trim().isEmpty()) {
@@ -29,7 +29,7 @@ public class Usuario {
         if (direccion == null) {
             throw new IllegalArgumentException("ERROR: La direccion del usuario no puede ser nula.");
         }
-        this.id = id;
+        this.dni = dni;
         this.nombre = nombre;
         this.email = email;
         this.direccion = direccion;
@@ -39,7 +39,7 @@ public class Usuario {
         if (usuario == null) {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
         }
-        this.id = usuario.id;
+        this.dni = usuario.dni;
         this.nombre = usuario.nombre;
         this.email = usuario.email;
         if (usuario.direccion != null) {
@@ -47,18 +47,18 @@ public class Usuario {
         }
     }
 
-    public String getId() {
-        return id;
+    public String getDni() {
+        return dni;
     }
 
-    public void setId(String id) {
+    public void setDni(String id) {
         if (id == null || id.trim().isEmpty()) {
             throw new IllegalArgumentException("ERROR: El ID del usuario no puede ser nulo o vacío.");
         }
-        if (!id.matches(ID_PATTERN)) {
+        if (!id.matches(DNI_PATTERN)) {
             throw new IllegalArgumentException("ERROR: El ID del usuario no es válido.");
         }
-        this.id = id;
+        this.dni = id;
     }
 
     public String getNombre() {
@@ -103,16 +103,16 @@ public class Usuario {
             return false;
         }
         Usuario usuario = (Usuario) obj;
-        return id.equals(usuario.id) && nombre.equals(usuario.nombre) && email.equals(usuario.email) && Objects.equals(direccion, usuario.direccion);
+        return dni.equals(usuario.dni) && nombre.equals(usuario.nombre) && email.equals(usuario.email) && Objects.equals(direccion, usuario.direccion);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, nombre, email, direccion);
+        return Objects.hash(dni, nombre, email, direccion);
     }
 
     @Override
     public String toString() {
-        return "Usuario [id=" + id + ", nombre=" + nombre + ", email=" + email + ", direccion=" + direccion + "]";
+        return "Usuario [dni=" + dni + ", nombre=" + nombre + ", email=" + email + ", direccion=" + direccion + "]";
     }
 }
