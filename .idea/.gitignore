@@ -1,5 +1,0 @@
-# Archivos ignorados por defecto
-/shelf/
-/workspace.xml
-# Ruta al directorio 'home' de Maven dependiente del entorno
-/mavenHomeManager.xml
