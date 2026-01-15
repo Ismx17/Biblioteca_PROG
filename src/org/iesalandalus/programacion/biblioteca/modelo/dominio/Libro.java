@@ -3,7 +3,7 @@ import java.util.Objects;
 
 public class Libro {
     private static final String ISBN_PATTERN = "^\\d{13}$";
-    private static final int MAX_AUTORES = 2;
+    private static final int MAX_AUTORES = 3;
     private String titulo;
     private String isbn;
     private Categoria categoria;
