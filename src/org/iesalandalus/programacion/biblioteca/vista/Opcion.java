@@ -17,8 +17,33 @@ public enum Opcion {
     private final int valor;
     private final String tipo;
 
+    // Constructor
     private Opcion(int valor, String tipo) {
         this.valor = valor;
         this.tipo = tipo;
+    }
+
+    // Getters
+    public int getValor() {
+        return valor;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    // Metodo estatico que devuelve la opcion a partir de su valor
+    public static Opcion get(int valor) {
+        for (Opcion opcion : values()) {
+            if (opcion.valor == valor) {
+                return opcion;
+            }
+        }
+        return null;
+    }
+
+    // Metodo estatico que devuelve la opcion a partir de su tipo
+    public static boolean esValida(int valor) {
+        return get(valor) != null;
     }
 }
