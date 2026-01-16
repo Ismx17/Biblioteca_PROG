@@ -271,6 +271,9 @@ public class Consola {
     }
 
     public static void iniciar(Libros libros, Usuarios usuarios, Prestamos prestamos) {
+        if(libros == null || usuarios == null || prestamos == null) {
+            throw new IllegalArgumentException("ERROR: Los parametros no pueden ser nulos.");
+        }
         int opcion;
         do {
             mostrarMenu();
