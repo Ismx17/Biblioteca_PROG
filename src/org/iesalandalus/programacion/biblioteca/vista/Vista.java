@@ -1,6 +1,209 @@
 package org.iesalandalus.programacion.biblioteca.vista;
 
+import java.time.LocalDate;
+
+import org.iesalandalus.programacion.biblioteca.controlador.Controlador;
+import org.iesalandalus.programacion.biblioteca.modelo.dominio.Libro;
+import org.iesalandalus.programacion.biblioteca.modelo.dominio.Prestamo;
+import org.iesalandalus.programacion.biblioteca.modelo.dominio.Usuario;
+import org.iesalandalus.programacion.utilidades.Entrada;
+
 public class Vista {
 
+    private Opcion opcion;
+    private Controlador controlador;
     
+    public Vista() {}
+
+     public void setControlador(Controlador controlador) {
+        if(controlador == null) {
+            throw new IllegalArgumentException("ERROR: El controlador no puede ser nulo.");
+        }
+        this.controlador = controlador;
+     }
+
+     public void comenzar() {
+        do {
+            Consola.mostrarMenu();
+            opcion = Consola.elegirOpcion();
+            ejecutarOpcion(opcion);
+        } while (opcion != Opcion.SALIR);
+    }
+
+    public void terminar() {
+        System.out.println("¡Hasta pronto!");
+    }
+
+    private void ejecutarOpcion(Opcion opcion) {
+        if (opcion == null) {
+            throw new IllegalArgumentException("ERROR: La opcion no puede ser nula.");
+        }
+        switch (opcion) {
+            case INSERTAR_USUARIO:
+                altaUsuario();
+                break;
+            case BORRAR_USUARIO:
+                borrarUsuario();
+                break;
+            case MOSTRAR_USUARIO:
+                mostrarUsuarios();
+                break;
+            case INSERTAR_LIBRO:
+                insertarLibro();
+                break;
+            case BORRAR_LIBRO:
+                borrarLibro();
+                break;
+            case MOSTRAR_LIBROS:
+                mostrarLibros();
+                break;
+            case NUEVO_PRESTAMO:
+                nuevoPrestamo();
+                break;
+            case DEVOLVER_PRESTAMO:
+                devolverPrestamo();
+                break;
+            case MOSTRAR_PRESTAMOS:
+                mostrarPrestamos();
+                break;
+            case MOSTRAR_PRESTAMOS_USUARIOS:
+                mostrarPrestamosUsuario();
+                break;
+            case SALIR:
+                controlador.terminar();
+                break;
+        }
+    }
+
+    public void altaUsuario() {
+        try {
+            Usuario usuario = Consola.nuevoUsuario(false);
+            controlador.alta(usuario);
+            System.out.println("Usuario insertado correctamente.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void borrarUsuario() {
+        try {
+            // Creamos un usuario ficticio solo con el DNI para la búsqueda
+            Usuario usuario = Consola.nuevoUsuario(true);
+            if (controlador.baja(usuario)) {
+                System.out.println("Usuario borrado correctamente.");
+            } else {
+                System.out.println("ERROR: No se encontró el usuario.");
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void mostrarUsuarios() {
+        try {
+            for (Usuario usuario : controlador.listadoUsuarios()) {
+                System.out.println(usuario);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void insertarLibro() {
+        try {
+            Libro libro = Consola.nuevoLibro(false);
+            controlador.alta(libro);
+            System.out.println("Libro dado de alta correctamente.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void borrarLibro() {
+        try {
+            // Creamos un libro ficticio solo con el ISBN para la búsqueda
+            Libro libro = Consola.nuevoLibro(true);
+            if (controlador.baja(libro)) {
+                System.out.println("Libro borrado correctamente.");
+            } else {
+                System.out.println("ERROR: No se encontró el libro.");
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void mostrarLibros() {
+        try {
+            for (Libro libro : controlador.listadoLibros()) {
+                System.out.println(libro);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void nuevoPrestamo() {
+        try {
+            // Buscamos el libro por ISBN
+            Libro libro = controlador.buscar(Consola.nuevoLibro(true));
+            if (libro == null) {
+                System.out.println("ERROR: No se encuentra el libro.");
+                return;
+            }
+            // Buscamos el usuario por DNI
+            Usuario usuario = controlador.buscar(Consola.nuevoUsuario(true));
+            if (usuario == null) {
+                System.out.println("ERROR: No se encuentra el usuario.");
+                return;
+            }
+            LocalDate fecha = Consola.leerFecha("Introduce la fecha de préstamo");
+            controlador.prestar(libro, usuario, fecha);
+            System.out.println("Libro prestado correctamente.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void devolverPrestamo() {
+        try {
+            // Creamos objetos ficticios para pasar al controlador
+            Libro libro = Consola.nuevoLibro(true);
+            Usuario usuario = Consola.nuevoUsuario(true);
+            LocalDate fecha = Consola.leerFecha("Introduce la fecha de devolución");
+            
+            if (controlador.devolver(libro, usuario, fecha)) {
+                System.out.println("Libro devuelto correctamente.");
+            } else {
+                System.out.println("ERROR: No se pudo devolver el libro (no existe préstamo o ya devuelto).");
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void mostrarPrestamos() {
+        try {
+            for (Prestamo prestamo : controlador.listadoPrestamos()) {
+                System.out.println(prestamo);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void mostrarPrestamosUsuario() {
+        try {
+            Usuario usuario = controlador.buscar(Consola.nuevoUsuario(true));
+            if (usuario == null) {
+                System.out.println("ERROR: No se encuentra el usuario.");
+                return;
+            }
+            for (Prestamo prestamo : controlador.listadoPrestamos(usuario)) {
+                System.out.println(prestamo);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }
