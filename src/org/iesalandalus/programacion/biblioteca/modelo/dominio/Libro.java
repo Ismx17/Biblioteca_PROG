@@ -187,20 +187,11 @@ public class Libro {
             return false;
         }
         Libro libro = (Libro) obj; // Convierte el objeto a Libro
-        boolean autoresIguales = (numAutores == libro.numAutores); // Comprueba si tienen el mismo número de autores
-        if (autoresIguales) { 
-            for (int i = 0; i < numAutores; i++) { 
-                if (!autores[i].equals(libro.autores[i])) { // Compara los autores para ver si son iguales
-                    autoresIguales = false;
-                    break;
-                }
-            }
-        }
-        return isbn.equals(libro.isbn) && autoresIguales;
+        return isbn.equals(libro.isbn);
     }
 
     public int hashCode() {
-        return Objects.hash(isbn, titulo, categoria, anio, unidadesDisponibles, autores[0], autores[1]);
+        return Objects.hash(isbn);
     }
 
     @Override

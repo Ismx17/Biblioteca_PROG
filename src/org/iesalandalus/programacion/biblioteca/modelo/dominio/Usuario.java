@@ -108,7 +108,7 @@ public class Usuario {
 
     @Override
     public int hashCode() {
-        return Objects.hash(dni, nombre, email, direccion);
+        return Objects.hash(dni);
     }
 
     @Override
