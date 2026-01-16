@@ -3,7 +3,7 @@ import java.util.Objects;
 
 public class Usuario {
 
-    private static final String DNI_PATTERN = "^\\d{8}[A-Za-z]$";
+    private static final String DNI_PATTERN =  "^[0-9]{8}[A-Za-z]$";
     private static final String EMAIL_BASIC = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
     private String dni;
     private String nombre;
@@ -53,10 +53,10 @@ public class Usuario {
 
     public void setDni(String id) {
         if (id == null || id.trim().isEmpty()) {
-            throw new IllegalArgumentException("ERROR: El ID del usuario no puede ser nulo o vacío.");
+            throw new IllegalArgumentException("ERROR: El DNI del usuario no puede ser nulo o vacío.");
         }
         if (!id.matches(DNI_PATTERN)) {
-            throw new IllegalArgumentException("ERROR: El ID del usuario no es válido.");
+            throw new IllegalArgumentException("ERROR: El DNI del usuario no es válido.");
         }
         this.dni = id;
     }
