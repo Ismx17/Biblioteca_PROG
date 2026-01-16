@@ -196,7 +196,7 @@ public class Libro {
                 }
             }
         }
-        return isbn.equals(libro.isbn) && titulo.equals(libro.titulo) && categoria.equals(libro.categoria) && anio == libro.anio && unidadesDisponibles == libro.unidadesDisponibles && autoresIguales;
+        return isbn.equals(libro.isbn) && autoresIguales;
     }
 
     public int hashCode() {
