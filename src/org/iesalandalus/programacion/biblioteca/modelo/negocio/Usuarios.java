@@ -38,7 +38,11 @@ public class Usuarios {
         }
         for (int i = 0; i < usuarios.length; i++) {
             if (usuarios[i] != null && usuarios[i].getDni().equals(usuario.getDni())) {
-                usuarios[i] = null;
+                int j;
+                for (j = i; j < usuarios.length - 1; j++) {
+                    usuarios[j] = usuarios[j + 1];
+                }
+                usuarios[j] = null;
                 return true;
             }
         }
