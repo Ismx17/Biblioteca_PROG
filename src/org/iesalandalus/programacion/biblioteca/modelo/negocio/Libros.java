@@ -54,7 +54,7 @@ public class Libros {
         }
         for (int i = 0; i < libros.length; i++) {
             if (libros[i] != null && libros[i].getIsbn().equals(libro.getIsbn())) {
-                return new Libro(libros[i]);
+                return libros[i];
             }
         }
         return null;
