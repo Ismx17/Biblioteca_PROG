@@ -28,11 +28,12 @@ public class Consola {
         System.out.println("2.- Baja de libro.");
         System.out.println("3.- Listado de libros.");
         System.out.println("4.- Alta de usuario.");
-        System.out.println("5.- Listado de usuarios.");
-        System.out.println("6.- Prestar libro.");
-        System.out.println("7.- Devolver libro.");
-        System.out.println("8.- Listado de préstamos de un usuario.");
-        System.out.println("9.- Listado de préstamos (Histórico).");
+        System.out.println("5.- Baja usuario");
+        System.out.println("6.- Listado de usuarios.");
+        System.out.println("7.- Prestar libro.");
+        System.out.println("8.- Devolver libro.");
+        System.out.println("9.- Listado de préstamos de un usuario.");
+        System.out.println("10.- Listado de préstamos (Histórico).");
         System.out.println("");
         System.out.println("0.- Salir.");
         System.out.println("");
@@ -42,7 +43,7 @@ public class Consola {
         int opcion;
         do {
             opcion = leerEntero("Elige una opción: ");
-        } while (opcion < 0 || opcion > 9);
+        } while (opcion < 0 || opcion > 10);
         return opcion;
     }
 
@@ -288,18 +289,21 @@ public class Consola {
                     altaUsuario(usuarios);
                     break;
                 case 5:
-                    listarUsuarios(usuarios);
+                    bajaUsuario(usuarios);
                     break;
                 case 6:
-                    prestarLibro(prestamos, libros, usuarios);
+                    listarUsuarios(usuarios);
                     break;
                 case 7:
-                    devolverLibro(prestamos);
+                    prestarLibro(prestamos, libros, usuarios);
                     break;
                 case 8:
-                    listarPrestamosUsuario(prestamos, usuarios);
+                    devolverLibro(prestamos);
                     break;
                 case 9:
+                    listarPrestamosUsuario(prestamos, usuarios);
+                    break;
+                case 10:
                     listarPrestamos(prestamos);
                     break;
                 case 0:
