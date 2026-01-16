@@ -6,7 +6,6 @@ import org.iesalandalus.programacion.biblioteca.controlador.Controlador;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Libro;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Prestamo;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Usuario;
-import org.iesalandalus.programacion.utilidades.Entrada;
 
 public class Vista {
 

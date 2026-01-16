@@ -69,7 +69,14 @@ public class Modelo {
     }
 
     public boolean devolver(Libro libro, Usuario usuario, LocalDate fecha) {
-        return prestamos.devolver(libro.getIsbn(), usuario.getDni(), fecha);
+        boolean devuelto = prestamos.devolver(libro.getIsbn(), usuario.getDni(), fecha);
+        if (devuelto) {
+            Libro libroReal = libros.buscar(libro);
+            if (libroReal != null) {
+                libroReal.devolverUnidad();
+            }
+        }
+        return devuelto;
     }
 
     public Prestamo[] listadoPrestamos(Usuario usuario) {

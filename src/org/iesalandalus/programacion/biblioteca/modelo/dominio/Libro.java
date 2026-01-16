@@ -123,7 +123,7 @@ public class Libro {
             throw new IllegalArgumentException("ERROR: El autor no puede ser nulo.");
         }
         if (numAutores >= MAX_AUTORES) {
-            throw new IllegalArgumentException("ERROR: El libro no puede tener más de 2 autores.");
+            throw new IllegalArgumentException("ERROR: El libro no puede tener más de 3 autores.");
         }
         autores[numAutores] = autor;
         numAutores++;
@@ -142,7 +142,7 @@ public class Libro {
             throw new IllegalArgumentException("ERROR: Los autores no pueden ser nulos.");
         }
         if (autores.length > MAX_AUTORES) {
-            throw new IllegalArgumentException("ERROR: El libro no puede tener más de 2 autores.");
+            throw new IllegalArgumentException("ERROR: El libro no puede tener más de 3 autores.");
         }
         this.autores = new Autor[MAX_AUTORES]; // Crea un array de autores con el tamaño correcto
         this.numAutores = 0; // Reinicia el numero de autores a 0
