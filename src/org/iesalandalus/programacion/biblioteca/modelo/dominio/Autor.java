@@ -18,18 +18,18 @@ public class Autor {
         if (nacionalidad == null || nacionalidad.trim().isEmpty()) {
             throw new IllegalArgumentException("ERROR: la nacionalidad del autor no puede ser nulo o vacío.");
         }
-        this.nombre = nombre;
-        this.apellidos = apellidos;
-        this.nacionalidad = nacionalidad;
+        this.nombre = getNombre();
+        this.apellidos = getApellidos();
+        this.nacionalidad = getNacionalidad();
     }
 
     public Autor(Autor autor) {
         if (autor == null) {
             throw new IllegalArgumentException("ERROR: El autor no puede ser nulo.");
         }
-        this.nombre = autor.nombre;
-        this.apellidos = autor.apellidos;
-        this.nacionalidad = autor.nacionalidad;
+        this.nombre = autor.getNombre();
+        this.apellidos = autor.getApellidos();
+        this.nacionalidad = autor.getNacionalidad();
     }
 
     public String getNombre() {

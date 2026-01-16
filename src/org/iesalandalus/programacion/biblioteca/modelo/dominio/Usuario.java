@@ -39,11 +39,11 @@ public class Usuario {
         if (usuario == null) {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
         }
-        this.dni = usuario.dni;
-        this.nombre = usuario.nombre;
-        this.email = usuario.email;
-        if (usuario.direccion != null) {
-            this.direccion = new Direccion(usuario.direccion);
+        this.dni = usuario.getDni();
+        this.nombre = usuario.getNombre();
+        this.email = usuario.getEmail();
+        if (usuario.getDireccion() != null) {
+            this.direccion = new Direccion(usuario.getDireccion());
         }
     }
 

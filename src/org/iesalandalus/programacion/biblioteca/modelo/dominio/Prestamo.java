@@ -41,12 +41,12 @@ public class Prestamo {
         if (prestamo == null) {
             throw new IllegalArgumentException("ERROR: El préstamo no puede ser nulo.");
         }
-        this.libro = new Libro(prestamo.libro);
-        this.usuario = new Usuario(prestamo.usuario);
-        this.fInicio = prestamo.fInicio;
-        this.fLimite = prestamo.fLimite;
+        this.libro = new Libro(prestamo.getLibro());
+        this.usuario = new Usuario(prestamo.getUsuario());
+        this.fInicio = prestamo.getfInicio();
+        this.fLimite = prestamo.getfLimite();
         this.devuelto = prestamo.devuelto;
-        this.fDevolucion = prestamo.fDevolucion;
+        this.fDevolucion = prestamo.getfDevolucion();
     }
 
     public Libro getLibro() {
