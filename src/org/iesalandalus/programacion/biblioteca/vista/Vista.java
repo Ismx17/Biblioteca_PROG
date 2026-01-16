@@ -40,7 +40,7 @@ public class Vista {
         }
         switch (opcion) {
             case INSERTAR_USUARIO:
-                altaUsuario();
+                insertarUsuario();
                 break;
             case BORRAR_USUARIO:
                 borrarUsuario();
@@ -75,7 +75,7 @@ public class Vista {
         }
     }
 
-    public void altaUsuario() {
+    private void insertarUsuario() {
         try {
             Usuario usuario = Consola.nuevoUsuario(false);
             controlador.alta(usuario);
@@ -85,7 +85,7 @@ public class Vista {
         }
     }
 
-    public void borrarUsuario() {
+    private void borrarUsuario() {
         try {
             // Creamos un usuario ficticio solo con el DNI para la búsqueda
             Usuario usuario = Consola.nuevoUsuario(true);
@@ -99,7 +99,7 @@ public class Vista {
         }
     }
 
-    public void mostrarUsuarios() {
+    private void mostrarUsuarios() {
         try {
             for (Usuario usuario : controlador.listadoUsuarios()) {
                 System.out.println(usuario);
@@ -109,7 +109,7 @@ public class Vista {
         }
     }
 
-    public void insertarLibro() {
+    private void insertarLibro() {
         try {
             Libro libro = Consola.nuevoLibro(false);
             controlador.alta(libro);
@@ -119,7 +119,7 @@ public class Vista {
         }
     }
 
-    public void borrarLibro() {
+    private void borrarLibro() {
         try {
             // Creamos un libro ficticio solo con el ISBN para la búsqueda
             Libro libro = Consola.nuevoLibro(true);
@@ -133,7 +133,7 @@ public class Vista {
         }
     }
 
-    public void mostrarLibros() {
+    private void mostrarLibros() {
         try {
             for (Libro libro : controlador.listadoLibros()) {
                 System.out.println(libro);
@@ -143,7 +143,7 @@ public class Vista {
         }
     }
 
-    public void nuevoPrestamo() {
+    private void nuevoPrestamo() {
         try {
             // Buscamos el libro por ISBN
             Libro libro = controlador.buscar(Consola.nuevoLibro(true));
@@ -165,7 +165,7 @@ public class Vista {
         }
     }
 
-    public void devolverPrestamo() {
+    private void devolverPrestamo() {
         try {
             // Creamos objetos ficticios para pasar al controlador
             Libro libro = Consola.nuevoLibro(true);
@@ -182,7 +182,7 @@ public class Vista {
         }
     }
 
-    public void mostrarPrestamos() {
+    private void mostrarPrestamos() {
         try {
             for (Prestamo prestamo : controlador.listadoPrestamos()) {
                 System.out.println(prestamo);
@@ -192,7 +192,7 @@ public class Vista {
         }
     }
 
-    public void mostrarPrestamosUsuario() {
+    private void mostrarPrestamosUsuario() {
         try {
             Usuario usuario = controlador.buscar(Consola.nuevoUsuario(true));
             if (usuario == null) {
