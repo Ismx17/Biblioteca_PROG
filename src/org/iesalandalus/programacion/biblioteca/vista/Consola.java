@@ -3,19 +3,15 @@ package org.iesalandalus.programacion.biblioteca.vista;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Scanner;
+
+import org.iesalandalus.programacion.biblioteca.modelo.dominio.Autor;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Categoria;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Direccion;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Libro;
-import org.iesalandalus.programacion.biblioteca.modelo.dominio.Prestamo;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Usuario;
-import org.iesalandalus.programacion.biblioteca.modelo.negocio.Libros;
-import org.iesalandalus.programacion.biblioteca.modelo.negocio.Prestamos;
-import org.iesalandalus.programacion.biblioteca.modelo.negocio.Usuarios;
+import org.iesalandalus.programacion.utilidades.Entrada;
 
 public class Consola {
-
-    private static final Scanner entrada = new Scanner(System.in);
 
     private Consola() {}
 
@@ -24,62 +20,84 @@ public class Consola {
         System.out.println("                                   GESTIÓN DE BIBLIOTECA");
         System.out.println("-------------------------------------------------------------------------------------------------");
         System.out.println("");
-        System.out.println("1.- Alta de libro.");
-        System.out.println("2.- Baja de libro.");
-        System.out.println("3.- Listado de libros.");
-        System.out.println("4.- Alta de usuario.");
-        System.out.println("5.- Baja usuario");
-        System.out.println("6.- Listado de usuarios.");
-        System.out.println("7.- Prestar libro.");
-        System.out.println("8.- Devolver libro.");
-        System.out.println("9.- Listado de préstamos de un usuario.");
-        System.out.println("10.- Listado de préstamos (Histórico).");
+        System.out.println("1.- Insertar Usuario");
+        System.out.println("2.- Borrar Usuario.");
+        System.out.println("3.- Mostrar Usuario");
+        System.out.println("4.- Insertar Libro");
+        System.out.println("5.- Borrar Libro");
+        System.out.println("6.- Mostrar Libros");
+        System.out.println("7.- Nuevo Prestamo");
+        System.out.println("8.- Devolver Prestamo");
+        System.out.println("9.- Mostrar Prestamos");
+        System.out.println("10.- Mostrar Prestamos Usuarios");
         System.out.println("");
         System.out.println("0.- Salir.");
         System.out.println("");
     }
 
-    public static int elegirOpcion() {
+    public static Opcion elegirOpcion() {
         int opcion;
         do {
             opcion = leerEntero("Elige una opción: ");
-        } while (opcion < 0 || opcion > 10);
-        return opcion;
+        } while (!Opcion.esValida(opcion));
+        return Opcion.get(opcion);
     }
 
-    public static Libro leerLibro() {
-        System.out.print("Introduce el título: ");
-        String titulo = entrada.nextLine();
+    public static Usuario nuevoUsuario(boolean paraBuscar) {
+        System.out.print("Introduce el DNI: ");
+        String dni = Entrada.cadena();
+        if (paraBuscar) {
+            return new Usuario(dni, "Ficticio", "a@a.com", new Direccion("Ficticia", "1", "11111", "Ficticia"));
+        }
+        System.out.print("Introduce el nombre: ");
+        String nombre = Entrada.cadena();
+        System.out.print("Introduce el correo: ");
+        String correo = Entrada.cadena();
+        System.out.print("Introduce la vía: ");
+        String via = Entrada.cadena();
+        System.out.print("Introduce el número: ");
+        String numero = Entrada.cadena();
+        System.out.print("Introduce el código postal: ");
+        String cp = Entrada.cadena();
+        System.out.print("Introduce la localidad: ");
+        String localidad = Entrada.cadena();
+        return new Usuario(dni, nombre, correo, new Direccion(via, numero, cp, localidad));
+    }
+
+    public static Libro nuevoLibro(boolean paraBuscar) {
         System.out.print("Introduce el ISBN: ");
-        String isbn = entrada.nextLine();
+        String isbn = Entrada.cadena();
+        if (paraBuscar) {
+            return new Libro(isbn, "Ficticio", 1, Categoria.OTROS, 1);
+        }
+        System.out.print("Introduce el título: ");
+        String titulo = Entrada.cadena();
         int anio = leerEntero("Introduce el año de publicación: ");
         Categoria categoria = leerCategoria();
         int unidades = leerEntero("Introduce el número de unidades: ");
-        
-        return new Libro(isbn, titulo, anio, categoria, unidades);
-    }
-    
-    public static Usuario leerUsuario() {
-        System.out.print("Introduce el nombre: ");
-        String nombre = entrada.nextLine();
-        System.out.print("Introduce el ID: ");
-        String id = entrada.nextLine();
-        System.out.print("Introduce el correo: ");
-        String correo = entrada.nextLine();
-        Direccion direccion = leerDireccion();
-        return new Usuario(id, nombre, correo, direccion);
+        Libro libro = new Libro(isbn, titulo, anio, categoria, unidades);
+        int numAutores;
+        do {
+            numAutores = leerEntero("Introduce el número de autores (1-3): ");
+        } while (numAutores < 1 || numAutores > 3);
+        for (int i = 0; i < numAutores; i++) {
+            libro.addAutor(nuevoAutor());
+        }
+        return libro;
     }
 
-    private static Direccion leerDireccion() {
-        System.out.print("Introduce la vía: ");
-        String via = entrada.nextLine();
-        System.out.print("Introduce el número: ");
-        String numero = entrada.nextLine();
-        System.out.print("Introduce el código postal: ");
-        String cp = entrada.nextLine();
-        System.out.print("Introduce la localidad: ");
-        String localidad = entrada.nextLine();
-        return new Direccion(via, numero, cp, localidad);
+    private static Autor nuevoAutor() {
+        System.out.print("Introduce el nombre: ");
+        String nombre = Entrada.cadena();
+        System.out.print("Introduce los apellidos: ");
+        String apellidos = Entrada.cadena();
+        System.out.print("Introduce la nacionalidad: ");
+        String nacionalidad = Entrada.cadena();
+        return new Autor(nombre, apellidos, nacionalidad);
+    }
+
+    public static LocalDate leerFecha() {
+        return LocalDate.now();
     }
 
     public static LocalDate leerFecha(String mensaje) {
@@ -89,7 +107,7 @@ public class Consola {
         do {
             try {
                 System.out.print(mensaje + " (dd/MM/yyyy): ");
-                fecha = LocalDate.parse(entrada.nextLine(), formato);
+                fecha = LocalDate.parse(Entrada.cadena(), formato);
                 fechaCorrecta = true;
             } catch (DateTimeParseException e) {
                 System.out.println("ERROR: El formato de la fecha no es correcto.");
@@ -99,18 +117,8 @@ public class Consola {
     }
 
     private static int leerEntero(String mensaje) {
-        int entero = 0;
-        boolean enteroCorrecto = false;
-        do {
-            try {
-                System.out.print(mensaje);
-                entero = Integer.parseInt(entrada.nextLine());
-                enteroCorrecto = true;
-            } catch (NumberFormatException e) {
-                System.out.println("ERROR: Debes introducir un número entero.");
-            }
-        } while (!enteroCorrecto);
-        return entero;
+        System.out.print(mensaje);
+        return Entrada.entero();
     }
 
     private static Categoria leerCategoria() {
@@ -119,200 +127,9 @@ public class Consola {
             System.out.println(categoria.ordinal() + ".- " + categoria.name());
         }
         int ordinal;
-        Categoria categoria = null;
         do {
             ordinal = leerEntero("Elige una categoría: ");
-            categoria = Categoria.get(ordinal);
-            if (categoria == null) {
-                System.out.println("ERROR: Categoría no válida.");
-            }
-        } while (categoria == null);
-        return categoria;
-    }
-
-    public static void altaLibro(Libros libros) {
-        try {
-            Libro libro = leerLibro();
-            libros.alta(libro);
-            System.out.println("Libro dado de alta correctamente.");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void bajaLibro(Libros libros) {
-        try {
-            System.out.print("Introduce el ISBN del libro a borrar: ");
-            String isbn = entrada.nextLine();
-            // Creamos un libro ficticio solo con el ISBN para la búsqueda
-            Libro libro = new Libro(isbn, "Ficticio", 1, Categoria.OTROS, 1);
-            if (libros.baja(libro)) {
-                System.out.println("Libro borrado correctamente.");
-            } else {
-                System.out.println("ERROR: No se encontró el libro.");
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void listarLibros(Libros libros) {
-        try {
-            for (Libro libro : libros.todos()) {
-                System.out.println(libro);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void altaUsuario(Usuarios usuarios) {
-        try {
-            Usuario usuario = leerUsuario();
-            usuarios.alta(usuario);
-            System.out.println("Usuario dado de alta correctamente.");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void bajaUsuario(Usuarios usuarios) {
-        try {
-            System.out.print("Introduce el ID del usuario a borrar: ");
-            String id = entrada.nextLine();
-            // Creamos un usuario ficticio solo con el ID para la búsqueda
-            Usuario usuario = new Usuario(id, "Ficticio", "a@a.com", new Direccion("Ficticia", "1", "11111", "Ficticia"));
-            if (usuarios.baja(usuario)) {
-                System.out.println("Usuario borrado correctamente.");
-            } else {
-                System.out.println("ERROR: No se encontró el usuario.");
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void listarUsuarios(Usuarios usuarios) {
-        try {
-            for (Usuario usuario : usuarios.todos()) {
-                System.out.println(usuario);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void prestarLibro(Prestamos prestamos, Libros libros, Usuarios usuarios) {
-        try {
-            System.out.print("Introduce el ISBN del libro: ");
-            String isbn = entrada.nextLine();
-            Libro libro = libros.buscar(new Libro(isbn, "Ficticio", 1, Categoria.OTROS, 1));
-            if (libro == null) {
-                System.out.println("ERROR: No se encuentra el libro.");
-                return;
-            }
-            System.out.print("Introduce el ID del usuario: ");
-            String id = entrada.nextLine();
-            Usuario usuario = usuarios.buscar(new Usuario(id, "Ficticio", "a@a.com", new Direccion("Ficticia", "1", "11111", "Ficticia")));
-            if (usuario == null) {
-                System.out.println("ERROR: No se encuentra el usuario.");
-                return;
-            }
-            LocalDate fecha = leerFecha("Introduce la fecha de préstamo");
-            prestamos.prestar(libro, usuario, fecha);
-            System.out.println("Libro prestado correctamente.");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void devolverLibro(Prestamos prestamos) {
-        try {
-            System.out.print("Introduce el ISBN del libro: ");
-            String isbn = entrada.nextLine();
-            System.out.print("Introduce el ID del usuario: ");
-            String id = entrada.nextLine();
-            LocalDate fecha = leerFecha("Introduce la fecha de devolución");
-            if (prestamos.devolver(isbn, id, fecha)) {
-                System.out.println("Libro devuelto correctamente.");
-            } else {
-                System.out.println("ERROR: No se pudo devolver el libro (no existe préstamo o ya devuelto).");
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void listarPrestamosUsuario(Prestamos prestamos, Usuarios usuarios) {
-        try {
-            System.out.print("Introduce el ID del usuario: ");
-            String id = entrada.nextLine();
-            Usuario usuario = usuarios.buscar(new Usuario(id, "Ficticio", "a@a.com", new Direccion("Ficticia", "1", "11111", "Ficticia")));
-            if (usuario == null) {
-                System.out.println("ERROR: No se encuentra el usuario.");
-                return;
-            }
-            for (Prestamo prestamo : prestamos.prestamosUsuario(usuario)) {
-                System.out.println(prestamo);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void listarPrestamos(Prestamos prestamos) {
-        try {
-            for (Prestamo prestamo : prestamos.historico()) {
-                System.out.println(prestamo);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void iniciar(Libros libros, Usuarios usuarios, Prestamos prestamos) {
-        if(libros == null || usuarios == null || prestamos == null) {
-            throw new IllegalArgumentException("ERROR: Los parametros no pueden ser nulos.");
-        }
-        int opcion;
-        do {
-            mostrarMenu();
-            opcion = elegirOpcion();
-            switch (opcion) {
-                case 1:
-                    altaLibro(libros);
-                    break;
-                case 2:
-                    bajaLibro(libros);
-                    break;
-                case 3:
-                    listarLibros(libros);
-                    break;
-                case 4:
-                    altaUsuario(usuarios);
-                    break;
-                case 5:
-                    bajaUsuario(usuarios);
-                    break;
-                case 6:
-                    listarUsuarios(usuarios);
-                    break;
-                case 7:
-                    prestarLibro(prestamos, libros, usuarios);
-                    break;
-                case 8:
-                    devolverLibro(prestamos);
-                    break;
-                case 9:
-                    listarPrestamosUsuario(prestamos, usuarios);
-                    break;
-                case 10:
-                    listarPrestamos(prestamos);
-                    break;
-                case 0:
-                    System.out.println("¡Adios!");
-                    break;
-            }
-        } while (opcion != 0);
+        } while (Categoria.get(ordinal) == null);
+        return Categoria.get(ordinal);
     }
 }
