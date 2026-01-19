@@ -26,27 +26,24 @@ public class Prestamo {
             throw new IllegalArgumentException("ERROR: No hay unidades disponibles del libro.");
         }
         
-        this.libro = new Libro(libro);
-        this.usuario = new Usuario(usuario);
+        this.libro = libro;
+        this.usuario = usuario;
         this.fInicio = fInicio;
-        this.fLimite = fInicio.plusDays(30);
+        this.fLimite = fInicio.plusDays(30); // El prestamo dura 30 dias
         this.devuelto = false;
         this.fDevolucion = null;
-        
-        // Descontar unidad al crear el préstamo
-        this.libro.tomarPrestado();
     }
 
     public Prestamo(Prestamo prestamo) {
         if (prestamo == null) {
             throw new IllegalArgumentException("ERROR: El préstamo no puede ser nulo.");
         }
-        this.libro = new Libro(prestamo.getLibro());
-        this.usuario = new Usuario(prestamo.getUsuario());
-        this.fInicio = prestamo.getfInicio();
-        this.fLimite = prestamo.getfLimite();
+        this.libro = prestamo.libro;
+        this.usuario = prestamo.usuario;
+        this.fInicio = prestamo.fInicio;
+        this.fLimite = prestamo.fLimite;
         this.devuelto = prestamo.devuelto;
-        this.fDevolucion = prestamo.getfDevolucion();
+        this.fDevolucion = prestamo.fDevolucion;
     }
 
     public Libro getLibro() {
@@ -74,8 +71,10 @@ public class Prestamo {
     }
 
     public int diasDeRetraso() {
+        // Miro que fecha usar segun si esta devuelto o no
         LocalDate fechaReferencia = (devuelto) ? fDevolucion : LocalDate.now();
         
+        // Si se ha pasado de la fecha limite, calculo los dias
         if (fechaReferencia.isAfter(fLimite)) {
             return (int) ChronoUnit.DAYS.between(fLimite, fechaReferencia);
         }
@@ -99,7 +98,7 @@ public class Prestamo {
         
         devuelto = true;
         fDevolucion = fecha;
-        libro.devolverUnidad();
+        libro.devolverUnidad(); // Sumo la unidad al libro
     }
 
     @Override

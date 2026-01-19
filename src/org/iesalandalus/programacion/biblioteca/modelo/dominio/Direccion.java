@@ -24,22 +24,21 @@ public class Direccion {
         if (localidad == null || localidad.trim().isEmpty()) {
             throw new IllegalArgumentException("ERROR: La localidad no puede ser nula o vacía.");
         }
-        this.via = getVia();
-        this.numero = getNumero();
-        this.cp = getCp();
-        this.localidad = getLocalidad();
+        this.via = via;
+        this.numero = numero;
+        this.cp = cp;
+        this.localidad = localidad;
     }
 
-    // Constructor copia que permite que cada Usuario tenga su propia dirección independiente, 
-    // protegiendo la integridad de los datos cuando se duplican objetos.
+    // Constructor copia para tener una direccion independiente
     public Direccion(Direccion direccion) {
         if (direccion == null) {
             throw new IllegalArgumentException("ERROR: La dirección no puede ser nula.");
         }
-        this.via = direccion.getVia();
-        this.numero = direccion.getNumero();
-        this.cp = direccion.getCp();
-        this.localidad = direccion.getLocalidad();
+        this.via = direccion.via;
+        this.numero = direccion.numero;
+        this.cp = direccion.cp;
+        this.localidad = direccion.localidad;
     }
 
     public String getVia() {

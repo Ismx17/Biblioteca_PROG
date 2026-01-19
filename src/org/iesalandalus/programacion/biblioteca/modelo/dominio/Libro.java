@@ -12,7 +12,7 @@ public class Libro {
     private Autor[] autores;
     private int numAutores;
 
-    // Creacion del constructor
+    // Constructor con validaciones
     public Libro(String isbn, String titulo, int anio, Categoria categoria, int unidadesDisponibles) {
         if (isbn == null || isbn.trim().isEmpty()) {
             throw new IllegalArgumentException("ERROR: El ISBN del libro no puede ser nulo o vacío.");
@@ -33,11 +33,11 @@ public class Libro {
             throw new IllegalArgumentException("ERROR: Las unidades disponibles del libro no pueden ser negativas.");
         }
 
-        this.isbn = getIsbn();
-        this.titulo = getTitulo();
-        this.categoria = getCategoria();
-        this.anio = getAnio();
-        this.unidadesDisponibles = getUnidadesDisponibles();
+        this.isbn = isbn;
+        this.titulo = titulo;
+        this.categoria = categoria;
+        this.anio = anio;
+        this.unidadesDisponibles = unidadesDisponibles;
         this.autores = new Autor[MAX_AUTORES];
         this.numAutores = 0;
     }
@@ -47,11 +47,11 @@ public class Libro {
         if (libro == null) {
             throw new IllegalArgumentException("ERROR: El libro no puede ser nulo.");
         }
-        this.isbn = libro.getIsbn();
-        this.titulo = libro.getTitulo();
-        this.categoria = libro.getCategoria();
-        this.anio = libro.getAnio();
-        this.unidadesDisponibles = libro.getUnidadesDisponibles();
+        this.isbn = libro.isbn;
+        this.titulo = libro.titulo;
+        this.categoria = libro.categoria;
+        this.anio = libro.anio;
+        this.unidadesDisponibles = libro.unidadesDisponibles;
         this.autores = new Autor[MAX_AUTORES]; 
         this.numAutores = libro.numAutores;
         for (int i = 0; i < libro.numAutores; i++) { // Recorre el array dee autores
@@ -122,10 +122,11 @@ public class Libro {
         if (autor == null) {
             throw new IllegalArgumentException("ERROR: El autor no puede ser nulo.");
         }
+        // Compruebo que no supero el maximo de autores
         if (numAutores >= MAX_AUTORES) {
             throw new IllegalArgumentException("ERROR: El libro no puede tener más de 3 autores.");
         }
-        autores[numAutores] = autor;
+        autores[numAutores] = new Autor(autor); // Añado una copia del autor
         numAutores++;
     }
 
@@ -150,7 +151,7 @@ public class Libro {
             if (autor == null) {
                 throw new IllegalArgumentException("ERROR: El autor no puede ser nulo.");
             }
-            this.autores[numAutores] = autor; // Copia los autores al array
+            this.autores[numAutores] = new Autor(autor); // Copia los autores al array
             numAutores++; // Incrementa el numero de autores 
         }
     }
@@ -167,6 +168,7 @@ public class Libro {
     }
 
     public void tomarPrestado() {
+        // Si hay unidades, resto una
         if (unidadesDisponibles > 0) {
             unidadesDisponibles--; // Decrementa el numero de unidades disponibles
         } else {
@@ -175,6 +177,7 @@ public class Libro {
     }
 
     public void devolverUnidad() {
+        // Sumo una unidad al devolver
         unidadesDisponibles++; // Incrementa el numero de unidades disponibles
     }
 

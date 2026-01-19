@@ -19,6 +19,7 @@ public class Modelo {
     public Modelo() {}
 
     public void comenzar() {
+        // Inicializo las estructuras de datos
         libros = new Libros(CAPACIDAD);
         usuarios = new Usuarios(CAPACIDAD);
         prestamos = new Prestamos(CAPACIDAD);
@@ -69,14 +70,7 @@ public class Modelo {
     }
 
     public boolean devolver(Libro libro, Usuario usuario, LocalDate fecha) {
-        boolean devuelto = prestamos.devolver(libro.getIsbn(), usuario.getDni(), fecha);
-        if (devuelto) {
-            Libro libroReal = libros.buscar(libro);
-            if (libroReal != null) {
-                libroReal.devolverUnidad();
-            }
-        }
-        return devuelto;
+        return prestamos.devolver(libro.getIsbn(), usuario.getDni(), fecha);
     }
 
     public Prestamo[] listadoPrestamos(Usuario usuario) {

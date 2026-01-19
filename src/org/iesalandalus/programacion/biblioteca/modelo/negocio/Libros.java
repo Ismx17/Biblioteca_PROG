@@ -16,13 +16,15 @@ public class Libros {
             throw new IllegalArgumentException("ERROR: El libro no puede ser nulo.");
         }
         int indice = -1;
+        // Recorro el array para ver si existe y buscar hueco
         for (int i = 0; i < libros.length; i++) {
             if (libros[i] != null) {
+                // Si encuentro el ISBN, lanzo error
                 if (libros[i].getIsbn().equals(libro.getIsbn())) {
                     throw new IllegalArgumentException("ERROR: Ya existe un libro con ese ISBN.");
                 }
             } else if (indice == -1) {
-                indice = i;
+                indice = i; // Me guardo la posicion libre
             }
         }
         if (indice == -1) {
@@ -37,6 +39,7 @@ public class Libros {
         }
         for (int i = 0; i < libros.length; i++) {
             if (libros[i] != null && libros[i].getIsbn().equals(libro.getIsbn())) {
+                // Si lo encuentro, desplazo los demas para no dejar huecos
                 int j;
                 for (j = i; j < libros.length - 1; j++) {
                     libros[j] = libros[j + 1];
@@ -61,12 +64,14 @@ public class Libros {
     }
 
     public Libro[] todos() {
+        // Cuento los libros que hay de verdad
         int contador = 0;
         for (Libro libro : libros) {
             if (libro != null) {
                 contador++;
             }
         }
+        // Creo un array con el tamaño justo y copio los libros
         Libro[] copiaLibros = new Libro[contador];
         int j = 0;
         for (Libro libro : libros) {

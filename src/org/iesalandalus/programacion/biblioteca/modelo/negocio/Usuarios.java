@@ -17,6 +17,7 @@ public class Usuarios {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
         }
         int indice = -1;
+        // Busco si ya existe y si hay sitio
         for (int i = 0; i < usuarios.length; i++) {
             if (usuarios[i] != null) {
                 if (usuarios[i].getDni().equals(usuario.getDni())) {
@@ -39,6 +40,7 @@ public class Usuarios {
         for (int i = 0; i < usuarios.length; i++) {
             if (usuarios[i] != null && usuarios[i].getDni().equals(usuario.getDni())) {
                 int j;
+                // Desplazo para compactar el array
                 for (j = i; j < usuarios.length - 1; j++) {
                     usuarios[j] = usuarios[j + 1];
                 }
@@ -55,7 +57,7 @@ public class Usuarios {
         }
         for (int i = 0; i < usuarios.length; i++) {
             if (usuarios[i] != null && usuarios[i].getDni().equals(usuario.getDni())) {
-                return new Usuario(usuarios[i]);
+                return usuarios[i];
             }
         }
         return null;

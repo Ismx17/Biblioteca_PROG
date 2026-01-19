@@ -77,10 +77,10 @@ public class Vista {
     private void insertarUsuario() {
         try {
             Usuario usuario = Consola.nuevoUsuario(false);
-            controlador.alta(usuario);
+            controlador.alta(usuario); // Intento dar de alta
             System.out.println("Usuario insertado correctamente.");
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println(e.getMessage()); // Muestro el error si falla
         }
     }
 

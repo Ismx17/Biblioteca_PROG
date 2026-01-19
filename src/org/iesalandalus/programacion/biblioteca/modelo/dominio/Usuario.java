@@ -3,7 +3,7 @@ import java.util.Objects;
 
 public class Usuario {
 
-    private static final String DNI_PATTERN =  "^[0-9]{8}[A-Za-z]$";
+    private static final String DNI_PATTERN = "^\\d{8}[A-Za-z]$";
     private static final String EMAIL_BASIC = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
     private String dni;
     private String nombre;
@@ -11,6 +11,7 @@ public class Usuario {
     private Direccion direccion;
 
     public Usuario(String dni, String nombre, String email, Direccion direccion) {
+        // Valido que los datos sean correctos antes de crear el usuario
         if (dni == null || dni.trim().isEmpty()) {
             throw new IllegalArgumentException("ERROR: El ID del usuario no puede ser nulo o vacío.");
         }
@@ -32,18 +33,19 @@ public class Usuario {
         this.dni = dni;
         this.nombre = nombre;
         this.email = email;
-        this.direccion = direccion;
+        this.direccion = new Direccion(direccion); // Creo una copia de la direccion
     }
 
+    // Constructor copia
     public Usuario(Usuario usuario) {
         if (usuario == null) {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
         }
-        this.dni = usuario.getDni();
-        this.nombre = usuario.getNombre();
-        this.email = usuario.getEmail();
-        if (usuario.getDireccion() != null) {
-            this.direccion = new Direccion(usuario.getDireccion());
+        this.dni = usuario.dni;
+        this.nombre = usuario.nombre;
+        this.email = usuario.email;
+        if (usuario.direccion != null) {
+            this.direccion = new Direccion(usuario.direccion);
         }
     }
 
@@ -53,10 +55,10 @@ public class Usuario {
 
     public void setDni(String id) {
         if (id == null || id.trim().isEmpty()) {
-            throw new IllegalArgumentException("ERROR: El DNI del usuario no puede ser nulo o vacío.");
+            throw new IllegalArgumentException("ERROR: El ID del usuario no puede ser nulo o vacío.");
         }
         if (!id.matches(DNI_PATTERN)) {
-            throw new IllegalArgumentException("ERROR: El DNI del usuario no es válido.");
+            throw new IllegalArgumentException("ERROR: El ID del usuario no es válido.");
         }
         this.dni = id;
     }
@@ -87,11 +89,14 @@ public class Usuario {
     }
 
     public Direccion getDireccion() {
-        return direccion;
+        return new Direccion(direccion); // Devuelvo una copia para proteger el original
     }
 
     public void setDireccion(Direccion direccion) {
-        this.direccion = direccion;
+        if (direccion == null) {
+            throw new IllegalArgumentException("ERROR: La direccion del usuario no puede ser nula.");
+        }
+        this.direccion = new Direccion(direccion);
     }
 
     @Override

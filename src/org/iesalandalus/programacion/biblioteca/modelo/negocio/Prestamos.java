@@ -29,10 +29,11 @@ public class Prestamos {
         }
 
         int indice = -1;
+        // Compruebo que el usuario no tenga prestamos vencidos o repetidos
         for (int i = 0; i < prestamos.length; i++) {
             if (prestamos[i] == null) {
                 if (indice == -1) {
-                    indice = i;
+                    indice = i; // Guardo el sitio libre
                 }
             } else {
                 if (prestamos[i].getUsuario().getDni().equals(usuario.getDni())) {
@@ -49,10 +50,10 @@ public class Prestamos {
             throw new IllegalArgumentException("ERROR: No hay espacio para mas prestamos.");
         }
         prestamos[indice] = new Prestamo(libro, usuario, fecha);
-        libro.tomarPrestado();
+        libro.tomarPrestado(); // Actualizo las unidades del libro
     }
 
-    public Boolean devolver(String isbn, String idUsuario, LocalDate fecha) {
+    public boolean devolver(String isbn, String idUsuario, LocalDate fecha) {
         if (isbn == null || idUsuario == null || fecha == null) {
             throw new IllegalArgumentException("ERROR: Los parametros no pueden ser nulos.");
         }
@@ -60,6 +61,7 @@ public class Prestamos {
             throw new IllegalArgumentException("ERROR: La fecha no puede ser anterior a la actual.");
         }
         for (int i = 0; i < prestamos.length; i++) {
+            // Busco el prestamo activo de ese usuario y libro
             if (prestamos[i] != null && prestamos[i].getLibro().getIsbn().equals(isbn) && prestamos[i].getUsuario().getDni().equals(idUsuario) && !prestamos[i].isDevuelto()) {
                 prestamos[i].marcarDevuelto(fecha);
                 return true;
