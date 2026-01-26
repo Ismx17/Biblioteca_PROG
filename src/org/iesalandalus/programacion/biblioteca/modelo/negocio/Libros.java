@@ -5,7 +5,11 @@ import java.util.List;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Libro;
 
 public class Libros {
-    private List <Libro> libros = new ArrayList<>();
+    private List <Libro> libros;
+
+    public Libros() {
+    libros = new ArrayList<>();
+    }
 
     public void alta(Libro libro) {
         if (libro == null) {
@@ -16,7 +20,7 @@ public class Libros {
                 throw new IllegalArgumentException("ERROR: Ya existe un libro con ese ISBN.");
             }
         }
-        libros.add(libro);
+        libros.add(new Libro(libro));
     }
 
     public boolean baja(Libro libro) {
@@ -37,8 +41,8 @@ public class Libros {
             throw new IllegalArgumentException("ERROR: El libro no puede ser nulo.");
         }
         for (Libro l : libros) {
-            if (!l.getIsbn().equals(libro.getIsbn())) {
-                return l;
+            if (l.getIsbn().equals(libro.getIsbn())) {
+                return new Libro(l);
             }
         }
         return null;
