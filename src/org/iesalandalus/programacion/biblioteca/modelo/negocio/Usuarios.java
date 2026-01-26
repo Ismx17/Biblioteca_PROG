@@ -49,10 +49,12 @@ public class Usuarios {
         return null;
     }
 
-    public Usuario[] todos() {
-        Usuario[] copiaUsuarios = new Usuario[usuarios.size()];
-        for (int i = 0; i < usuarios.size(); i++) {
-            copiaUsuarios[i] = new Usuario(usuarios.get(i));
+    public List <Usuario> todos() {
+        List <Usuario> copiaUsuarios = new ArrayList<>();
+        for (Usuario usuario : usuarios) {
+            if (usuario != null) {
+                copiaUsuarios.add(new Usuario(usuario));
+            }
         }
         return copiaUsuarios;
     }
