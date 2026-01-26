@@ -46,10 +46,10 @@ public class Usuarios {
     }
 
     public Usuario[] todos() {
-        Usuario[] copia = new Usuario[usuarios.size()];
+        Usuario[] copiaUsuarios = new Usuario[usuarios.size()];
         for (int i = 0; i < usuarios.size(); i++) {
-            copia[i] = new Usuario(usuarios.get(i));
+            copiaUsuarios[i] = new Usuario(usuarios.get(i));
         }
-        return copia;
+        return copiaUsuarios;
     }
 }
