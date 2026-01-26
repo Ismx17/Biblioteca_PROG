@@ -1,37 +1,30 @@
 name: Java Library CI
-
-on:
-  push:
-    branches: [ "main", "master", "trunk" ]
-  pull_request:
-    branches: [ "main", "master", "trunk" ]
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout del código
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Configurar JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-    - name: Listar archivos para depurar
-      run: |
-        echo "Buscando archivos .jar..."
-        find . -name "*.jar"
-        echo "Buscando archivos .java..."
-        find src -name "*.java" | head -n 5
-
-    - name: Compilar Proyecto Java
-      run: |
-        mkdir -p bin
-        # Buscamos el JAR y los fuentes dinámicamente para que no falle la ruta
-        JAR_FILE=$(find libs -name "*.jar")
-        SOURCES=$(find src -name "*.java")
-        javac -d bin -cp "$JAR_FILE" $SOURCES
-        echo "✅ Compilación exitosa verificada."
+      - name: Compilar
+        run: |
+          # 1. Crear carpeta de salida
+          mkdir -p bin
+          
+          # 2. Localizar el archivo JAR (buscamos en todo el proyecto)
+          JAR_PATH=$(find . -name "*.jar" | head -n 1)
+          echo "Librería encontrada en: $JAR_PATH"
+          
+          # 3. Localizar todos los .java
+          find src -name "*.java" > fuentes.txt
+          
+          # 4. Compilar usando la ruta encontrada
+          javac -d bin -cp "$JAR_PATH" @fuentes.txt
+          echo "✅ ¡COMPILADO!"
