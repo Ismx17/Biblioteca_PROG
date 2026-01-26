@@ -48,10 +48,15 @@ public class Libros {
         return null;
     }
 
-    public Libro[] todos() {
-        Libro[] copiaLibros = new Libro[libros.size()];
-        for (int i = 0; i < libros.size(); i++) {
-            copiaLibros[i] = new Libro(libros.get(i));
+    public List <Libro> todos() {
+        if (libros == null) {
+            throw new IllegalArgumentException("ERROR: La lista de libros no puede ser nula.");
+        }
+        List <Libro> copiaLibros = new ArrayList<>();
+        for (Libro libro : libros) {
+            if (libro != null) {
+                copiaLibros.add(new Libro(libro));
+            }
         }
         return copiaLibros;
     }
