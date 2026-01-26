@@ -58,13 +58,13 @@ public class Prestamos {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
         }
         List <Prestamo> copiaPrestamos = new ArrayList<>();
-        prestamos.sort(Comparator.comparing(Prestamo::getfInicio).reversed()
-                .thenComparing(prestamo -> prestamo.getUsuario().getNombre()));
         for (Prestamo prestamo : prestamos) {
             if (prestamo != null && prestamo.getUsuario().getDni().equals(usuario.getDni())) {
                 copiaPrestamos.add(new Prestamo(prestamo));
             }
         }
+        copiaPrestamos.sort(Comparator.comparing(Prestamo::getfInicio).reversed()
+                .thenComparing(prestamo -> prestamo.getUsuario().getNombre()));
         return copiaPrestamos;
     }
 
@@ -73,13 +73,13 @@ public class Prestamos {
             throw new IllegalArgumentException("ERROR: La lista de prestamos no puede ser nula.");
         }
         List <Prestamo> copiaPrestamos = new ArrayList<>();
-        prestamos.sort(Comparator.comparing(Prestamo::getfInicio).reversed()
-                .thenComparing(prestamo -> prestamo.getUsuario().getNombre()));
         for (Prestamo prestamo : prestamos) {
             if (prestamo != null) {
                 copiaPrestamos.add(new Prestamo(prestamo));
             }
         }
+        copiaPrestamos.sort(Comparator.comparing(Prestamo::getfInicio).reversed()
+                .thenComparing(prestamo -> prestamo.getUsuario().getNombre()));
         return copiaPrestamos;
     }
 }

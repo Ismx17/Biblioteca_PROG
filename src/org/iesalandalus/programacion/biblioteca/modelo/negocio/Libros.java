@@ -43,7 +43,7 @@ public class Libros {
         }
         for (Libro l : libros) {
             if (l.getIsbn().equals(libro.getIsbn())) {
-                return new Libro(l);
+                return l;
             }
         }
         return null;

@@ -44,7 +44,7 @@ public class Usuarios {
         }
         for (Usuario u : usuarios) {
             if (u.getDni().equals(usuario.getDni())) {
-                return new Usuario(u);
+                return u;
             }
         }
         return null;

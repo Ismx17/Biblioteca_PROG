@@ -98,7 +98,7 @@ public class Prestamo {
         
         devuelto = true;
         fDevolucion = fecha;
-        libro.setUnidadesDisponibles(libro.getUnidadesDisponibles() - 1);
+        libro.setUnidadesDisponibles(libro.getUnidadesDisponibles() + 1);
     }
 
     @Override
