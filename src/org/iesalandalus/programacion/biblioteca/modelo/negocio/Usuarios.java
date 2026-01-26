@@ -6,7 +6,11 @@ import java.util.List;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Usuario;
 
 public class Usuarios {
-    private List <Usuario> usuarios = new ArrayList<>();
+    private List <Usuario> usuarios;
+
+    public Usuarios() {
+        usuarios = new ArrayList<>();
+    }
 
     public void alta(Usuario usuario) {
         if (usuario == null) {
@@ -17,7 +21,7 @@ public class Usuarios {
                 throw new IllegalArgumentException("ERROR: Ya existe un usuario con ese DNI.");
             }
         }
-        usuarios.add(usuario);
+        usuarios.add(new Usuario(usuario));
     }
 
     public boolean baja(Usuario usuario) {
@@ -38,8 +42,8 @@ public class Usuarios {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
         }
         for (Usuario u : usuarios) {
-            if (!u.getDni().equals(usuario.getDni())) {
-                return u;
+            if (u.getDni().equals(usuario.getDni())) {
+                return new Usuario(u);
             }
         }
         return null;
