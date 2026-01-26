@@ -41,9 +41,6 @@ public class Prestamos {
         if (libro == null || usuario == null || fecha == null) {
             throw new IllegalArgumentException("ERROR: Los parametros no pueden ser nulos.");
         }
-        if (fecha.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("ERROR: La fecha no puede ser anterior a la actual.");
-        }
         for (Prestamo prestamo : prestamos) {
             if (prestamo != null && prestamo.getLibro().getIsbn().equals(libro.getIsbn()) && prestamo.getUsuario().getDni().equals(usuario.getDni()) && !prestamo.isDevuelto()) {
                 prestamo.marcarDevuelto(fecha);

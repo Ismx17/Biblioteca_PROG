@@ -38,6 +38,11 @@ public class Modelo {
     }
 
     public boolean baja(Libro libro) {
+        for (Prestamo prestamo : prestamos.todos()) {
+            if (prestamo.getLibro().equals(libro) && !prestamo.isDevuelto()) {
+                throw new IllegalArgumentException("ERROR: No se puede borrar un libro con préstamos activos.");
+            }
+        }
         return libros.baja(libro);
     }
 
@@ -54,6 +59,11 @@ public class Modelo {
     }
 
     public boolean baja(Usuario usuario) {
+        for (Prestamo prestamo : prestamos.todos()) {
+            if (prestamo.getUsuario().equals(usuario) && !prestamo.isDevuelto()) {
+                throw new IllegalArgumentException("ERROR: No se puede borrar un usuario con préstamos activos.");
+            }
+        }
         return usuarios.baja(usuario);
     }
 
