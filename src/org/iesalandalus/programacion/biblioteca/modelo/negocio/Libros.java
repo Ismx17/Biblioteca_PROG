@@ -1,50 +1,31 @@
 package org.iesalandalus.programacion.biblioteca.modelo.negocio;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Libro;
 
 public class Libros {
-    private Libro[] libros;
-
-    public Libros(int capacidad) {
-        if (capacidad <= 0) {
-            throw new IllegalArgumentException("ERROR: La capacidad debe ser mayor que cero.");
-        }
-        this.libros = new Libro[capacidad];
-    }
+    private List <Libro> libros = new ArrayList<>();
 
     public void alta(Libro libro) {
         if (libro == null) {
             throw new IllegalArgumentException("ERROR: El libro no puede ser nulo.");
         }
-        int indice = -1;
-        // Recorro el array para ver si existe y buscar hueco
-        for (int i = 0; i < libros.length; i++) {
-            if (libros[i] != null) {
-                // Si encuentro el ISBN, lanzo error
-                if (libros[i].getIsbn().equals(libro.getIsbn())) {
-                    throw new IllegalArgumentException("ERROR: Ya existe un libro con ese ISBN.");
-                }
-            } else if (indice == -1) {
-                indice = i; // Me guardo la posicion libre
+        for (Libro l : libros) {
+            if (l.getIsbn().equals(libro.getIsbn())) {
+                throw new IllegalArgumentException("ERROR: Ya existe un libro con ese ISBN.");
             }
         }
-        if (indice == -1) {
-            throw new IllegalArgumentException("ERROR: No hay espacio para más libros.");
-        }
-        libros[indice] = new Libro(libro);
+        libros.add(libro);
     }
 
     public boolean baja(Libro libro) {
         if (libro == null) {
             throw new IllegalArgumentException("ERROR: El libro no puede ser nulo.");
         }
-        for (int i = 0; i < libros.length; i++) {
-            if (libros[i] != null && libros[i].getIsbn().equals(libro.getIsbn())) {
-                // Si lo encuentro, desplazo los demas para no dejar huecos
-                int j;
-                for (j = i; j < libros.length - 1; j++) {
-                    libros[j] = libros[j + 1];
-                }
-                libros[j] = null;
+        for (int i = 0; i < libros.size(); i++) {
+            if (libros.get(i).getIsbn().equals(libro.getIsbn())) {
+                libros.remove(i);
                 return true;
             }
         }
@@ -55,29 +36,18 @@ public class Libros {
         if (libro == null) {
             throw new IllegalArgumentException("ERROR: El libro no puede ser nulo.");
         }
-        for (int i = 0; i < libros.length; i++) {
-            if (libros[i] != null && libros[i].getIsbn().equals(libro.getIsbn())) {
-                return libros[i];
+        for (Libro l : libros) {
+            if (!l.getIsbn().equals(libro.getIsbn())) {
+                return l;
             }
         }
         return null;
     }
 
     public Libro[] todos() {
-        // Cuento los libros que hay de verdad
-        int contador = 0;
-        for (Libro libro : libros) {
-            if (libro != null) {
-                contador++;
-            }
-        }
-        // Creo un array con el tamaño justo y copio los libros
-        Libro[] copiaLibros = new Libro[contador];
-        int j = 0;
-        for (Libro libro : libros) {
-            if (libro != null) {
-                copiaLibros[j++] = new Libro(libro);
-            }
+        Libro[] copiaLibros = new Libro[libros.size()];
+        for (int i = 0; i < libros.size(); i++) {
+            copiaLibros[i] = new Libro(libros.get(i));
         }
         return copiaLibros;
     }
