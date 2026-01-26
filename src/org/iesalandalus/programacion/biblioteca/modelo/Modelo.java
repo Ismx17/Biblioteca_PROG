@@ -1,6 +1,7 @@
 package org.iesalandalus.programacion.biblioteca.modelo;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Libro;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Prestamo;
@@ -11,7 +12,6 @@ import org.iesalandalus.programacion.biblioteca.modelo.negocio.Usuarios;
 
 public class Modelo {
 
-    private static final int CAPACIDAD = 50;
     private Libros libros;
     private Usuarios usuarios;
     private Prestamos prestamos;
@@ -20,9 +20,9 @@ public class Modelo {
 
     public void comenzar() {
         // Inicializo las estructuras de datos
-        libros = new Libros(CAPACIDAD);
-        usuarios = new Usuarios(CAPACIDAD);
-        prestamos = new Prestamos(CAPACIDAD);
+        libros = new Libros();
+        usuarios = new Usuarios();
+        prestamos = new Prestamos();
     }
 
     public void terminar() {
@@ -45,7 +45,7 @@ public class Modelo {
         return libros.buscar(libro);
     }
 
-    public Libro[] listadoLibros() {
+    public List <Libro> listadoLibros() {
         return libros.todos();
     }
 
@@ -61,7 +61,7 @@ public class Modelo {
         return usuarios.buscar(usuario);
     }
 
-    public Usuario[] listadoUsuarios() {
+    public List <Usuario> listadoUsuarios() {
         return usuarios.todos();
     }
 
@@ -70,14 +70,14 @@ public class Modelo {
     }
 
     public boolean devolver(Libro libro, Usuario usuario, LocalDate fecha) {
-        return prestamos.devolver(libro.getIsbn(), usuario.getDni(), fecha);
+        return prestamos.devolver(libro, usuario, fecha);
     }
 
-    public Prestamo[] listadoPrestamos(Usuario usuario) {
-        return prestamos.prestamosUsuario(usuario);
+    public List <Prestamo> listadoPrestamos(Usuario usuario) {
+        return prestamos.todos(usuario);
     }
 
-    public Prestamo[] listadoPrestamos() {
-        return prestamos.historico();
+    public List <Prestamo> listadoPrestamos() {
+        return prestamos.todos();
     }
 }
