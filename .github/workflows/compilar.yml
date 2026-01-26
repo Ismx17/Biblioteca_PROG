@@ -2,7 +2,7 @@ name: Java Library CI
 
 on:
   push:
-    branches: [ "main", "master", "trunk" ] # Se activa en cualquier rama principal
+    branches: [ "main", "master", "trunk" ]
   pull_request:
     branches: [ "main", "master", "trunk" ]
 
@@ -20,15 +20,18 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Verificar carpeta de librerías
+    - name: Listar archivos para depurar
       run: |
-        echo "Contenido de la carpeta libs:"
-        ls -l libs/
+        echo "Buscando archivos .jar..."
+        find . -name "*.jar"
+        echo "Buscando archivos .java..."
+        find src -name "*.java" | head -n 5
 
     - name: Compilar Proyecto Java
       run: |
         mkdir -p bin
-        # Buscamos todos los .java y compilamos usando el Classpath de la carpeta libs
-        find . -name "*.java" > fuentes.txt
-        javac -d bin -cp "libs/*" @fuentes.txt
-        echo "✅ Compilación exitosa con librerías externas."
+        # Buscamos el JAR y los fuentes dinámicamente para que no falle la ruta
+        JAR_FILE=$(find libs -name "*.jar")
+        SOURCES=$(find src -name "*.java")
+        javac -d bin -cp "$JAR_FILE" $SOURCES
+        echo "✅ Compilación exitosa verificada."
