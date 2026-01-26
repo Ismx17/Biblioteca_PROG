@@ -1,5 +1,6 @@
 package org.iesalandalus.programacion.biblioteca.modelo.negocio;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Libro;
@@ -58,6 +59,7 @@ public class Libros {
                 copiaLibros.add(new Libro(libro));
             }
         }
+        copiaLibros.sort(Comparator.comparing(Libro::getTitulo));
         return copiaLibros;
     }
 }
