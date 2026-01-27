@@ -77,6 +77,17 @@ public class Consola {
         int unidades = leerEntero("Introduce el número de unidades: ");
         Libro libro = new Libro(isbn, titulo, anio, categoria, unidades);
         
+        System.out.print("¿Desea añadir un autor? (S/N): ");
+        String respuesta = Entrada.cadena();
+        while (respuesta.equalsIgnoreCase("S")) {
+            try {
+                libro.addAutor(nuevoAutor());
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+            System.out.print("¿Desea añadir otro autor? (S/N): ");
+            respuesta = Entrada.cadena();
+        }
         return libro;
     }
 
