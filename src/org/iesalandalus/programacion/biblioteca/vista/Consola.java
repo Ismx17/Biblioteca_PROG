@@ -76,13 +76,7 @@ public class Consola {
         Categoria categoria = leerCategoria();
         int unidades = leerEntero("Introduce el número de unidades: ");
         Libro libro = new Libro(isbn, titulo, anio, categoria, unidades);
-        int numAutores;
-        do {
-            numAutores = leerEntero("Introduce el número de autores (1-3): ");
-        } while (numAutores < 1 || numAutores > 3);
-        for (int i = 0; i < numAutores; i++) {
-            libro.addAutor(nuevoAutor());
-        }
+        
         return libro;
     }
 

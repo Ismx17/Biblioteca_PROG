@@ -18,9 +18,9 @@ public class Autor {
         if (nacionalidad == null || nacionalidad.trim().isEmpty()) {
             throw new IllegalArgumentException("ERROR: la nacionalidad del autor no puede ser nulo o vacío.");
         }
-        this.nombre = getNombre();
-        this.apellidos = getApellidos();
-        this.nacionalidad = getNacionalidad();
+        this.nombre = nombre;
+        this.apellidos = apellidos;
+        this.nacionalidad = nacionalidad;
     }
 
     public Autor(Autor autor) {
