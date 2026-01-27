@@ -49,6 +49,7 @@ public class Consola {
         if (paraBuscar) {
             return new Usuario(dni, "Ficticio", "a@a.com", new Direccion("Ficticia", "1", "11111", "Ficticia"));
         }
+        // Solicitamos e insertamos los datos del usuario
         System.out.print("Introduce el nombre: ");
         String nombre = Entrada.cadena();
         System.out.print("Introduce el correo: ");
@@ -65,11 +66,12 @@ public class Consola {
     }
 
     public static Libro nuevoLibro(boolean paraBuscar) {
-        System.out.print("Introduce el ISBN: ");
+        System.out.print("Introduce el ISBN: "); 
         String isbn = Entrada.cadena();
-        if (paraBuscar) {
+        if (paraBuscar) { 
             return new Libro(isbn, "Ficticio", 1, Categoria.OTROS, 1);
         }
+        // Solicitamos e insertamos los datos del libro
         System.out.print("Introduce el título: ");
         String titulo = Entrada.cadena();
         int anio = leerEntero("Introduce el año de publicación: ");
@@ -77,6 +79,7 @@ public class Consola {
         int unidades = leerEntero("Introduce el número de unidades: ");
         Libro libro = new Libro(isbn, titulo, anio, categoria, unidades);
         
+        // Añadimos los autores
         System.out.print("¿Desea añadir un autor? (S/N): ");
         String respuesta = Entrada.cadena();
         while (respuesta.equalsIgnoreCase("S")) {
@@ -85,13 +88,14 @@ public class Consola {
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
             }
-            System.out.print("¿Desea añadir otro autor? (S/N): ");
+            System.out.print("¿Desea añadir otro autor? (S/N): "); // Preguntamos si se quiere añadir otro autor
             respuesta = Entrada.cadena();
         }
         return libro;
     }
 
     private static Autor nuevoAutor() {
+        // Solicitamos e insertamos los datos del autor
         System.out.print("Introduce el nombre: ");
         String nombre = Entrada.cadena();
         System.out.print("Introduce los apellidos: ");
