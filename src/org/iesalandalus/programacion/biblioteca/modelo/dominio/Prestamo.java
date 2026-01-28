@@ -89,7 +89,7 @@ public class Prestamo {
     public void marcarDevuelto(LocalDate fecha) {
         // Valido que el libro no haya sido devuelto
         if (devuelto) {
-            throw new IllegalArgumentException("ERROR: El libro ya ha sido devuelto.");
+            throw new IllegalStateException("ERROR: El libro ya ha sido devuelto.");
         }
         // Valido que la fecha existe
         if (fecha == null) {
@@ -99,7 +99,7 @@ public class Prestamo {
         if (fecha.isBefore(fInicio)) {
             throw new IllegalArgumentException("ERROR: La fecha de devolución no puede ser anterior a la fecha de inicio.");
         }
-        // Devuelvo true y marco la fecha de devolucion si la validacion es correcta
+        // Actualizo el estado a devuelto y marco la fecha de devolucion si la validacion es correcta
         devuelto = true;
         fDevolucion = fecha;
         // Incremento las unidades disponibles del libro

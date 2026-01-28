@@ -15,7 +15,7 @@ public class Prestamos {
 
     public Prestamos() {
         // Creo la lista de prestamos
-        prestamos = new ArrayList<>();
+        this.prestamos = new ArrayList<>();
     }
 
     public void prestar(Libro libro, Usuario usuario, LocalDate fecha) {
@@ -29,7 +29,7 @@ public class Prestamos {
         }
         // Valido que queden unidades disponibles del libro
         if (libro.getUnidadesDisponibles() <= 0) {
-            throw new IllegalArgumentException("ERROR: No hay unidades disponibles del libro.");
+            throw new IllegalStateException("ERROR: No hay unidades disponibles del libro.");
         }
 
         // Recorro la lista de prestamos y valido que el usuario no tenga un prestamo activo de este libro
@@ -52,12 +52,12 @@ public class Prestamos {
         // Recorro la lista de prestamos y valido que el usuario tenga un prestamo activo de este libro
         for (Prestamo prestamo : prestamos) {
             if (prestamo != null && prestamo.getLibro().getIsbn().equals(libro.getIsbn()) && prestamo.getUsuario().getDni().equals(usuario.getDni()) && !prestamo.isDevuelto()) {
-                // Marco el prestamo como devuelto y devuelvo true
+                // Marco el prestamo como devuelto y actualizo el estado a true
                 prestamo.marcarDevuelto(fecha);
                 return true;
             }
         }
-        // Devuelvo false si no se ha encontrado el prestamo
+        // Actualizo el estado a false si no se ha encontrado el prestamo
         return false;
     }
 
@@ -77,8 +77,7 @@ public class Prestamos {
             }
         }
         // Ordeno la lista por fecha de inicio y nombre de usuario
-        copiaPrestamos.sort(Comparator.comparing(Prestamo::getfInicio).reversed()
-                .thenComparing(prestamo -> prestamo.getUsuario().getNombre()));
+        copiaPrestamos.sort(Comparator.comparing(Prestamo::getfInicio).reversed().thenComparing(prestamo -> prestamo.getUsuario().getNombre()));
         // Devuelvo la copia de la lista de prestamos
         return copiaPrestamos;
     }
@@ -99,8 +98,7 @@ public class Prestamos {
             }
         }
         // Ordeno la lista por fecha de inicio y nombre de usuario
-        copiaPrestamos.sort(Comparator.comparing(Prestamo::getfInicio).reversed()
-                .thenComparing(prestamo -> prestamo.getUsuario().getNombre()));
+        copiaPrestamos.sort(Comparator.comparing(Prestamo::getfInicio).reversed().thenComparing(prestamo -> prestamo.getUsuario().getNombre())); 
         // Devuelvo la lista de la copia de prestamos
         return copiaPrestamos;
     }

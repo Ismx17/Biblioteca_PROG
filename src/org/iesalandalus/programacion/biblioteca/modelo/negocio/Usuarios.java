@@ -11,7 +11,7 @@ public class Usuarios {
 
     public Usuarios() {
         // Creo la lista de usuarios
-        usuarios = new ArrayList<>();
+        this.usuarios = new ArrayList<>();
     }
 
     public void alta(Usuario usuario) {
@@ -42,7 +42,7 @@ public class Usuarios {
                 return true;
             }
         }
-        // Devuelvo false si no se ha eliminado al usuario de la lista correctamente
+        // Actualizo el estado a false si no se ha eliminado al usuario de la lista correctamente
         return false;
     }
 

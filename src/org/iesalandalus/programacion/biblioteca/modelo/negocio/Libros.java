@@ -10,7 +10,7 @@ public class Libros {
 
     public Libros() {
     // Creo la lista de libros
-    libros = new ArrayList<>();
+    this.libros = new ArrayList<>();
     }
 
     public void alta(Libro libro) {
@@ -39,11 +39,11 @@ public class Libros {
             if (libros.get(i).getIsbn().equals(libro.getIsbn())) {
                 // Elimino el libro de la lista
                 libros.remove(i);
-                // Devuelvo true si se ha eliminado el libro correctamente
+                // Actualizo el estado a true si se ha eliminado el libro correctamente
                 return true;
             }
         }
-        // Devuelvo false si no se ha eliminado el libro correctamente
+        // Actualizo el estado a false si no se ha eliminado el libro correctamente
         return false;
     }
 
@@ -60,7 +60,7 @@ public class Libros {
                 return l;
             }
         }
-        // Devuelvo null si no existe el libro
+        // Actualizo el estado a null si no existe el libro
         return null;
     }
 

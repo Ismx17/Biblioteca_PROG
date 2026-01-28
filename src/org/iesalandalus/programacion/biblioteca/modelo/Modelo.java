@@ -20,15 +20,15 @@ public class Modelo {
 
     public void comenzar() {
         // Inicializo las estructuras de datos
-        libros = new Libros();
-        usuarios = new Usuarios();
-        prestamos = new Prestamos();
+        this.libros = new Libros();
+        this.usuarios = new Usuarios();
+        this.prestamos = new Prestamos();
     }
 
     public void terminar() {
-        libros = null;
-        usuarios = null;
-        prestamos = null;
+        this.libros = null;
+        this.usuarios = null;
+        this.prestamos = null;
 
         System.out.println("El modelo se ha terminado.");
     }
@@ -44,7 +44,7 @@ public class Modelo {
                 throw new IllegalArgumentException("ERROR: No se puede borrar un libro con préstamos activos.");
             }
         }
-        // Devuelvo true si se ha eliminado el libro correctamente
+        // Actualizo el estado a true si se ha eliminado el libro correctamente
         return libros.baja(libro);
     }
 
@@ -63,8 +63,8 @@ public class Modelo {
     public boolean baja(Usuario usuario) {
         // Valido que el usuario existe en la lista de prestamos y que no tiene prestamos activos
         for (Prestamo prestamo : prestamos.todos()) {
-            if (prestamo.getUsuario().equals(usuario) && !prestamo.isDevuelto()) {
-                throw new IllegalArgumentException("ERROR: No se puede borrar un usuario con préstamos activos.");
+            if (prestamo.getUsuario().getDni().equals(usuario.getDni()) && !prestamo.isDevuelto()) {
+                throw new IllegalStateException("ERROR: No se puede borrar un usuario con préstamos activos.");
             }
         }
         return usuarios.baja(usuario);
