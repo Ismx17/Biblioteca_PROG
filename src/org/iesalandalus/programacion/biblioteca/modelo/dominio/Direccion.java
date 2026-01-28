@@ -8,26 +8,12 @@ public class Direccion {
     private String cp;
     private String localidad;
 
+    // Constructor
     public Direccion(String via, String numero, String cp, String localidad) {
-        if (via == null || via.trim().isEmpty()) {
-            throw new IllegalArgumentException("ERROR: La via no puede ser nula o vacía.");
-        }
-        if (numero == null || numero.trim().isEmpty()) {
-            throw new IllegalArgumentException("ERROR: El número no puede ser nulo o vacío.");
-        }
-        if (cp == null || cp.trim().isEmpty()) {
-            throw new IllegalArgumentException("ERROR: El código postal no puede ser nulo o vacío.");
-        }
-        if (!cp.matches(CP_PATTERN)) {
-            throw new IllegalArgumentException("ERROR: El código postal no es válido.");
-        }
-        if (localidad == null || localidad.trim().isEmpty()) {
-            throw new IllegalArgumentException("ERROR: La localidad no puede ser nula o vacía.");
-        }
-        this.via = via;
-        this.numero = numero;
-        this.cp = cp;
-        this.localidad = localidad;
+        setVia(via);
+        setNumero(numero);
+        setCp(cp);
+        setLocalidad(localidad);
     }
 
     // Constructor copia para tener una direccion independiente
@@ -35,10 +21,10 @@ public class Direccion {
         if (direccion == null) {
             throw new IllegalArgumentException("ERROR: La dirección no puede ser nula.");
         }
-        this.via = direccion.via;
-        this.numero = direccion.numero;
-        this.cp = direccion.cp;
-        this.localidad = direccion.localidad;
+        setVia(direccion.getVia());
+        setNumero(direccion.getNumero());
+        setCp(direccion.getCp());
+        setLocalidad(direccion.getLocalidad());
     }
 
     public String getVia() {

@@ -9,27 +9,19 @@ public class Autor {
 
     //Creación del constructor
     public Autor(String nombre, String apellidos, String nacionalidad) {
-        if (nombre == null || nombre.trim().isEmpty()) {
-            throw new IllegalArgumentException("ERROR: El nombre del autor no puede ser nulo o vacío.");
-        }
-        if (apellidos == null || apellidos.trim().isEmpty()) {
-            throw new IllegalArgumentException("ERROR: Los apellidos del autor no pueden ser nulos o vacíos.");
-        }
-        if (nacionalidad == null || nacionalidad.trim().isEmpty()) {
-            throw new IllegalArgumentException("ERROR: la nacionalidad del autor no puede ser nulo o vacío.");
-        }
-        this.nombre = nombre;
-        this.apellidos = apellidos;
-        this.nacionalidad = nacionalidad;
+        setNombre(nombre);
+        setApellidos(apellidos);
+        setNacionalidad(nacionalidad);
     }
 
+    // Constructor copia
     public Autor(Autor autor) {
         if (autor == null) {
             throw new IllegalArgumentException("ERROR: El autor no puede ser nulo.");
         }
-        this.nombre = autor.getNombre();
-        this.apellidos = autor.getApellidos();
-        this.nacionalidad = autor.getNacionalidad();
+        setNombre(autor.getNombre());
+        setApellidos(autor.getApellidos());
+        setNacionalidad(autor.getNacionalidad());
     }
 
     public String getNombre() {
@@ -65,10 +57,12 @@ public class Autor {
         this.nacionalidad = nacionalidad;
     }
 
+    // Metodo para obtener el nombre completo del autor
     public String getNombreCompleto() {
         return nombre + " " + apellidos;
     }
 
+    // Metodo para obtener las iniciales del autor
     public String iniciales() {
         return nombre.substring(0, 1) + "." + apellidos.substring(0, 1) + ".";
     }
