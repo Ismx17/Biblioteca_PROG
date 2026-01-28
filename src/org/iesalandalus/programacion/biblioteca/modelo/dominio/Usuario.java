@@ -15,7 +15,7 @@ public class Usuario {
         setDni(dni);
         setNombre(nombre);
         setEmail(email);
-        setDireccion(direccion); // Uso el setter para validar y copiar
+        setDireccion(direccion);
     }
 
     // Constructor copia
