@@ -23,6 +23,7 @@ public class Libro {
 
     // Constructor copia
     public Libro(Libro libro) { 
+        // Valido que el libro existe
         if (libro == null) {
             throw new IllegalArgumentException("ERROR: El libro no puede ser nulo.");
         }

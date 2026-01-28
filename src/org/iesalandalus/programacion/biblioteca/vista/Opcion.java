@@ -34,11 +34,13 @@ public enum Opcion {
 
     // Metodo estatico que devuelve la opcion a partir de su valor
     public static Opcion get(int valor) {
+        // Recorro los valores del enum
         for (Opcion opcion : values()) {
-            if (opcion.valor == valor) {
+            if (opcion.valor == valor) { // Si el valor de la opcion es igual al valor pasado por parametro devuelve la opcion elegida
                 return opcion;
             }
         }
+        // Si no se encuentra la opcion devuelve null
         return null;
     }
 
