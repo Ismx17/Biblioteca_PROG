@@ -39,7 +39,8 @@ public class Consola {
         int opcion;
         do {
             opcion = leerEntero("Elige una opción: ");
-        } while (!Opcion.esValida(opcion));
+        } while (!Opcion.esValida(opcion)); // Mientras que la opcion no sea valida se repite el bucle
+        // Devolvemos la opcion elegida
         return Opcion.get(opcion);
     }
 
@@ -111,17 +112,22 @@ public class Consola {
 
     public static LocalDate leerFecha(String mensaje) {
         LocalDate fecha = null;
+        // Formato de la fecha
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        // Pedimos la fecha y validamos que sea correcta
         boolean fechaCorrecta = false;
         do {
             try {
                 System.out.print(mensaje + " (dd/MM/yyyy): ");
+                // Convertimos la cadena a fecha
                 fecha = LocalDate.parse(Entrada.cadena(), formato);
+                // Si la fecha es correcta devolvemos true y salimos del bucle
                 fechaCorrecta = true;
             } catch (DateTimeParseException e) {
                 System.out.println("ERROR: El formato de la fecha no es correcto.");
             }
-        } while (!fechaCorrecta);
+        } while (!fechaCorrecta); // Mientras que la fecha no sea correcta se repite el bucle
+        // Devolvemos la fecha
         return fecha;
     }
 
@@ -132,13 +138,16 @@ public class Consola {
 
     private static Categoria leerCategoria() {
         System.out.println("Categorías disponibles:");
+        // Mostramos las categorias disponibles
         for (Categoria categoria : Categoria.values()) {
-            System.out.println(categoria.ordinal() + ".- " + categoria.name());
+            System.out.println(categoria.ordinal() + ".- " + categoria.name()); // Mostramos el ordinal y el nombre de la categoria
         }
         int ordinal;
+        // Pedimos la categoria y validamos que sea correcta
         do {
             ordinal = leerEntero("Elige una categoría: ");
-        } while (Categoria.get(ordinal) == null);
+        } while (Categoria.get(ordinal) == null); // Mientras que la categoria no sea correcta se repite el bucle
+        // Devolvemos la categoria elegida
         return Categoria.get(ordinal);
     }
 }

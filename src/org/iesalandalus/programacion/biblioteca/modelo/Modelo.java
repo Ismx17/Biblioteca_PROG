@@ -38,11 +38,13 @@ public class Modelo {
     }
 
     public boolean baja(Libro libro) {
+        // Valido que el libro existe en la lista de prestamos y que no se encuentra en prestamos activos
         for (Prestamo prestamo : prestamos.todos()) {
             if (prestamo.getLibro().equals(libro) && !prestamo.isDevuelto()) {
                 throw new IllegalArgumentException("ERROR: No se puede borrar un libro con préstamos activos.");
             }
         }
+        // Devuelvo true si se ha eliminado el libro correctamente
         return libros.baja(libro);
     }
 
@@ -59,6 +61,7 @@ public class Modelo {
     }
 
     public boolean baja(Usuario usuario) {
+        // Valido que el usuario existe en la lista de prestamos y que no tiene prestamos activos
         for (Prestamo prestamo : prestamos.todos()) {
             if (prestamo.getUsuario().equals(usuario) && !prestamo.isDevuelto()) {
                 throw new IllegalArgumentException("ERROR: No se puede borrar un usuario con préstamos activos.");

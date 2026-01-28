@@ -16,6 +16,7 @@ public class Autor {
 
     // Constructor copia
     public Autor(Autor autor) {
+        // Valido que el autor existe
         if (autor == null) {
             throw new IllegalArgumentException("ERROR: El autor no puede ser nulo.");
         }

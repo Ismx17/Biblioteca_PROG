@@ -88,6 +88,7 @@ public class Vista {
         try {
             // Creamos un usuario ficticio solo con el DNI para la búsqueda
             Usuario usuario = Consola.nuevoUsuario(true);
+            // Intento dar de baja
             if (controlador.baja(usuario)) {
                 System.out.println("Usuario borrado correctamente.");
             } else {
@@ -100,6 +101,7 @@ public class Vista {
 
     private void mostrarUsuarios() {
         try {
+            // Recorro la lista de usuarios yla muestro
             for (Usuario usuario : controlador.listadoUsuarios()) {
                 System.out.println(usuario);
             }
@@ -110,6 +112,7 @@ public class Vista {
 
     private void insertarLibro() {
         try {
+            // Intento dar de alta el libro
             Libro libro = Consola.nuevoLibro(false);
             controlador.alta(libro);
             System.out.println("Libro dado de alta correctamente.");
@@ -122,6 +125,7 @@ public class Vista {
         try {
             // Creamos un libro ficticio solo con el ISBN para la búsqueda
             Libro libro = Consola.nuevoLibro(true);
+            // Intento dar de baja el libro
             if (controlador.baja(libro)) {
                 System.out.println("Libro borrado correctamente.");
             } else {
@@ -134,6 +138,7 @@ public class Vista {
 
     private void mostrarLibros() {
         try {
+            // Recorro la lista de libros y la muestro
             for (Libro libro : controlador.listadoLibros()) {
                 System.out.println(libro);
             }
@@ -146,17 +151,20 @@ public class Vista {
         try {
             // Buscamos el libro por ISBN
             Libro libro = controlador.buscar(Consola.nuevoLibro(true));
+            // Si el libro no existe mostramos mensaje de error y salimos del metodo
             if (libro == null) {
                 System.out.println("ERROR: No se encuentra el libro.");
                 return;
             }
             // Buscamos el usuario por DNI
             Usuario usuario = controlador.buscar(Consola.nuevoUsuario(true));
+            // Si el usuario no existe mostramos mensaje de error y salimos del metodo
             if (usuario == null) {
                 System.out.println("ERROR: No se encuentra el usuario.");
                 return;
             }
-            LocalDate fecha = Consola.leerFecha("Introduce la fecha de préstamo");
+            LocalDate fecha = Consola.leerFecha("Introduce la fecha de préstamo"); // Pedimos la fecha de prestamo
+            // Intento dar de alta el prestamo
             controlador.prestar(libro, usuario, fecha);
             System.out.println("Libro prestado correctamente.");
         } catch (Exception e) {
@@ -171,6 +179,7 @@ public class Vista {
             Usuario usuario = Consola.nuevoUsuario(true);
             LocalDate fecha = Consola.leerFecha("Introduce la fecha de devolución");
             
+            // Intento dar de baja elprestamo
             if (controlador.devolver(libro, usuario, fecha)) {
                 System.out.println("Libro devuelto correctamente.");
             } else {
@@ -182,6 +191,7 @@ public class Vista {
     }
 
     private void mostrarPrestamos() {
+        // Recorro la lista de prestamos y la muestro
         try {
             for (Prestamo prestamo : controlador.listadoPrestamos()) {
                 System.out.println(prestamo);
@@ -192,12 +202,16 @@ public class Vista {
     }
 
     private void mostrarPrestamosUsuario() {
+        // Buscamos el usuario por DNI
         try {
             Usuario usuario = controlador.buscar(Consola.nuevoUsuario(true));
+            // Si el usuario no existe mostramos el mensaje de error y salimos del metodo
             if (usuario == null) {
                 System.out.println("ERROR: No se encuentra el usuario.");
+                // Salimos del metodo
                 return;
             }
+            // Recorro la lista de prestamos y la muestro
             for (Prestamo prestamo : controlador.listadoPrestamos(usuario)) {
                 System.out.println(prestamo);
             }

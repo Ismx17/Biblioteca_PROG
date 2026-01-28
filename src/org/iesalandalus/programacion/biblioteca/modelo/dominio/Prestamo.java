@@ -82,22 +82,27 @@ public class Prestamo {
     }
 
     public boolean estaVencido() {
+        // En caso de que no este devuelto, miro si esta vencido o no
         return !devuelto && LocalDate.now().isAfter(fLimite);
     }
 
     public void marcarDevuelto(LocalDate fecha) {
+        // Valido que el libro no haya sido devuelto
         if (devuelto) {
             throw new IllegalArgumentException("ERROR: El libro ya ha sido devuelto.");
         }
+        // Valido que la fecha existe
         if (fecha == null) {
             throw new IllegalArgumentException("ERROR: La fecha de devolución no puede ser nula.");
         }
+        // Valido que la fecha no sea anterior a la fecha de inicio
         if (fecha.isBefore(fInicio)) {
             throw new IllegalArgumentException("ERROR: La fecha de devolución no puede ser anterior a la fecha de inicio.");
         }
-        
+        // Devuelvo true y marco la fecha de devolucion si la validacion es correcta
         devuelto = true;
         fDevolucion = fecha;
+        // Incremento las unidades disponibles del libro
         libro.setUnidadesDisponibles(libro.getUnidadesDisponibles() + 1);
     }
 
