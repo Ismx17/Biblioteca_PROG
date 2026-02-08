@@ -1,6 +1,7 @@
 package org.iesalandalus.programacion.biblioteca.controlador;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.iesalandalus.programacion.biblioteca.modelo.Modelo;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Libro;
@@ -26,8 +27,8 @@ public Controlador(Modelo modelo, Vista vista) {
     }
 
     public void terminar() {
-        modelo.terminar();
         vista.terminar();
+        modelo.terminar();
     }
 
     public void alta(Libro libro) {
@@ -42,7 +43,7 @@ public Controlador(Modelo modelo, Vista vista) {
         return modelo.buscar(libro);
     }
 
-    public Libro[] listadoLibros() {
+    public List <Libro> listadoLibros() {
         return modelo.listadoLibros();
     }
 
@@ -58,7 +59,7 @@ public Controlador(Modelo modelo, Vista vista) {
         return modelo.buscar(usuario);
     }
 
-    public Usuario[] listadoUsuarios() {
+    public List <Usuario> listadoUsuarios() {
         return modelo.listadoUsuarios();
     }
 
@@ -70,11 +71,11 @@ public Controlador(Modelo modelo, Vista vista) {
         return modelo.devolver(libro, usuario, fecha);
     }
 
-    public Prestamo[] listadoPrestamos(Usuario usuario) {
+    public List <Prestamo> listadoPrestamos(Usuario usuario) {
         return modelo.listadoPrestamos(usuario);
     }
 
-    public Prestamo[] listadoPrestamos() {
+    public List <Prestamo> listadoPrestamos() {
         return modelo.listadoPrestamos();
     }
 }

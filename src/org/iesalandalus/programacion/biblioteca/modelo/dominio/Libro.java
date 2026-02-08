@@ -1,61 +1,39 @@
 package org.iesalandalus.programacion.biblioteca.modelo.dominio;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Libro {
     private static final String ISBN_PATTERN = "^\\d{13}$";
-    private static final int MAX_AUTORES = 3;
     private String titulo;
     private String isbn;
     private Categoria categoria;
     private int unidadesDisponibles;
     private int anio;
-    private Autor[] autores;
-    private int numAutores;
+    private List <Autor> autores = new ArrayList<>();
 
-    // Constructor con validaciones
+    // Constructor 
     public Libro(String isbn, String titulo, int anio, Categoria categoria, int unidadesDisponibles) {
-        if (isbn == null || isbn.trim().isEmpty()) {
-            throw new IllegalArgumentException("ERROR: El ISBN del libro no puede ser nulo o vacío.");
-        }
-        if (!isbn.matches(ISBN_PATTERN)) {
-            throw new IllegalArgumentException("ERROR: El ISBN del libro no es válido.");
-        }
-        if (titulo == null || titulo.trim().isEmpty()) {
-            throw new IllegalArgumentException("ERROR: El título del libro no puede ser nulo o vacío.");
-        }
-        if (anio < 0) {
-            throw new IllegalArgumentException("ERROR: El año del libro no puede ser negativo.");
-        }
-        if (categoria == null) {
-            throw new IllegalArgumentException("ERROR: La categoría del libro no puede ser nula.");
-        }
-        if (unidadesDisponibles < 0) {
-            throw new IllegalArgumentException("ERROR: Las unidades disponibles del libro no pueden ser negativas.");
-        }
-
-        this.isbn = isbn;
-        this.titulo = titulo;
-        this.categoria = categoria;
-        this.anio = anio;
-        this.unidadesDisponibles = unidadesDisponibles;
-        this.autores = new Autor[MAX_AUTORES];
-        this.numAutores = 0;
+        setIsbn(isbn);
+        setTitulo(titulo);
+        setAnio(anio);
+        setCategoria(categoria);
+        setUnidadesDisponibles(unidadesDisponibles);
     }
 
     // Constructor copia
     public Libro(Libro libro) { 
+        // Valido que el libro existe
         if (libro == null) {
             throw new IllegalArgumentException("ERROR: El libro no puede ser nulo.");
         }
-        this.isbn = libro.isbn;
-        this.titulo = libro.titulo;
-        this.categoria = libro.categoria;
-        this.anio = libro.anio;
-        this.unidadesDisponibles = libro.unidadesDisponibles;
-        this.autores = new Autor[MAX_AUTORES]; 
-        this.numAutores = libro.numAutores;
-        for (int i = 0; i < libro.numAutores; i++) { // Recorre el array dee autores
-            this.autores[i] = new Autor(libro.autores[i]); // Crea una copia del autor
+        setIsbn(libro.getIsbn());
+        setTitulo(libro.getTitulo());
+        setAnio(libro.getAnio());
+        setCategoria(libro.getCategoria());
+        setUnidadesDisponibles(libro.getUnidadesDisponibles());
+        for (Autor autor : libro.autores) {
+            this.autores.add(new Autor(autor));
         }
     }
 
@@ -122,63 +100,21 @@ public class Libro {
         if (autor == null) {
             throw new IllegalArgumentException("ERROR: El autor no puede ser nulo.");
         }
-        // Compruebo que no supero el maximo de autores
-        if (numAutores >= MAX_AUTORES) {
-            throw new IllegalArgumentException("ERROR: El libro no puede tener más de 3 autores.");
+        if (autores.contains(autor)) {
+            throw new IllegalArgumentException("ERROR: El autor ya existe en el libro.");
         }
-        autores[numAutores] = new Autor(autor); // Añado una copia del autor
-        numAutores++;
+        autores.add(autor);
     }
 
-    public Autor[] getAutores() {
-        Autor[] copiaAutores = new Autor[numAutores]; // Crea un array de autores con el tamaño correcto
-        for (int i = 0; i < numAutores; i++) {
-            copiaAutores[i] = new Autor(autores[i]); // Crea una copia del autor
-        }
-        return copiaAutores; // Devuelve una copia del array de autores
-    }
-
-    public void setAutores(Autor[] autores) {
-        if (autores == null) {
-            throw new IllegalArgumentException("ERROR: Los autores no pueden ser nulos.");
-        }
-        if (autores.length > MAX_AUTORES) {
-            throw new IllegalArgumentException("ERROR: El libro no puede tener más de 3 autores.");
-        }
-        this.autores = new Autor[MAX_AUTORES]; // Crea un array de autores con el tamaño correcto
-        this.numAutores = 0; // Reinicia el numero de autores a 0
-        for (Autor autor : autores) { // Recorre el array dee autores
-            if (autor == null) {
-                throw new IllegalArgumentException("ERROR: El autor no puede ser nulo.");
-            }
-            this.autores[numAutores] = new Autor(autor); // Copia los autores al array
-            numAutores++; // Incrementa el numero de autores 
-        }
-    }
-
-    public String autoresComoCadena() {
+    private String autoresComoCadena() {
         StringBuilder sb = new StringBuilder(); // Crea un objeto StringBuilder para construir la cadena
-        for (int i = 0; i < numAutores; i++) { // Recorre el array de autores
+        for (int i = 0; i < autores.size(); i++) { // Recorre el array de autores
             if (i > 0) {
                 sb.append(", "); // Agrega una coma y un espacio si no es el primer autor
             }
-            sb.append(autores[i].getNombreCompleto()); // Agrega el nombre completo del autor a la cadena
+            sb.append(autores.get(i).getNombreCompleto()); // Agrega el nombre completo del autor a la cadena
         }
-        return sb.toString(); // Devuelve la cadena resuultante
-    }
-
-    public void tomarPrestado() {
-        // Si hay unidades, resto una
-        if (unidadesDisponibles > 0) {
-            unidadesDisponibles--; // Decrementa el numero de unidades disponibles
-        } else {
-            throw new IllegalArgumentException("ERROR: No hay unidades disponibles del libro.");
-        }
-    }
-
-    public void devolverUnidad() {
-        // Sumo una unidad al devolver
-        unidadesDisponibles++; // Incrementa el numero de unidades disponibles
+        return sb.toString(); // Devuelve la cadena resultante
     }
 
     @Override
@@ -199,6 +135,7 @@ public class Libro {
 
     @Override
     public String toString() {
-        return "Libro [isbn=" + isbn + ", titulo=" + titulo + ", categoria=" + categoria + ", anio=" + anio + ", unidadesDisponibles=" + unidadesDisponibles + "]";
+        return "Libro [titulo=" + titulo + ", isbn=" + isbn + ", categoria=" + categoria + ", unidadesDisponibles="
+                + unidadesDisponibles + ", anio=" + anio + ", autores=" + autoresComoCadena() + "]";
     }
 }

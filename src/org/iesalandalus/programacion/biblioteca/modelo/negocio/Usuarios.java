@@ -1,82 +1,80 @@
 package org.iesalandalus.programacion.biblioteca.modelo.negocio;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Usuario;
 
 public class Usuarios {
-    private Usuario[] usuarios;
+    private List <Usuario> usuarios;
 
-    public Usuarios(int capacidad) {
-        if (capacidad <= 0) {
-            throw new IllegalArgumentException("ERROR: La capacidad debe ser mayor que cero.");
-        }
-        this.usuarios = new Usuario[capacidad];
+    public Usuarios() {
+        // Creo la lista de usuarios
+        this.usuarios = new ArrayList<>();
     }
 
     public void alta(Usuario usuario) {
+        // Valido que el usuario existe
         if (usuario == null) {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
         }
-        int indice = -1;
-        // Busco si ya existe y si hay sitio
-        for (int i = 0; i < usuarios.length; i++) {
-            if (usuarios[i] != null) {
-                if (usuarios[i].getDni().equals(usuario.getDni())) {
-                    throw new IllegalArgumentException("ERROR: Ya existe un usuario con ese ID.");
-                }
-            } else if (indice == -1) {
-                indice = i;
+        // Valido que no existe un usuario con el mismo DNI
+        for (Usuario u : usuarios) {
+            if (u.getDni().equals(usuario.getDni())) {
+                throw new IllegalArgumentException("ERROR: Ya existe un usuario con ese DNI.");
             }
         }
-        if (indice == -1) {
-            throw new IllegalArgumentException("ERROR: No hay espacio para más usuarios.");
-        }
-        usuarios[indice] = new Usuario(usuario);
+        // Agrego el usuario a la lista
+        usuarios.add(new Usuario(usuario));
     }
 
     public boolean baja(Usuario usuario) {
+        // Valido que el usuario existe
         if (usuario == null) {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
         }
-        for (int i = 0; i < usuarios.length; i++) {
-            if (usuarios[i] != null && usuarios[i].getDni().equals(usuario.getDni())) {
-                int j;
-                // Desplazo para compactar el array
-                for (j = i; j < usuarios.length - 1; j++) {
-                    usuarios[j] = usuarios[j + 1];
-                }
-                usuarios[j] = null;
+        // Recorro la lista completa de usuarios y valido que el usuario existe en la lista
+        for (int i = 0; i < usuarios.size(); i++) {
+            if (usuarios.get(i).getDni().equals(usuario.getDni())) {
+                // Elimino el usuario de la lista y devuelvo true
+                usuarios.remove(i);
                 return true;
             }
         }
+        // Actualizo el estado a false si no se ha eliminado al usuario de la lista correctamente
         return false;
     }
 
     public Usuario buscar(Usuario usuario) {
+        // Valido que el usuario existe
         if (usuario == null) {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
         }
-        for (int i = 0; i < usuarios.length; i++) {
-            if (usuarios[i] != null && usuarios[i].getDni().equals(usuario.getDni())) {
-                return usuarios[i];
+        // Recorro la lista de usuarios y devuelvo al usuario si existe en la lista
+        for (Usuario u : usuarios) {
+            if (u.getDni().equals(usuario.getDni())) {
+                return u;
             }
         }
+        // Devuelvo null si no existe el usuario en la lista
         return null;
     }
 
-    public Usuario[] todos() {
-        int contador = 0;
+    public List <Usuario> todos() {
+        // Creo una copia de la lista de usuarios para no modificar la original
+        List <Usuario> copiaUsuarios = new ArrayList<>();
+        // Recorro la lista de usuarios y añado el usuario a la copia
         for (Usuario usuario : usuarios) {
+            // Valido que el usuario existe
             if (usuario != null) {
-                contador++;
+                // Añado el usuario a la copia
+                copiaUsuarios.add(new Usuario(usuario));
             }
         }
-        Usuario[] copiaUsuarios = new Usuario[contador];
-        int j = 0;
-        for (Usuario usuario : usuarios) {
-            if (usuario != null) {
-                copiaUsuarios[j++] = new Usuario(usuario);
-            }
-        }
+        // Ordeno la lista por nombre 
+        copiaUsuarios.sort(Comparator.comparing(Usuario::getNombre));
+        // Devuelvo la copia de la lista de usuarios
         return copiaUsuarios;
     }
 }

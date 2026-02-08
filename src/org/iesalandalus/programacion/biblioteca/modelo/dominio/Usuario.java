@@ -10,30 +10,12 @@ public class Usuario {
     private String email;
     private Direccion direccion;
 
+    // Constructor
     public Usuario(String dni, String nombre, String email, Direccion direccion) {
-        // Valido que los datos sean correctos antes de crear el usuario
-        if (dni == null || dni.trim().isEmpty()) {
-            throw new IllegalArgumentException("ERROR: El ID del usuario no puede ser nulo o vacío.");
-        }
-        if (!dni.matches(DNI_PATTERN)) {
-            throw new IllegalArgumentException("ERROR: El ID del usuario no es válido.");
-        }
-        if (nombre == null || nombre.trim().isEmpty()) {
-            throw new IllegalArgumentException("ERROR: El nombre del usuario no puede ser nulo o vacío.");
-        }
-        if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("ERROR: El email del usuario no puede ser nulo o vacío.");
-        }
-        if (!email.matches(EMAIL_BASIC)) {
-            throw new IllegalArgumentException("ERROR: El email del usuario no es válido.");
-        }
-        if (direccion == null) {
-            throw new IllegalArgumentException("ERROR: La direccion del usuario no puede ser nula.");
-        }
-        this.dni = dni;
-        this.nombre = nombre;
-        this.email = email;
-        this.direccion = new Direccion(direccion); // Creo una copia de la direccion
+        setDni(dni);
+        setNombre(nombre);
+        setEmail(email);
+        setDireccion(direccion);
     }
 
     // Constructor copia
@@ -41,12 +23,10 @@ public class Usuario {
         if (usuario == null) {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
         }
-        this.dni = usuario.dni;
-        this.nombre = usuario.nombre;
-        this.email = usuario.email;
-        if (usuario.direccion != null) {
-            this.direccion = new Direccion(usuario.direccion);
-        }
+        setDni(usuario.getDni());
+        setNombre(usuario.getNombre());
+        setEmail(usuario.getEmail());
+        setDireccion(usuario.getDireccion());
     }
 
     public String getDni() {

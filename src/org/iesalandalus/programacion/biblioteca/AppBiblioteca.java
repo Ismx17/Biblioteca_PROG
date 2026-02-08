@@ -7,10 +7,14 @@ import org.iesalandalus.programacion.biblioteca.vista.Vista;
 public class AppBiblioteca {
 
     public static void main(String[] args) {
-        Modelo modelo = new Modelo();
-        Vista vista = new Vista();
-        Controlador controlador = new Controlador(modelo, vista);
-        vista.setControlador(controlador);
-        controlador.comenzar();
+        try {
+            Modelo modelo = new Modelo();
+            Vista vista = new Vista();
+            Controlador controlador = new Controlador(modelo, vista);
+            vista.setControlador(controlador);
+            controlador.comenzar();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
