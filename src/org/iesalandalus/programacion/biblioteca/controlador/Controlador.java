@@ -27,8 +27,8 @@ public Controlador(Modelo modelo, Vista vista) {
     }
 
     public void terminar() {
-        modelo.terminar();
         vista.terminar();
+        modelo.terminar();
     }
 
     public void alta(Libro libro) {

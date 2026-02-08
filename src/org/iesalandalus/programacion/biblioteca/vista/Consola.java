@@ -106,10 +106,6 @@ public class Consola {
         return new Autor(nombre, apellidos, nacionalidad);
     }
 
-    public static LocalDate leerFecha() {
-        return LocalDate.now();
-    }
-
     public static LocalDate leerFecha(String mensaje) {
         LocalDate fecha = null;
         // Formato de la fecha

@@ -34,7 +34,7 @@ public class Prestamos {
 
         // Recorro la lista de prestamos y valido que el usuario no tenga un prestamo activo de este libro
         for (Prestamo prestamo : prestamos) {
-            if (prestamo != null && prestamo.getLibro().getIsbn().equals(libro.getIsbn()) && prestamo.getUsuario().getDni().equals(usuario.getDni()) && !prestamo.isDevuelto()) {
+            if (prestamo != null && prestamo.getLibro().equals(libro) && prestamo.getUsuario().equals(usuario) && !prestamo.isDevuelto()) {
                 throw new IllegalArgumentException("ERROR: El usuario ya tiene un prestamo activo de este libro.");
             }
         }
@@ -51,7 +51,7 @@ public class Prestamos {
         }
         // Recorro la lista de prestamos y valido que el usuario tenga un prestamo activo de este libro
         for (Prestamo prestamo : prestamos) {
-            if (prestamo != null && prestamo.getLibro().getIsbn().equals(libro.getIsbn()) && prestamo.getUsuario().getDni().equals(usuario.getDni()) && !prestamo.isDevuelto()) {
+            if (prestamo != null && prestamo.getLibro().equals(libro) && prestamo.getUsuario().equals(usuario) && !prestamo.isDevuelto()) {
                 // Marco el prestamo como devuelto y actualizo el estado a true
                 prestamo.marcarDevuelto(fecha);
                 return true;
@@ -71,7 +71,7 @@ public class Prestamos {
         // Recorro la lista de prestamos y añado los prestamos del usuario a la copia
         for (Prestamo prestamo : prestamos) {
             // Valido que el prestamo existe y que el usuario es el mismo
-            if (prestamo != null && prestamo.getUsuario().getDni().equals(usuario.getDni())) {
+            if (prestamo != null && prestamo.getUsuario().equals(usuario)) {
                 // Añado el prestamo a la copia
                 copiaPrestamos.add(new Prestamo(prestamo));
             }
