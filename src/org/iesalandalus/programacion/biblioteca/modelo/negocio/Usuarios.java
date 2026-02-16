@@ -1,7 +1,6 @@
 package org.iesalandalus.programacion.biblioteca.modelo.negocio;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Usuario;
@@ -61,8 +60,6 @@ public class Usuarios {
                 copiaUsuarios.add(new Usuario(usuario));
             }
         }
-        // Ordeno la lista por nombre 
-        copiaUsuarios.sort(Comparator.comparing(Usuario::getNombre));
         // Devuelvo la copia de la lista de usuarios
         return copiaUsuarios;
     }

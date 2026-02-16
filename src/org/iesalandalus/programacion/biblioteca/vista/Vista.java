@@ -1,6 +1,8 @@
 package org.iesalandalus.programacion.biblioteca.vista;
 
 import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
 
 import org.iesalandalus.programacion.biblioteca.controlador.Controlador;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Libro;
@@ -102,7 +104,9 @@ public class Vista {
     private void mostrarUsuarios() {
         try {
             // Recorro la lista de usuarios yla muestro
-            for (Usuario usuario : controlador.listadoUsuarios()) {
+            List<Usuario> usuarios = controlador.listadoUsuarios();
+            usuarios.sort(Comparator.comparing(Usuario::getNombre));
+            for (Usuario usuario : usuarios) {
                 System.out.println(usuario);
             }
         } catch (Exception e) {
@@ -139,7 +143,9 @@ public class Vista {
     private void mostrarLibros() {
         try {
             // Recorro la lista de libros y la muestro
-            for (Libro libro : controlador.listadoLibros()) {
+            List<Libro> libros = controlador.listadoLibros();
+            libros.sort(Comparator.comparing(Libro::getTitulo));
+            for (Libro libro : libros) {
                 System.out.println(libro);
             }
         } catch (Exception e) {
@@ -193,7 +199,9 @@ public class Vista {
     private void mostrarPrestamos() {
         // Recorro la lista de prestamos y la muestro
         try {
-            for (Prestamo prestamo : controlador.listadoPrestamos()) {
+            List<Prestamo> prestamos = controlador.listadoPrestamos();
+            prestamos.sort(Comparator.comparing(Prestamo::getfInicio).reversed().thenComparing(p -> p.getUsuario().getNombre()));
+            for (Prestamo prestamo : prestamos) {
                 System.out.println(prestamo);
             }
         } catch (Exception e) {
@@ -212,7 +220,9 @@ public class Vista {
                 return;
             }
             // Recorro la lista de prestamos y la muestro
-            for (Prestamo prestamo : controlador.listadoPrestamos(usuario)) {
+            List<Prestamo> prestamos = controlador.listadoPrestamos(usuario);
+            prestamos.sort(Comparator.comparing(Prestamo::getfInicio).reversed().thenComparing(p -> p.getUsuario().getNombre()));
+            for (Prestamo prestamo : prestamos) {
                 System.out.println(prestamo);
             }
         } catch (Exception e) {

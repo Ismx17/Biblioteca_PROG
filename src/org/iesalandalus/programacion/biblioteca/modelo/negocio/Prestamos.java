@@ -2,7 +2,6 @@ package org.iesalandalus.programacion.biblioteca.modelo.negocio;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Libro;
@@ -76,8 +75,6 @@ public class Prestamos {
                 copiaPrestamos.add(new Prestamo(prestamo));
             }
         }
-        // Ordeno la lista por fecha de inicio y nombre de usuario
-        copiaPrestamos.sort(Comparator.comparing(Prestamo::getfInicio).reversed().thenComparing(prestamo -> prestamo.getUsuario().getNombre()));
         // Devuelvo la copia de la lista de prestamos
         return copiaPrestamos;
     }
@@ -97,8 +94,6 @@ public class Prestamos {
                 copiaPrestamos.add(new Prestamo(prestamo));
             }
         }
-        // Ordeno la lista por fecha de inicio y nombre de usuario
-        copiaPrestamos.sort(Comparator.comparing(Prestamo::getfInicio).reversed().thenComparing(prestamo -> prestamo.getUsuario().getNombre())); 
         // Devuelvo la lista de la copia de prestamos
         return copiaPrestamos;
     }
