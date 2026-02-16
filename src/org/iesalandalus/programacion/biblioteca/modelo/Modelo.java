@@ -63,7 +63,7 @@ public class Modelo {
     public boolean baja(Usuario usuario) {
         // Valido que el usuario existe en la lista de prestamos y que no tiene prestamos activos
         for (Prestamo prestamo : prestamos.todos()) {
-            if (prestamo.getUsuario().getDni().equals(usuario.getDni()) && !prestamo.isDevuelto()) {
+            if (prestamo.getUsuario().equals(usuario) && !prestamo.isDevuelto()) {
                 throw new IllegalStateException("ERROR: No se puede borrar un usuario con préstamos activos.");
             }
         }
