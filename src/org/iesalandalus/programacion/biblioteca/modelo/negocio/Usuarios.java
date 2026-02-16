@@ -20,10 +20,8 @@ public class Usuarios {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
         }
         // Valido que no existe un usuario con el mismo DNI
-        for (Usuario u : usuarios) {
-            if (u.getDni().equals(usuario.getDni())) {
-                throw new IllegalArgumentException("ERROR: Ya existe un usuario con ese DNI.");
-            }
+        if (usuarios.contains(usuario)) {
+            throw new IllegalArgumentException("ERROR: Ya existe un usuario con ese DNI.");
         }
         // Agrego el usuario a la lista
         usuarios.add(new Usuario(usuario));
@@ -34,16 +32,8 @@ public class Usuarios {
         if (usuario == null) {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
         }
-        // Recorro la lista completa de usuarios y valido que el usuario existe en la lista
-        for (int i = 0; i < usuarios.size(); i++) {
-            if (usuarios.get(i).getDni().equals(usuario.getDni())) {
-                // Elimino el usuario de la lista y devuelvo true
-                usuarios.remove(i);
-                return true;
-            }
-        }
-        // Actualizo el estado a false si no se ha eliminado al usuario de la lista correctamente
-        return false;
+        // Elimino el usuario usando el método remove de ArrayList
+        return usuarios.remove(usuario);
     }
 
     public Usuario buscar(Usuario usuario) {
@@ -51,13 +41,12 @@ public class Usuarios {
         if (usuario == null) {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
         }
-        // Recorro la lista de usuarios y devuelvo al usuario si existe en la lista
-        for (Usuario u : usuarios) {
-            if (u.getDni().equals(usuario.getDni())) {
-                return u;
-            }
+        // Busco el índice del usuario
+        int index = usuarios.indexOf(usuario);
+        // Si existe, lo devuelvo
+        if (index != -1) {
+            return usuarios.get(index);
         }
-        // Devuelvo null si no existe el usuario en la lista
         return null;
     }
 

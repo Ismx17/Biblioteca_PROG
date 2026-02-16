@@ -19,10 +19,8 @@ public class Libros {
             throw new IllegalArgumentException("ERROR: El libro no puede ser nulo.");
         }
         // Valido que no existe un libro con el mismo ISBN
-        for (Libro l : libros) {
-            if (l.getIsbn().equals(libro.getIsbn())) {
-                throw new IllegalArgumentException("ERROR: Ya existe un libro con ese ISBN.");
-            }
+        if (libros.contains(libro)) {
+            throw new IllegalArgumentException("ERROR: Ya existe un libro con ese ISBN.");
         }
         // Agrego el libro a la lista
         libros.add(new Libro(libro));
@@ -33,18 +31,8 @@ public class Libros {
         if (libro == null) {
             throw new IllegalArgumentException("ERROR: El libro no puede ser nulo.");
         }
-        // Valido que existe un libro con el mismo ISBN
-        for (int i = 0; i < libros.size(); i++) {
-            // Valido que el libro existe y que el ISBN es el mismo
-            if (libros.get(i).getIsbn().equals(libro.getIsbn())) {
-                // Elimino el libro de la lista
-                libros.remove(i);
-                // Actualizo el estado a true si se ha eliminado el libro correctamente
-                return true;
-            }
-        }
-        // Actualizo el estado a false si no se ha eliminado el libro correctamente
-        return false;
+        // Elimino el libro usando el método remove de ArrayList que usa equals
+        return libros.remove(libro);
     }
 
     public Libro buscar(Libro libro) {
@@ -52,15 +40,12 @@ public class Libros {
         if (libro == null) {
             throw new IllegalArgumentException("ERROR: El libro no puede ser nulo.");
         }
-        // Recorro la lista de libros y devuelvo si el libro existe
-        for (Libro l : libros) {
-            // Valido que ell libro existe y que el ISBN es el mismo
-            if (l.getIsbn().equals(libro.getIsbn())) {
-                // Devuelvo el libro si existe
-                return l;
-            }
+        // Busco el índice del libro
+        int index = libros.indexOf(libro);
+        // Si existe (índice distinto de -1), lo devuelvo
+        if (index != -1) {
+            return libros.get(index);
         }
-        // Actualizo el estado a null si no existe el libro
         return null;
     }
 
