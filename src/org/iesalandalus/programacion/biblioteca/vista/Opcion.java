@@ -46,6 +46,7 @@ public enum Opcion {
 
     // Metodo estatico que devuelve la opcion a partir de su tipo
     public static boolean esValida(int valor) {
+        // Actualizo el estado a true si la opcion es valida
         return get(valor) != null;
     }
 }
