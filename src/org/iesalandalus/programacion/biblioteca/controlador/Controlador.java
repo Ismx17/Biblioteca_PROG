@@ -22,13 +22,13 @@ public Controlador(Modelo modelo, Vista vista) {
     }
 
     public void comenzar() {
-        modelo.comenzar();
         vista.comenzar();
+        modelo.comenzar();
     }
 
     public void terminar() {
-        modelo.terminar();
         vista.terminar();
+        modelo.terminar();
     }
 
     public void alta(Libro libro) {
