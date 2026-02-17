@@ -69,33 +69,36 @@ public class Consola {
     }
 
     public static Libro nuevoLibro(boolean paraBuscar) {
-        System.out.print("Introduce el ISBN: "); 
-        String isbn = Entrada.cadena();
         if (paraBuscar) { 
+            System.out.print("Introduce el ISBN: "); 
+            String isbn = Entrada.cadena();
             return new Libro(isbn, "Ficticio", 1, Categoria.OTROS);
         }
-        // Solicitamos e insertamos los datos del libro
-        System.out.print("Introduce el título: ");
-        String titulo = Entrada.cadena();
-        int anio = leerEntero("Introduce el año de publicación: ");
-        Categoria categoria = leerCategoria();
         
         // Creamos el libro
         Libro libro = null;
-        // Preguntamos si es un audiolibro para crearlo
-        System.out.print("¿Es un audiolibro? (S/N): "); 
-        if (Entrada.cadena().equalsIgnoreCase("S")) {
-            while (libro == null) { // Mientras que el libro no sea creado, se repite el bucle
-                Duration duracion = leerDuracion("Introduce la duración"); // Leemos la duracion
-                String formato = leerFormato(); // Leemos el formato
-                try {
+        
+        while (libro == null) {
+            try {
+                System.out.print("Introduce el ISBN: ");
+                String isbn = Entrada.cadena();
+                System.out.print("Introduce el título: ");
+                String titulo = Entrada.cadena();
+                int anio = leerEntero("Introduce el año de publicación: ");
+                Categoria categoria = leerCategoria();
+
+                System.out.print("¿Es un audiolibro? (S/N): ");
+                if (Entrada.cadena().equalsIgnoreCase("S")) {
+                    Duration duracion = leerDuracion("Introduce la duración");
+                    String formato = leerFormato();
                     libro = new Audiolibro(isbn, titulo, anio, categoria, duracion, formato);
-                } catch (IllegalArgumentException e) {
-                    System.out.println(e.getMessage());
+                } else {
+                    libro = new Libro(isbn, titulo, anio, categoria);
                 }
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                System.out.println("Por favor, introduce los datos de nuevo.");
             }
-        } else {
-            libro = new Libro(isbn, titulo, anio, categoria);
         }
         
         // Añadimos los autores

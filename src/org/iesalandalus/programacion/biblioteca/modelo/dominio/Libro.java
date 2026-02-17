@@ -109,10 +109,10 @@ public class Libro implements Comparable<Libro> {
         if (this == obj) { // Comprueba si son el mismo objeto
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) { // Comprueba si el objeto es nulo o de una clase diferente
+        if (!(obj instanceof Libro)) { // Comprueba si el objeto es una instancia de Libro o subclase
             return false;
         }
-        Libro libro = (Libro) obj; // Convierte el objeto a Libro
+        Libro libro = (Libro) obj; 
         return isbn.equals(libro.isbn);
     }
 

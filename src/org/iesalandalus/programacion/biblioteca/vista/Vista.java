@@ -105,7 +105,7 @@ public class Vista {
         try {
             // Recorro la lista de usuarios yla muestro
             List<Usuario> usuarios = controlador.listadoUsuarios();
-            usuarios.sort(null);
+            usuarios.sort(Comparator.comparing(Usuario::getNombre));
             for (Usuario usuario : usuarios) {
                 System.out.println(usuario);
             }
