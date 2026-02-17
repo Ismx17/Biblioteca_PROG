@@ -1,9 +1,11 @@
 package org.iesalandalus.programacion.biblioteca.vista;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+import org.iesalandalus.programacion.biblioteca.modelo.dominio.Audiolibro;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Autor;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Categoria;
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Direccion;
@@ -70,7 +72,7 @@ public class Consola {
         System.out.print("Introduce el ISBN: "); 
         String isbn = Entrada.cadena();
         if (paraBuscar) { 
-            return new Libro(isbn, "Ficticio", 1, Categoria.OTROS, 1);
+            return new Libro(isbn, "Ficticio", 1, Categoria.OTROS);
         }
         // Solicitamos e insertamos los datos del libro
         System.out.print("Introduce el título: ");
@@ -78,7 +80,24 @@ public class Consola {
         int anio = leerEntero("Introduce el año de publicación: ");
         Categoria categoria = leerCategoria();
         int unidades = leerEntero("Introduce el número de unidades: ");
-        Libro libro = new Libro(isbn, titulo, anio, categoria, unidades);
+        
+        // Creamos el libro
+        Libro libro = null;
+        // Preguntamos si es un audiolibro para crearlo
+        System.out.print("¿Es un audiolibro? (S/N): "); 
+        if (Entrada.cadena().equalsIgnoreCase("S")) {
+            while (libro == null) { // Mientras que el libro no sea creado, se repite el bucle
+                Duration duracion = leerDuracion("Introduce la duración"); // Leemos la duracion
+                String formato = leerFormato(); // Leemos el formato
+                try {
+                    libro = new Audiolibro(isbn, titulo, anio, categoria, duracion, formato);
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        } else {
+            libro = new Libro(isbn, titulo, anio, categoria);
+        }
         
         // Añadimos los autores
         System.out.print("¿Desea añadir un autor? (S/N): ");
@@ -129,6 +148,44 @@ public class Consola {
         } while (!fechaCorrecta); // Mientras que la fecha no sea correcta se repite el bucle
         // Devolvemos la fecha
         return fecha;
+    }
+
+    private static Duration leerDuracion(String mensaje) {
+        Duration duracion = Duration.ZERO;
+        boolean duracionCorrecta = false;
+        do {
+            try {
+                System.out.print(mensaje + " (hh:mm:ss): ");
+                String entrada = Entrada.cadena();
+                String[] partes = entrada.split(":");
+                if (partes.length != 3) {
+                    throw new IllegalArgumentException("Formato incorrecto.");
+                }
+                int horas = Integer.parseInt(partes[0]);
+                int minutos = Integer.parseInt(partes[1]);
+                int segundos = Integer.parseInt(partes[2]);
+                duracion = Duration.ofHours(horas).plusMinutes(minutos).plusSeconds(segundos);
+                duracionCorrecta = true;
+            } catch (Exception e) {
+                System.out.println("ERROR: El formato de la duración no es correcto.");
+            }
+        } while (!duracionCorrecta);
+        return duracion;
+    }
+
+    private static String leerFormato() {
+        String formato;
+        boolean formatoCorrecto = false;
+        do {
+            System.out.print("Introduce el formato (mp3, mp4B, AA/AAX): ");
+            formato = Entrada.cadena();
+            if (formato.equalsIgnoreCase("mp3") || formato.equalsIgnoreCase("mp4B") || formato.equalsIgnoreCase("AA/AAX")) {
+                formatoCorrecto = true;
+            } else {
+                System.out.println("ERROR: El formato del audiolibro no es valido.");
+            }
+        } while (!formatoCorrecto);
+        return formato;
     }
 
     private static int leerEntero(String mensaje) {
