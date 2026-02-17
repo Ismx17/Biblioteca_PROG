@@ -102,7 +102,14 @@ public class Usuario implements Comparable<Usuario> {
     }
 
     @Override
-    public int compareTo(Usuario usuario) {
-        return dni.compareTo(usuario.dni);
+    public int compareTo(Usuario otro) {
+        // Ordenamos alfabéticamente por nombre
+        int resultado = this.nombre.compareToIgnoreCase(otro.nombre);
+    
+        // Si dos usuarios se llaman igual, ordenamos por DNI
+        if (resultado == 0) {
+            resultado = this.dni.compareTo(otro.dni);
+        }
+        return resultado;
     }
 }

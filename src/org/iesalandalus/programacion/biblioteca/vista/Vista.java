@@ -104,8 +104,8 @@ public class Vista {
     private void mostrarUsuarios() {
         try {
             // Recorro la lista de usuarios yla muestro
-            List<Usuario> usuarios = controlador.listadoUsuarios();
-            usuarios.sort(null);
+            List<Usuario> usuarios = controlador.listadoUsuarios(); // Lista ya ordenada por nombre en el modelo
+
             for (Usuario usuario : usuarios) {
                 System.out.println(usuario);
             }
@@ -143,8 +143,8 @@ public class Vista {
     private void mostrarLibros() {
         try {
             // Recorro la lista de libros y la muestro
-            List<Libro> libros = controlador.listadoLibros();
-            libros.sort(null); // Usa el orden natural definido en Libro (por título)
+            List<Libro> libros = controlador.listadoLibros(); // Lista ya ordenada por titulo en el modelo
+
             for (Libro libro : libros) {
                 System.out.println(libro);
             }

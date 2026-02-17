@@ -126,10 +126,13 @@ public class Libro implements Comparable<Libro> {
     }
 
     @Override
-    public int compareTo(Libro libro) {
-        int resultado = titulo.compareToIgnoreCase(libro.titulo);
+    public int compareTo(Libro otro) {
+        // Ordenamos alfabeticamente por titulo
+        int resultado = titulo.compareToIgnoreCase(otro.titulo);
+        
+        // Si dos libros se llaman igual, ordenamos por ISBN
         if (resultado == 0) {
-            return isbn.compareTo(libro.isbn); // En caso de tener el mismo titulo, se compara por ISBN
+            return isbn.compareTo(otro.isbn); 
         }
         return resultado;
     }

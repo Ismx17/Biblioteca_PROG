@@ -1,5 +1,6 @@
 package org.iesalandalus.programacion.biblioteca.modelo.negocio;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Libro;
@@ -60,6 +61,7 @@ public class Libros {
                 copiaLibros.add(new Libro(libro));
             }
         }
+        Collections.sort(copiaLibros);
         // Devuelvo la copia de la lista de libros
         return copiaLibros;
     }
