@@ -79,7 +79,6 @@ public class Consola {
         String titulo = Entrada.cadena();
         int anio = leerEntero("Introduce el año de publicación: ");
         Categoria categoria = leerCategoria();
-        int unidades = leerEntero("Introduce el número de unidades: ");
         
         // Creamos el libro
         Libro libro = null;
