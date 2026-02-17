@@ -105,7 +105,7 @@ public class Vista {
         try {
             // Recorro la lista de usuarios yla muestro
             List<Usuario> usuarios = controlador.listadoUsuarios();
-            usuarios.sort(Comparator.comparing(Usuario::getNombre));
+            usuarios.sort(null);
             for (Usuario usuario : usuarios) {
                 System.out.println(usuario);
             }
@@ -144,7 +144,7 @@ public class Vista {
         try {
             // Recorro la lista de libros y la muestro
             List<Libro> libros = controlador.listadoLibros();
-            libros.sort(Comparator.comparing(Libro::getTitulo));
+            libros.sort(null); // Usa el orden natural definido en Libro (por título)
             for (Libro libro : libros) {
                 System.out.println(libro);
             }
