@@ -2,7 +2,7 @@ package org.iesalandalus.programacion.biblioteca.modelo.dominio;
 
 import java.time.Duration;
 
-public class Audiolibro extends Libro{
+public class Audiolibro extends Libro {
     private Duration duracion;
     private String formato;
 
@@ -58,6 +58,6 @@ public class Audiolibro extends Libro{
 
     @Override
     public String toString() {
-        return "Audiolibro [duracion=" + duracion + ", formato=" + formato + ", " + super.toString() + "]";
+        return String.format("Audiolibro [duracion=%02d:%02d:%02d, formato=%s, %s]", duracion.toHours(), duracion.toMinutesPart(), duracion.toSecondsPart(), formato, super.toString());
     }
 }
