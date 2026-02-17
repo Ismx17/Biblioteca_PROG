@@ -1,6 +1,6 @@
 package org.iesalandalus.programacion.biblioteca.modelo.dominio;
 
-public interface Comparable {
+public interface Comparable<T> {
     // Interfaz para comparar objetos
-    public int compareTo(Object o);
+    public int compareTo(T objeto);
 }

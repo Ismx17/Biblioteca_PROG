@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Libro {
+public class Libro implements Comparable<Libro> {
     private static final String ISBN_PATTERN = "^\\d{13}$";
     private String isbn;
     private String titulo;
@@ -125,7 +125,12 @@ public class Libro {
         return "Libro [titulo=" + titulo + ", isbn=" + isbn + ", categoria=" + categoria + ", anio=" + anio + ", autores=" + autoresComoCadena() + "]";
     }
 
+    @Override
     public int compareTo(Libro libro) {
-        return isbn.compareTo(libro.isbn);
+        int resultado = titulo.compareToIgnoreCase(libro.titulo);
+        if (resultado == 0) {
+            return isbn.compareTo(libro.isbn); // En caso de tener el mismo titulo, se compara por ISBN
+        }
+        return resultado;
     }
 }
