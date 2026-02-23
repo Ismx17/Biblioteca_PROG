@@ -22,8 +22,8 @@ public Controlador(Modelo modelo, Vista vista) {
     }
 
     public void comenzar() {
-        vista.comenzar();
         modelo.comenzar();
+        vista.comenzar();
     }
 
     public void terminar() {
