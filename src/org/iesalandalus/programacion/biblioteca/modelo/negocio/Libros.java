@@ -24,8 +24,8 @@ public class Libros {
             throw new IllegalArgumentException("ERROR: Ya existe un libro con ese ISBN.");
         }
         // Agrego el libro a la lista
-        if (libro instanceof Audiolibro) {
-            libros.add(new Audiolibro((Audiolibro) libro));
+        if (libro instanceof Audiolibro) { // Si el libro es de tipo Audiolibro
+            libros.add(new Audiolibro((Audiolibro) libro)); // Agrego una copia del libro transformado a Audiolibro
         } else {
             libros.add(new Libro(libro));
         }
