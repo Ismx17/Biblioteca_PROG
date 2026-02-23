@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Libro;
+import org.iesalandalus.programacion.biblioteca.modelo.dominio.Audiolibro;
 
 public class Libros {
     private List <Libro> libros;
@@ -23,7 +24,11 @@ public class Libros {
             throw new IllegalArgumentException("ERROR: Ya existe un libro con ese ISBN.");
         }
         // Agrego el libro a la lista
-        libros.add(new Libro(libro));
+        if (libro instanceof Audiolibro) {
+            libros.add(new Audiolibro((Audiolibro) libro));
+        } else {
+            libros.add(new Libro(libro));
+        }
     }
 
     public boolean baja(Libro libro) {
@@ -58,7 +63,11 @@ public class Libros {
         List <Libro> copiaLibros = new ArrayList<>();
         for (Libro libro : libros) {
             if (libro != null) {
-                copiaLibros.add(new Libro(libro));
+                if (libro instanceof Audiolibro) {
+                    copiaLibros.add(new Audiolibro((Audiolibro) libro));
+                } else {
+                    copiaLibros.add(new Libro(libro));
+                }
             }
         }
         Collections.sort(copiaLibros);

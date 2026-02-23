@@ -44,6 +44,9 @@ public class Prestamo {
     }
 
     public Libro getLibro() {
+        if (libro instanceof Audiolibro) {
+            return new Audiolibro((Audiolibro) libro);
+        }
         return new Libro(libro);  
     }
 
