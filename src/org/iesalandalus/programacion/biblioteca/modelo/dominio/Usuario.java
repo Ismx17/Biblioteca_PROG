@@ -1,7 +1,7 @@
 package org.iesalandalus.programacion.biblioteca.modelo.dominio;
 import java.util.Objects;
 
-public class Usuario {
+public class Usuario implements Comparable<Usuario> {
 
     private static final String DNI_PATTERN = "^\\d{8}[A-Za-z]$";
     private static final String EMAIL_BASIC = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
@@ -99,5 +99,17 @@ public class Usuario {
     @Override
     public String toString() {
         return "Usuario [dni=" + dni + ", nombre=" + nombre + ", email=" + email + ", direccion=" + direccion + "]";
+    }
+
+    @Override
+    public int compareTo(Usuario otro) {
+        // Ordenamos alfabéticamente por nombre
+        int resultado = this.nombre.compareToIgnoreCase(otro.nombre);
+    
+        // Si dos usuarios se llaman igual, ordenamos por DNI
+        if (resultado == 0) {
+            resultado = this.dni.compareTo(otro.dni);
+        }
+        return resultado;
     }
 }

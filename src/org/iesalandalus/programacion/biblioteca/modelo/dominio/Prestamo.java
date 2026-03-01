@@ -22,9 +22,6 @@ public class Prestamo {
         if (fInicio == null) {
             throw new IllegalArgumentException("ERROR: La fecha de inicio no puede ser nula.");
         }
-        if (libro.getUnidadesDisponibles() <= 0) {
-            throw new IllegalArgumentException("ERROR: No hay unidades disponibles del libro.");
-        }
         
         this.libro = libro;
         this.usuario = usuario;
@@ -47,6 +44,9 @@ public class Prestamo {
     }
 
     public Libro getLibro() {
+        if (libro instanceof Audiolibro) {
+            return new Audiolibro((Audiolibro) libro);
+        }
         return new Libro(libro);  
     }
 
@@ -102,8 +102,6 @@ public class Prestamo {
         // Actualizo el estado a devuelto y marco la fecha de devolucion si la validacion es correcta
         devuelto = true;
         fDevolucion = fecha;
-        // Incremento las unidades disponibles del libro
-        libro.setUnidadesDisponibles(libro.getUnidadesDisponibles() + 1);
     }
 
     @Override

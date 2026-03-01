@@ -2,7 +2,6 @@ package org.iesalandalus.programacion.biblioteca.modelo.negocio;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import org.iesalandalus.programacion.biblioteca.modelo.dominio.Libro;
@@ -27,10 +26,6 @@ public class Prestamos {
         if (fecha.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("ERROR: La fecha no puede ser anterior a la actual.");
         }
-        // Valido que queden unidades disponibles del libro
-        if (libro.getUnidadesDisponibles() <= 0) {
-            throw new IllegalStateException("ERROR: No hay unidades disponibles del libro.");
-        }
 
         // Recorro la lista de prestamos y valido que el usuario no tenga un prestamo activo de este libro
         for (Prestamo prestamo : prestamos) {
@@ -40,8 +35,6 @@ public class Prestamos {
         }
         // Agrego el prestamo a la lista
         prestamos.add(new Prestamo(libro, usuario, fecha));
-        // Disminuyo las unidades disponibles del libro
-        libro.setUnidadesDisponibles(libro.getUnidadesDisponibles() - 1);
     }
 
     public boolean devolver(Libro libro, Usuario usuario, LocalDate fecha) {
@@ -76,8 +69,6 @@ public class Prestamos {
                 copiaPrestamos.add(new Prestamo(prestamo));
             }
         }
-        // Ordeno la lista por fecha de inicio y nombre de usuario
-        copiaPrestamos.sort(Comparator.comparing(Prestamo::getfInicio).reversed().thenComparing(prestamo -> prestamo.getUsuario().getNombre()));
         // Devuelvo la copia de la lista de prestamos
         return copiaPrestamos;
     }
@@ -97,8 +88,6 @@ public class Prestamos {
                 copiaPrestamos.add(new Prestamo(prestamo));
             }
         }
-        // Ordeno la lista por fecha de inicio y nombre de usuario
-        copiaPrestamos.sort(Comparator.comparing(Prestamo::getfInicio).reversed().thenComparing(prestamo -> prestamo.getUsuario().getNombre())); 
         // Devuelvo la lista de la copia de prestamos
         return copiaPrestamos;
     }

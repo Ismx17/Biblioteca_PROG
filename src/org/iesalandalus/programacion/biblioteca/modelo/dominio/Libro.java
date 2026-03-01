@@ -3,22 +3,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Libro {
+public class Libro implements Comparable<Libro> {
     private static final String ISBN_PATTERN = "^\\d{13}$";
-    private String titulo;
     private String isbn;
-    private Categoria categoria;
-    private int unidadesDisponibles;
+    private String titulo;
     private int anio;
+    private Categoria categoria;
+    private int numAutores;
     private List <Autor> autores = new ArrayList<>();
 
     // Constructor 
-    public Libro(String isbn, String titulo, int anio, Categoria categoria, int unidadesDisponibles) {
+    public Libro(String isbn, String titulo, int anio, Categoria categoria) {
         setIsbn(isbn);
         setTitulo(titulo);
         setAnio(anio);
         setCategoria(categoria);
-        setUnidadesDisponibles(unidadesDisponibles);
     }
 
     // Constructor copia
@@ -31,7 +30,6 @@ public class Libro {
         setTitulo(libro.getTitulo());
         setAnio(libro.getAnio());
         setCategoria(libro.getCategoria());
-        setUnidadesDisponibles(libro.getUnidadesDisponibles());
         for (Autor autor : libro.autores) {
             this.autores.add(new Autor(autor));
         }
@@ -85,17 +83,6 @@ public class Libro {
         this.categoria = categoria;
     }
 
-    public int getUnidadesDisponibles() {
-        return unidadesDisponibles;
-    }
-
-    public void setUnidadesDisponibles(int unidadesDisponibles) {
-        if (unidadesDisponibles < 0) {
-            throw new IllegalArgumentException("ERROR: Las unidades disponibles del libro no pueden ser negativas.");
-        }
-        this.unidadesDisponibles = unidadesDisponibles;
-    }
-
     public void addAutor(Autor autor) {
         if (autor == null) {
             throw new IllegalArgumentException("ERROR: El autor no puede ser nulo.");
@@ -122,10 +109,10 @@ public class Libro {
         if (this == obj) { // Comprueba si son el mismo objeto
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) { // Comprueba si el objeto es nulo o de una clase diferente
+        if (!(obj instanceof Libro)) { // Comprueba si el objeto es una instancia de Libro o subclase
             return false;
         }
-        Libro libro = (Libro) obj; // Convierte el objeto a Libro
+        Libro libro = (Libro) obj; 
         return isbn.equals(libro.isbn);
     }
 
@@ -135,7 +122,18 @@ public class Libro {
 
     @Override
     public String toString() {
-        return "Libro [titulo=" + titulo + ", isbn=" + isbn + ", categoria=" + categoria + ", unidadesDisponibles="
-                + unidadesDisponibles + ", anio=" + anio + ", autores=" + autoresComoCadena() + "]";
+        return "Libro [titulo=" + titulo + ", isbn=" + isbn + ", categoria=" + categoria + ", anio=" + anio + ", autores=" + autoresComoCadena() + "]";
+    }
+
+    @Override
+    public int compareTo(Libro otro) {
+        // Ordenamos alfabeticamente por titulo
+        int resultado = titulo.compareToIgnoreCase(otro.titulo);
+        
+        // Si dos libros se llaman igual, ordenamos por ISBN
+        if (resultado == 0) {
+            return isbn.compareTo(otro.isbn); 
+        }
+        return resultado;
     }
 }
