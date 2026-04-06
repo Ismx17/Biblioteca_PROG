@@ -9,93 +9,155 @@ import biblioteca.modelo.negocio.Usuarios;
 
 import java.time.LocalDate;
 import java.util.List;
-
-
+import java.sql.SQLException;
 
 public class Modelo {
-
-    private Libros libros;
-    private Usuarios usuarios;
-    private Prestamos prestamos;
 
     public Modelo() {}
 
     public void comenzar() {
-        // Inicializo las estructuras de datos
-        this.libros = Libros.getLibros();
-        this.libros.comenzar();
-        this.usuarios = Usuarios.getUsuarios();
-        this.usuarios.comenzar();
-        this.prestamos = Prestamos.getPrestamos();
-        this.prestamos.comenzar();
+        try {
+            Libros.getLibros().comenzar();
+            Usuarios.getUsuarios().comenzar();
+            Prestamos.getPrestamos().comenzar();
+        } catch (SQLException e) {
+            throw new RuntimeException("ERROR: No se pudo iniciar la conexión con la base de datos: " + e.getMessage());
+        }
     }
 
     public void terminar() {
-        if (this.libros != null) this.libros.terminar();
-        if (this.usuarios != null) this.usuarios.terminar();
-        if (this.prestamos != null) this.prestamos.terminar();
-
-        System.out.println("El modelo se ha terminado.");
+        try {
+            Libros.getLibros().terminar();
+            Usuarios.getUsuarios().terminar();
+            Prestamos.getPrestamos().terminar();
+            System.out.println("Conexiones cerradas. El modelo se ha terminado.");
+        } catch (SQLException e) {
+            System.out.println("Error al cerrar las conexiones: " + e.getMessage());
+        }
     }
 
+    // GESTIÓN DE LIBROS
     public void alta(Libro libro) {
-        libros.alta(libro);
+        try {
+            Libros.getLibros().alta(libro);
+        } catch (SQLException e) {
+            throw new IllegalArgumentException("ERROR BD: No se pudo dar de alta el libro. " + e.getMessage());
+        }
     }
 
     public boolean baja(Libro libro) {
-        // Valido que el libro existe en la lista de prestamos y que no se encuentra en prestamos activos
-        for (Prestamo prestamo : prestamos.todos()) {
-            if (prestamo.getLibro().equals(libro) && !prestamo.isDevuelto()) {
-                throw new IllegalArgumentException("ERROR: No se puede borrar un libro con préstamos activos.");
+        try {
+            // Comprobamos la lógica de préstamos activos
+            List<Prestamo> todos = Prestamos.getPrestamos().todos();
+            for (Prestamo p : todos) {
+                if (p.getLibro().getIsbn().equals(libro.getIsbn())) {
+                    if (!p.isDevuelto()) {
+                        throw new IllegalStateException("ERROR: El libro tiene préstamos activos.");
+                    } else {
+                    }
+                }
             }
+            return Libros.getLibros().baja(libro);
+        } catch (SQLException e) {
+            // Capturamos el error de MySQL
+            throw new IllegalArgumentException("ERROR BD: No se puede borrar el libro porque figura en el historial de préstamos.");
         }
-        // Actualizo el estado a true si se ha eliminado el libro correctamente
-        return libros.baja(libro);
     }
 
     public Libro buscar(Libro libro) {
-        return libros.buscar(libro);
+        try {
+            return Libros.getLibros().buscar(libro);
+        } catch (SQLException e) {
+            return null;
+        }
     }
 
-    public List <Libro> listadoLibros() {
-        return libros.todos();
+    public List<Libro> listadoLibros() {
+        try {
+            return Libros.getLibros().todos();
+        } catch (SQLException e) {
+            throw new RuntimeException("ERROR BD: No se pudo obtener el listado de libros.");
+        }
     }
 
+    // GESTIÓN DE USUARIOS
     public void alta(Usuario usuario) {
-        usuarios.alta(usuario);
+        try {
+            Usuarios.getUsuarios().alta(usuario);
+        } catch (SQLException e) {
+            throw new IllegalArgumentException("ERROR BD: No se pudo dar de alta el usuario. " + e.getMessage());
+        }
     }
 
     public boolean baja(Usuario usuario) {
-        // Valido que el usuario existe en la lista de prestamos y que no tiene prestamos activos
-        for (Prestamo prestamo : prestamos.todos()) {
-            if (prestamo.getUsuario().equals(usuario) && !prestamo.isDevuelto()) {
-                throw new IllegalStateException("ERROR: No se puede borrar un usuario con préstamos activos.");
+        try {
+            List<Prestamo> todos = Prestamos.getPrestamos().todos();
+            for (Prestamo p : todos) {
+                // Debido a las restricciones de la base de datos, no podemos borrarlo en caso de tener historial de prestamos
+                if (p.getUsuario().getDni().equals(usuario.getDni())) {
+                    throw new IllegalStateException("ERROR: No se puede borrar un usuario que tiene historial de préstamos.");
+                }
             }
+            return Usuarios.getUsuarios().baja(usuario);
+        } catch (SQLException e) {
+            throw new IllegalArgumentException("ERROR BD: " + e.getMessage());
         }
-        return usuarios.baja(usuario);
     }
 
     public Usuario buscar(Usuario usuario) {
-        return usuarios.buscar(usuario);
+        try {
+            return Usuarios.getUsuarios().buscar(usuario);
+        } catch (SQLException e) {
+            return null;
+        }
     }
 
-    public List <Usuario> listadoUsuarios() {
-        return usuarios.todos();
+    public List<Usuario> listadoUsuarios() {
+        try {
+            return Usuarios.getUsuarios().todos();
+        } catch (SQLException e) {
+            throw new RuntimeException("ERROR BD: No se pudo obtener el listado de usuarios.");
+        }
     }
 
+    // GESTIÓN DE PRÉSTAMOS
     public void prestar(Libro libro, Usuario usuario, LocalDate fecha) {
-        prestamos.prestar(libro, usuario, fecha);
+        try {
+            // Comprobamos si el libro ya está prestado (fDevolucion IS NULL)
+            List<Prestamo> actuales = Prestamos.getPrestamos().todos();
+            for (Prestamo p : actuales) {
+                if (p.getLibro().equals(libro) && !p.isDevuelto()) {
+                    throw new IllegalArgumentException("ERROR: El libro ya está prestado actualmente.");
+                }
+            }
+            Prestamo prestamo = new Prestamo(libro, usuario, fecha);
+            Prestamos.getPrestamos().prestar(prestamo);
+        } catch (SQLException e) {
+            throw new IllegalArgumentException("ERROR BD: No se pudo registrar el préstamo. " + e.getMessage());
+        }
     }
 
     public boolean devolver(Libro libro, Usuario usuario, LocalDate fecha) {
-        return prestamos.devolver(libro, usuario, fecha);
+        try {
+            return Prestamos.getPrestamos().devolver(libro, usuario, fecha);
+        } catch (SQLException e) {
+            throw new IllegalArgumentException("ERROR BD: No se pudo procesar la devolución. " + e.getMessage());
+        }
     }
 
-    public List <Prestamo> listadoPrestamos(Usuario usuario) {
-        return prestamos.todos(usuario);
+    public List<Prestamo> listadoPrestamos() {
+        try {
+            return Prestamos.getPrestamos().todos();
+        } catch (SQLException e) {
+            throw new RuntimeException("ERROR BD: No se pudieron obtener los préstamos del usuario.");
+        }
     }
 
-    public List <Prestamo> listadoPrestamos() {
-        return prestamos.todos();
+    public List<Prestamo> listadoPrestamos(Usuario usuario) {
+        try {
+            return Prestamos.getPrestamos().todosPorUsuario(usuario);
+        } catch (SQLException e) {
+            throw new RuntimeException("ERROR BD: No se pudo obtener el listado de préstamos.");
+        }
     }
 }

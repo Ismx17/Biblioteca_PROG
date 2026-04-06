@@ -4,142 +4,110 @@ import biblioteca.modelo.dominio.Direccion;
 import biblioteca.modelo.dominio.Usuario;
 import biblioteca.modelo.negocio.mysql.Conexion;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 public class Usuarios {
+    // Singleton
     private static Usuarios usuarios;
-
     private Usuarios() {}
 
-    public static Usuarios getUsuarios() {
-        if (usuarios == null) {
-            usuarios = new Usuarios();
-        }
+    // Metodo para obtener la instancia de la clase Usuarios
+    public static synchronized Usuarios getUsuarios() {
+        if (usuarios == null) usuarios = new Usuarios();
         return usuarios;
     }
 
-    public void comenzar() {
-        try {
-            Conexion.getConexion().establecerConexion();
-        } catch (SQLException e) {
-            System.out.println("Error al establecer la conexión: " + e.getMessage());
-        }
-    }
+    // Metodos para establecer y cerrar la conexion con la base de datos
+    public void comenzar() throws SQLException { Conexion.getInstancia().establecerConexion(); }
+    public void terminar() throws SQLException { Conexion.getInstancia().cerrarConexion(); }
 
-    public void terminar() {
-        try {
-            Conexion.getConexion().cerrarConexion();
-        } catch (SQLException e) {
-            System.out.println("Error al cerrar la conexión: " + e.getMessage());
-        }
-    }
-
-    public void alta(Usuario usuario) {
+    // Metodo para dar de alta un usuario y su direccion
+    public void alta(Usuario usuario) throws SQLException {
+        // Valido que el usuario no sea nulo
         if (usuario == null) throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
-        
-        Connection con = Conexion.getConexion().getJdbcConnection();
-        String insUsu = "INSERT INTO usuario (dni, nombre, email) VALUES (?, ?, ?)";
-        String insDir = "INSERT INTO direccion (via, numero, cp, localidad, usuario_dni) VALUES (?, ?, ?, ?, ?)";
-        
-        boolean autoCommitOriginal = true;
+        // Conexion con la base de datos
+        Connection con = Conexion.getInstancia().getJdbcConnection();
         try {
-            autoCommitOriginal = con.getAutoCommit();
-            con.setAutoCommit(false); // Iniciamos transacción
+            // Desactivamos el auto commit para poder hacer las operaciones de manera atomica
+            con.setAutoCommit(false);
             
-            try (PreparedStatement psUsu = con.prepareStatement(insUsu);
-                 PreparedStatement psDir = con.prepareStatement(insDir)) {
-                
-                psUsu.setString(1, usuario.getDni());
-                psUsu.setString(2, usuario.getNombre());
-                psUsu.setString(3, usuario.getEmail());
-                psUsu.executeUpdate();
-                
-                Direccion dir = usuario.getDireccion();
-                psDir.setString(1, dir.getVia());
-                psDir.setString(2, dir.getNumero());
-                psDir.setString(3, dir.getCp());
-                psDir.setString(4, dir.getLocalidad());
-                psDir.setString(5, usuario.getDni());
-                psDir.executeUpdate();
-            }
-            con.commit(); // Confirmamos los cambios de golpe
-        } catch (SQLException e) {
-            try { con.rollback(); } catch (SQLException ex) {} // Revertimos si falla algo a medias
-            throw new IllegalArgumentException("ERROR: Ya existe un usuario con ese DNI o error en BD.");
-        } finally {
-            try { con.setAutoCommit(autoCommitOriginal); } catch (SQLException ex) {} // Restauramos la conexión
-        }
-    }
-
-    public boolean baja(Usuario usuario) {
-        if (usuario == null) throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
-        
-        Connection con = Conexion.getConexion().getJdbcConnection();
-        boolean autoCommitOriginal = true;
-        try {
-            autoCommitOriginal = con.getAutoCommit();
-            con.setAutoCommit(false); // Iniciamos transacción
-            
-            try (PreparedStatement psDir = con.prepareStatement("DELETE FROM direccion WHERE usuario_dni = ?")) {
-                psDir.setString(1, usuario.getDni());
-                psDir.executeUpdate();
+            // Insertamos el usuario en la tabla usuario
+            try (PreparedStatement ps = con.prepareStatement("INSERT INTO usuario (dni, nombre, email) VALUES (?, ?, ?)")) {
+                ps.setString(1, usuario.getDni());
+                ps.setString(2, usuario.getNombre());
+                ps.setString(3, usuario.getEmail());
+                ps.executeUpdate();
             }
             
-            int filasAfectadas = 0;
-            try (PreparedStatement psUsu = con.prepareStatement("DELETE FROM usuario WHERE dni = ?")) {
-                psUsu.setString(1, usuario.getDni());
-                filasAfectadas = psUsu.executeUpdate();
+            // Insertamos la direccion en la tabla direccion (utiliza el mismo DNI como PK)
+            try (PreparedStatement ps = con.prepareStatement("INSERT INTO direccion (dni, via, numero, cp, localidad) VALUES (?, ?, ?, ?, ?)")) {
+                ps.setString(1, usuario.getDni());
+                ps.setString(2, usuario.getDireccion().getVia());
+                ps.setString(3, usuario.getDireccion().getNumero());
+                ps.setString(4, usuario.getDireccion().getCp());
+                ps.setString(5, usuario.getDireccion().getLocalidad());
+                ps.executeUpdate();
             }
             
+            // Commit de las operaciones anteriores si todo ha ido bien
             con.commit();
-            return filasAfectadas > 0;
         } catch (SQLException e) {
-            try { con.rollback(); } catch (SQLException ex) {}
-            return false;
-        } finally {
-            try { con.setAutoCommit(autoCommitOriginal); } catch (SQLException ex) {}
+            // Si ocurre un error, se hace un rollback para mantener la integridad de los datos
+            con.rollback(); throw e;
+        } finally { 
+            // Restauramos el modo de auto commit
+            con.setAutoCommit(true); 
         }
     }
 
-    public Usuario buscar(Usuario usuario) {
+    // Metodo para dar de baja un usuario
+    public boolean baja(Usuario usuario) throws SQLException {
+        // Valido que el usuario no sea nulo
         if (usuario == null) throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
-        
-        Connection con = Conexion.getConexion().getJdbcConnection();
-        String q = "SELECT u.dni, u.nombre, u.email, d.via, d.numero, d.cp, d.localidad FROM usuario u JOIN direccion d ON u.dni = d.usuario_dni WHERE u.dni = ?";
-        try (PreparedStatement ps = con.prepareStatement(q)) {
+        // Consulta para eliminar el usuario por su DNI (la direccion se borra en cascada por BD)
+        try (PreparedStatement ps = Conexion.getInstancia().getJdbcConnection().prepareStatement("DELETE FROM usuario WHERE dni = ?")) {
+            ps.setString(1, usuario.getDni());
+            // Devolvemos true si se ha eliminado el registro, false si no
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    // Metodo para buscar un usuario en la base de datos
+    public Usuario buscar(Usuario usuario) throws SQLException {
+        // Valido que el usuario no sea nulo
+        if (usuario == null) return null;
+        // Consulta para obtener los datos del usuario y su direccion mediante un JOIN
+        String sql = "SELECT u.dni, u.nombre, u.email, d.via, d.numero, d.cp, d.localidad FROM usuario u JOIN direccion d ON u.dni = d.dni WHERE u.dni = ?";
+        // Ejecutamos la consulta
+        try (PreparedStatement ps = Conexion.getInstancia().getJdbcConnection().prepareStatement(sql)) {
             ps.setString(1, usuario.getDni());
             try (ResultSet rs = ps.executeQuery()) {
+                // Si el usuario existe, creamos el objeto Direccion y el objeto Usuario
                 if (rs.next()) {
                     Direccion dir = new Direccion(rs.getString("via"), rs.getString("numero"), rs.getString("cp"), rs.getString("localidad"));
                     return new Usuario(rs.getString("dni"), rs.getString("nombre"), rs.getString("email"), dir);
                 }
             }
-        } catch (SQLException e) {
-            System.out.println("Error al buscar el usuario: " + e.getMessage());
         }
         return null;
     }
 
-    public List<Usuario> todos() {
-        List<Usuario> usuarios = new ArrayList<>();
-        Connection con = Conexion.getConexion().getJdbcConnection();
-        String q = "SELECT u.dni, u.nombre, u.email, d.via, d.numero, d.cp, d.localidad FROM usuario u JOIN direccion d ON u.dni = d.usuario_dni ORDER BY u.nombre ASC, u.dni ASC";
-        try (PreparedStatement ps = con.prepareStatement(q);
-             ResultSet rs = ps.executeQuery()) {
+    // Metodo para obtener todos los usuarios registrados
+    public List<Usuario> todos() throws SQLException {
+        List<Usuario> lista = new ArrayList<>();
+        // Consulta para obtener todos los usuarios ordenados por nombre
+        String sql = "SELECT u.dni, u.nombre, u.email, d.via, d.numero, d.cp, d.localidad FROM usuario u JOIN direccion d ON u.dni = d.dni ORDER BY u.nombre";
+        // Ejecutamos la consulta y recorremos los resultados
+        try (Statement st = Conexion.getInstancia().getJdbcConnection().createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 Direccion dir = new Direccion(rs.getString("via"), rs.getString("numero"), rs.getString("cp"), rs.getString("localidad"));
-                usuarios.add(new Usuario(rs.getString("dni"), rs.getString("nombre"), rs.getString("email"), dir));
+                lista.add(new Usuario(rs.getString("dni"), rs.getString("nombre"), rs.getString("email"), dir));
             }
-        } catch (SQLException e) {
-            System.out.println("Error al obtener usuarios: " + e.getMessage());
         }
-        return usuarios;
+        // Devolvemos la lista de usuarios encontrados
+        return lista;
     }
 }

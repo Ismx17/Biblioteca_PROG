@@ -12,24 +12,23 @@ public class Conexion {
     private static final String CONTRASENA = "biblioteca-2026";
     private static final String URL = "jdbc:mysql://" + HOST + "/" + ESQUEMA;
     
-    private static Conexion conexion;
+    private static Conexion instancia;
     private Connection jdbcConnection;
 
     private Conexion() {}
 
-    public static synchronized Conexion getConexion() {
-        if (conexion == null) {
-            conexion = new Conexion();
+    public static synchronized Conexion getInstancia() {
+        if (instancia == null) {
+            instancia = new Conexion();
         }
-        return conexion;
+        return instancia;
     }
 
     public void establecerConexion() throws SQLException {
         try {
-            // Esto fuerza la carga del driver en memoria
             Class.forName("com.mysql.cj.jdbc.Driver"); 
         } catch (ClassNotFoundException e) {
-            throw new SQLException("No se encontró el driver de MySQL", e);
+            throw new SQLException("ERROR: No se encontró el driver de MySQL.", e);
         }
         if (jdbcConnection == null || jdbcConnection.isClosed()) {
             jdbcConnection = DriverManager.getConnection(URL, USUARIO, CONTRASENA);

@@ -1,184 +1,166 @@
 package biblioteca.modelo.negocio;
 
-import biblioteca.modelo.dominio.Audiolibro;
-import biblioteca.modelo.dominio.Autor;
-import biblioteca.modelo.dominio.Categoria;
-import biblioteca.modelo.dominio.Libro;
+import biblioteca.modelo.dominio.*;
 import biblioteca.modelo.negocio.mysql.Conexion;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class Libros {
+    // Singleton
     private static Libros libros;
-
     private Libros() {}
 
-    public static Libros getLibros() {
-        if (libros == null) {
-            libros = new Libros();
-        }
+    // Metodo para obtener la instancia de la clase Libros
+    public static synchronized Libros getLibros() {
+        if (libros == null) libros = new Libros();
         return libros;
     }
 
-    public void comenzar() {
+    // Metodos para establecer y cerrar la conexion con la base de datos
+    public void comenzar() throws SQLException { Conexion.getInstancia().establecerConexion(); }
+    public void terminar() throws SQLException { Conexion.getInstancia().cerrarConexion(); }
+
+    // Metodo para dar de alta un libro
+    public void alta(Libro libro) throws SQLException {
+        // Conexion con la base de datos
+        Connection con = Conexion.getInstancia().getJdbcConnection();
         try {
-            Conexion.getConexion().establecerConexion();
-        } catch (SQLException e) {
-            System.out.println("Error al conectar a la BD: " + e.getMessage());
-        }
-    }
-
-    public void terminar() {
-        try {
-            Conexion.getConexion().cerrarConexion();
-        } catch (SQLException e) {
-            System.out.println("Error al cerrar conexión: " + e.getMessage());
-        }
-    }
-
-    public void alta(Libro libro) {
-        if (libro == null) throw new IllegalArgumentException("ERROR: El libro no puede ser nulo.");
-        Connection con = Conexion.getConexion().getJdbcConnection();
-        boolean autoCommitOriginal = true;
-        try {
-            autoCommitOriginal = con.getAutoCommit();
-            con.setAutoCommit(false); // Transacción iniciada
-            
-            try (PreparedStatement psLibro = con.prepareStatement("INSERT INTO libro (isbn, titulo, anio, categoria) VALUES (?, ?, ?, ?)")) {
-                psLibro.setString(1, libro.getIsbn());
-                psLibro.setString(2, libro.getTitulo());
-                psLibro.setInt(3, libro.getAnio());
-                psLibro.setString(4, libro.getCategoria().name());
-                psLibro.executeUpdate();
-            }
-
-            if (libro instanceof Audiolibro) {
-                Audiolibro audio = (Audiolibro) libro;
-                try (PreparedStatement psAudio = con.prepareStatement("INSERT INTO audiolibro (isbn, duracion, formato) VALUES (?, ?, ?)")) {
-                    psAudio.setString(1, audio.getIsbn());
-                    psAudio.setLong(2, audio.getDuracion().getSeconds());
-                    psAudio.setString(3, audio.getFormato());
-                    psAudio.executeUpdate();
-                }
-            }
-
-            for (Autor autor : libro.getAutores()) {
-                int autorId = -1;
-                try (PreparedStatement psSel = con.prepareStatement("SELECT id FROM autor WHERE nombre = ? AND apellidos = ? AND nacionalidad = ?")) {
-                    psSel.setString(1, autor.getNombre());
-                    psSel.setString(2, autor.getApellidos());
-                    psSel.setString(3, autor.getNacionalidad());
-                    try (ResultSet rs = psSel.executeQuery()) {
-                        if (rs.next()) autorId = rs.getInt("id");
-                    }
-                }
-
-                if (autorId == -1) {
-                    try (PreparedStatement psIns = con.prepareStatement("INSERT INTO autor (nombre, apellidos, nacionalidad) VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
-                        psIns.setString(1, autor.getNombre());
-                        psIns.setString(2, autor.getApellidos());
-                        psIns.setString(3, autor.getNacionalidad());
-                        psIns.executeUpdate();
-                        try (ResultSet rsKeys = psIns.getGeneratedKeys()) {
-                            if (rsKeys.next()) autorId = rsKeys.getInt(1);
-                        }
-                    }
-                }
-
-                try (PreparedStatement psRel = con.prepareStatement("INSERT INTO libro_autor (libro_isbn, autor_id) VALUES (?, ?)")) {
-                    psRel.setString(1, libro.getIsbn());
-                    psRel.setInt(2, autorId);
-                    psRel.executeUpdate();
-                }
-            }
-            con.commit();
-        } catch (SQLException e) {
-            try { con.rollback(); } catch (SQLException ex) {}
-            throw new IllegalArgumentException("ERROR: Ya existe un libro con ese ISBN o ha ocurrido un error.");
-        } finally {
-            try { con.setAutoCommit(autoCommitOriginal); } catch (SQLException ex) {}
-        }
-    }
-
-    public boolean baja(Libro libro) {
-        if (libro == null) throw new IllegalArgumentException("ERROR: El libro no puede ser nulo.");
-        Connection con = Conexion.getConexion().getJdbcConnection();
-        boolean autoCommitOriginal = true;
-        try {
-            autoCommitOriginal = con.getAutoCommit();
+            // Desactivamos el auto commit para poder hacer las operaciones de manera atomica (transaccion)
             con.setAutoCommit(false);
             
-            try (PreparedStatement ps1 = con.prepareStatement("DELETE FROM libro_autor WHERE libro_isbn = ?")) {
-                ps1.setString(1, libro.getIsbn());
-                ps1.executeUpdate();
-            }
-            try (PreparedStatement ps2 = con.prepareStatement("DELETE FROM audiolibro WHERE isbn = ?")) {
-                ps2.setString(1, libro.getIsbn());
-                ps2.executeUpdate();
-            }
-            int filasAfectadas = 0;
-            try (PreparedStatement ps3 = con.prepareStatement("DELETE FROM libro WHERE isbn = ?")) {
-                ps3.setString(1, libro.getIsbn());
-                filasAfectadas = ps3.executeUpdate();
+            // Insertamos el libro en la tabla libro
+            try (PreparedStatement ps = con.prepareStatement("INSERT INTO libro (isbn, titulo, anio, categoria) VALUES (?, ?, ?, ?)")) {
+                ps.setString(1, libro.getIsbn());
+                ps.setString(2, libro.getTitulo());
+                ps.setInt(3, libro.getAnio());
+                ps.setString(4, libro.getCategoria().name());
+                ps.executeUpdate();
             }
             
+            // Si el libro es de tipo Audiolibro, insertamos sus datos especificos en la tabla audiolibro
+            if (libro instanceof Audiolibro) {
+                Audiolibro a = (Audiolibro) libro;
+                try (PreparedStatement ps = con.prepareStatement("INSERT INTO audiolibro (isbn, duracion_segundos, formato) VALUES (?, ?, ?)")) {
+                    ps.setString(1, a.getIsbn());
+                    ps.setLong(2, a.getDuracion().getSeconds());
+                    ps.setString(3, a.getFormato());
+                    ps.executeUpdate();
+                }
+            }
+            
+            // Gestionamos los autores: obtener su ID o insertarlos si no existen, y crear la relacion N:M
+            for (Autor autor : libro.getAutores()) {
+                int idAutor = obtenerOInsertarAutor(autor, con);
+                try (PreparedStatement ps = con.prepareStatement("INSERT INTO libro_autor (isbn, idAutor) VALUES (?, ?)")) {
+                    ps.setString(1, libro.getIsbn());
+                    ps.setInt(2, idAutor);
+                    ps.executeUpdate();
+                }
+            }
+            
+            // Confirmamos todas las operaciones de la transaccion
             con.commit();
-            return filasAfectadas > 0;
         } catch (SQLException e) {
-            try { con.rollback(); } catch (SQLException ex) {}
-            return false;
-        } finally {
-            try { con.setAutoCommit(autoCommitOriginal); } catch (SQLException ex) {}
+            // Si ocurre un error, deshacemos los cambios para evitar datos inconsistentes
+            con.rollback(); 
+            throw e;
+        } finally { 
+            // Restauramos el modo de auto commit
+            con.setAutoCommit(true); 
         }
     }
 
-    public Libro buscar(Libro libro) {
-        if (libro == null) throw new IllegalArgumentException("ERROR: El libro no puede ser nulo.");
-        Connection con = Conexion.getConexion().getJdbcConnection();
-        try (PreparedStatement ps = con.prepareStatement("SELECT l.isbn, l.titulo, l.anio, l.categoria, a.duracion, a.formato FROM libro l LEFT JOIN audiolibro a ON l.isbn = a.isbn WHERE l.isbn = ?")) {
+    // Metodo auxiliar para obtener el ID de un autor o insertarlo si es nuevo
+    private int obtenerOInsertarAutor(Autor a, Connection con) throws SQLException {
+        // Consulta para verificar si el autor ya existe por sus datos unicos
+        String query = "SELECT idAutor FROM autor WHERE nombre=? AND apellidos=? AND nacionalidad=?";
+        try (PreparedStatement ps = con.prepareStatement(query)) {
+            ps.setString(1, a.getNombre());
+            ps.setString(2, a.getApellidos());
+            ps.setString(3, a.getNacionalidad());
+            ResultSet rs = ps.executeQuery();
+            // Si el autor ya esta en la BD, devolvemos su ID
+            if (rs.next()) return rs.getInt(1);
+        }
+        
+        // Si no existe, lo insertamos y recuperamos la clave generada (idAutor)
+        try (PreparedStatement ps = con.prepareStatement("INSERT INTO autor (nombre, apellidos, nacionalidad) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, a.getNombre());
+            ps.setString(2, a.getApellidos());
+            ps.setString(3, a.getNacionalidad());
+            ps.executeUpdate();
+            ResultSet rs = ps.getGeneratedKeys();
+            return rs.next() ? rs.getInt(1) : -1;
+        }
+    }
+
+    // Metodo para buscar un libro por su ISBN, incluyendo datos de audiolibro si corresponde
+    public Libro buscar(Libro libro) throws SQLException {
+        // Consulta que une libro con audiolibro mediante un LEFT JOIN
+        String sql = "SELECT l.*, a.duracion_segundos, a.formato FROM libro l LEFT JOIN audiolibro a ON l.isbn = a.isbn WHERE l.isbn = ?";
+        try (PreparedStatement ps = Conexion.getInstancia().getJdbcConnection().prepareStatement(sql)) {
             ps.setString(1, libro.getIsbn());
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return construirLibro(rs, con);
+            ResultSet rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                Libro encontrado;
+                String isbn = rs.getString("isbn");
+                String titulo = rs.getString("titulo");
+                int anio = rs.getInt("anio");
+                Categoria cat = Categoria.valueOf(rs.getString("categoria"));
+                
+                // Si tiene formato, significa que es un audiolibro
+                if (rs.getString("formato") != null) {
+                    encontrado = new Audiolibro(isbn, titulo, anio, cat, Duration.ofSeconds(rs.getLong("duracion_segundos")), rs.getString("formato"));
+                } else {
+                    encontrado = new Libro(isbn, titulo, anio, cat);
+                }
+                
+                // Cargamos la lista de autores asociada al libro desde la tabla intermedia
+                cargarAutores(encontrado);
+                return encontrado;
             }
-        } catch (SQLException e) {
-            System.out.println("Error al buscar: " + e.getMessage());
         }
         return null;
     }
 
-    public List<Libro> todos() {
-        List<Libro> lista = new ArrayList<>();
-        Connection con = Conexion.getConexion().getJdbcConnection();
-        try (PreparedStatement ps = con.prepareStatement("SELECT l.isbn, l.titulo, l.anio, l.categoria, a.duracion, a.formato FROM libro l LEFT JOIN audiolibro a ON l.isbn = a.isbn ORDER BY l.titulo ASC, l.isbn ASC");
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) lista.add(construirLibro(rs, con));
-        } catch (SQLException e) {
-            System.out.println("Error al obtener libros: " + e.getMessage());
-        }
-        return lista;
-    }
-
-    private Libro construirLibro(ResultSet rs, Connection con) throws SQLException {
-        String isbn = rs.getString("isbn");
-        Categoria cat = Categoria.valueOf(rs.getString("categoria"));
-        Libro encontrado = rs.getString("formato") != null ? 
-            new Audiolibro(isbn, rs.getString("titulo"), rs.getInt("anio"), cat, Duration.ofSeconds(rs.getLong("duracion")), rs.getString("formato")) : 
-            new Libro(isbn, rs.getString("titulo"), rs.getInt("anio"), cat);
-
-        try (PreparedStatement psAutores = con.prepareStatement("SELECT a.nombre, a.apellidos, a.nacionalidad FROM autor a JOIN libro_autor la ON a.id = la.autor_id WHERE la.libro_isbn = ?")) {
-            psAutores.setString(1, isbn);
-            try (ResultSet rsAutores = psAutores.executeQuery()) {
-                while (rsAutores.next()) encontrado.addAutor(new Autor(rsAutores.getString("nombre"), rsAutores.getString("apellidos"), rsAutores.getString("nacionalidad")));
+    // Metodo auxiliar para rellenar la lista de autores de un objeto Libro
+    private void cargarAutores(Libro l) throws SQLException {
+        // Consulta para obtener los autores vinculados al ISBN del libro
+        String sql = "SELECT a.* FROM autor a JOIN libro_autor la ON a.idAutor = la.idAutor WHERE la.isbn = ?";
+        try (PreparedStatement ps = Conexion.getInstancia().getJdbcConnection().prepareStatement(sql)) {
+            ps.setString(1, l.getIsbn());
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                l.addAutor(new Autor(rs.getString("nombre"), rs.getString("apellidos"), rs.getString("nacionalidad")));
             }
         }
-        return encontrado;
+    }
+
+    // Metodo para dar de baja un libro de la base de datos
+    public boolean baja(Libro libro) throws SQLException {
+        // Consulta para eliminar el registro 
+        try (PreparedStatement ps = Conexion.getInstancia().getJdbcConnection().prepareStatement("DELETE FROM libro WHERE isbn = ?")) {
+            ps.setString(1, libro.getIsbn());
+            // Devolvemos true si se ha eliminado el registro, false si no existia
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    // Metodo para obtener el listado completo de libros
+    public List<Libro> todos() throws SQLException {
+        List<Libro> lista = new ArrayList<>();
+        // Consulta para obtener todos los ISBN ordenados por titulo para reconstruir los objetos
+        try (Statement st = Conexion.getInstancia().getJdbcConnection().createStatement();
+             ResultSet rs = st.executeQuery("SELECT isbn FROM libro ORDER BY titulo")) {
+            while (rs.next()) {
+                // Reutilizamos el metodo buscar para obtener el objeto completo con sus autores y tipo correcto
+                lista.add(buscar(new Libro(rs.getString("isbn"), "Ficticio", 1, Categoria.OTROS)));
+            }
+        }
+        return lista;
     }
 }
