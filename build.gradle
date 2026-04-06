@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.iesalandalus.programacion.biblioteca'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Incluyo la libreria Entrada
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    // Driver MySQL
+    implementation 'mysql:mysql-connector-java:8.0.28'
+}
