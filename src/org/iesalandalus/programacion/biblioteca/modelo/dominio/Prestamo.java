@@ -44,8 +44,8 @@ public class Prestamo {
     }
 
     public Libro getLibro() {
-        if (libro instanceof Audiolibro) {
-            return new Audiolibro((Audiolibro) libro);
+        if (libro instanceof Audiolibro) { // Si el libro es de tipo Audiolibro
+            return new Audiolibro((Audiolibro) libro); // Devuelvo una copia del libro transformado a Audiolibro
         }
         return new Libro(libro);  
     }
