@@ -30,7 +30,7 @@ public class Modelo {
             Libros.getLibros().terminar();
             Usuarios.getUsuarios().terminar();
             Prestamos.getPrestamos().terminar();
-            System.out.println("Conexiones cerradas. El modelo se ha terminado.");
+            System.out.println("Conexiones cerradas. Modelo finalizado");
         } catch (SQLException e) {
             System.out.println("Error al cerrar las conexiones: " + e.getMessage());
         }
@@ -41,7 +41,7 @@ public class Modelo {
         try {
             Libros.getLibros().alta(libro);
         } catch (SQLException e) {
-            throw new IllegalArgumentException("ERROR BD: No se pudo dar de alta el libro. " + e.getMessage());
+            throw new IllegalArgumentException("ERROR: No se pudo dar de alta el libro. " + e.getMessage());
         }
     }
 
@@ -59,8 +59,8 @@ public class Modelo {
             }
             return Libros.getLibros().baja(libro);
         } catch (SQLException e) {
-            // Capturamos el error de MySQL
-            throw new IllegalArgumentException("ERROR BD: No se puede borrar el libro porque figura en el historial de préstamos.");
+            // Debido a las restricciones de la base de datos, no podemos borrar un libro en caso de estar en el historial de prestamos
+            throw new IllegalArgumentException("ERROR: No se puede borrar el libro porque figura en el historial de préstamos.");
         }
     }
 
@@ -76,7 +76,7 @@ public class Modelo {
         try {
             return Libros.getLibros().todos();
         } catch (SQLException e) {
-            throw new RuntimeException("ERROR BD: No se pudo obtener el listado de libros.");
+            throw new RuntimeException("ERROR: No se pudo obtener el listado de libros.");
         }
     }
 
@@ -85,7 +85,7 @@ public class Modelo {
         try {
             Usuarios.getUsuarios().alta(usuario);
         } catch (SQLException e) {
-            throw new IllegalArgumentException("ERROR BD: No se pudo dar de alta el usuario. " + e.getMessage());
+            throw new IllegalArgumentException("ERROR: No se pudo dar de alta el usuario. " + e.getMessage());
         }
     }
 
@@ -93,14 +93,14 @@ public class Modelo {
         try {
             List<Prestamo> todos = Prestamos.getPrestamos().todos();
             for (Prestamo p : todos) {
-                // Debido a las restricciones de la base de datos, no podemos borrarlo en caso de tener historial de prestamos
+                // Debido a las restricciones de la base de datos, no podemos borrar un usuario en caso de tener historial de prestamos
                 if (p.getUsuario().getDni().equals(usuario.getDni())) {
                     throw new IllegalStateException("ERROR: No se puede borrar un usuario que tiene historial de préstamos.");
                 }
             }
             return Usuarios.getUsuarios().baja(usuario);
         } catch (SQLException e) {
-            throw new IllegalArgumentException("ERROR BD: " + e.getMessage());
+            throw new IllegalArgumentException("ERROR: " + e.getMessage());
         }
     }
 
@@ -116,24 +116,24 @@ public class Modelo {
         try {
             return Usuarios.getUsuarios().todos();
         } catch (SQLException e) {
-            throw new RuntimeException("ERROR BD: No se pudo obtener el listado de usuarios.");
+            throw new RuntimeException("ERROR: No se pudo obtener el listado de usuarios.");
         }
     }
 
     // GESTIÓN DE PRÉSTAMOS
     public void prestar(Libro libro, Usuario usuario, LocalDate fecha) {
         try {
-            // Comprobamos si el libro ya está prestado (fDevolucion IS NULL)
+            // Comprobamos si el libro ya está prestado si fDevolucion es null
             List<Prestamo> actuales = Prestamos.getPrestamos().todos();
             for (Prestamo p : actuales) {
                 if (p.getLibro().equals(libro) && !p.isDevuelto()) {
-                    throw new IllegalArgumentException("ERROR: El libro ya está prestado actualmente.");
+                    throw new IllegalArgumentException("ERROR: El libro está prestado actualmente.");
                 }
             }
             Prestamo prestamo = new Prestamo(libro, usuario, fecha);
             Prestamos.getPrestamos().prestar(prestamo);
         } catch (SQLException e) {
-            throw new IllegalArgumentException("ERROR BD: No se pudo registrar el préstamo. " + e.getMessage());
+            throw new IllegalArgumentException("ERROR: No se ha podido registrar el préstamo. " + e.getMessage());
         }
     }
 
@@ -141,7 +141,7 @@ public class Modelo {
         try {
             return Prestamos.getPrestamos().devolver(libro, usuario, fecha);
         } catch (SQLException e) {
-            throw new IllegalArgumentException("ERROR BD: No se pudo procesar la devolución. " + e.getMessage());
+            throw new IllegalArgumentException("ERROR: No se ha podido procesar la devolución. " + e.getMessage());
         }
     }
 
@@ -149,7 +149,7 @@ public class Modelo {
         try {
             return Prestamos.getPrestamos().todos();
         } catch (SQLException e) {
-            throw new RuntimeException("ERROR BD: No se pudieron obtener los préstamos del usuario.");
+            throw new RuntimeException("ERROR: No se han podido obtener los préstamos del usuario.");
         }
     }
 
@@ -157,7 +157,7 @@ public class Modelo {
         try {
             return Prestamos.getPrestamos().todosPorUsuario(usuario);
         } catch (SQLException e) {
-            throw new RuntimeException("ERROR BD: No se pudo obtener el listado de préstamos.");
+            throw new RuntimeException("ERROR: No se pudo obtener el listado de préstamos.");
         }
     }
 }

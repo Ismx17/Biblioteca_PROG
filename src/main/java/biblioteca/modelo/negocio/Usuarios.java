@@ -15,20 +15,29 @@ public class Usuarios {
 
     // Metodo para obtener la instancia de la clase Usuarios
     public static synchronized Usuarios getUsuarios() {
-        if (usuarios == null) usuarios = new Usuarios();
+        if (usuarios == null) {
+            usuarios = new Usuarios();
+        }
         return usuarios;
     }
 
     // Metodos para establecer y cerrar la conexion con la base de datos
-    public void comenzar() throws SQLException { Conexion.getInstancia().establecerConexion(); }
-    public void terminar() throws SQLException { Conexion.getInstancia().cerrarConexion(); }
+    public void comenzar() throws SQLException { 
+        Conexion.getConexion().establecerConexion(); 
+    }
+    public void terminar() throws SQLException { 
+        Conexion.getConexion().cerrarConexion(); 
+    }
 
     // Metodo para dar de alta un usuario y su direccion
     public void alta(Usuario usuario) throws SQLException {
         // Valido que el usuario no sea nulo
-        if (usuario == null) throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
+        if (usuario == null) {
+            throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
+        }
         // Conexion con la base de datos
-        Connection con = Conexion.getInstancia().getJdbcConnection();
+        Connection con = Conexion.getConexion().getJdbcConnection();
+
         try {
             // Desactivamos el auto commit para poder hacer las operaciones de manera atomica
             con.setAutoCommit(false);
@@ -51,10 +60,10 @@ public class Usuarios {
                 ps.executeUpdate();
             }
             
-            // Commit de las operaciones anteriores si todo ha ido bien
+            // Commit de las operaciones anteriores 
             con.commit();
         } catch (SQLException e) {
-            // Si ocurre un error, se hace un rollback para mantener la integridad de los datos
+            // Si ocurre un error, se hace un rollback 
             con.rollback(); throw e;
         } finally { 
             // Restauramos el modo de auto commit
@@ -64,10 +73,12 @@ public class Usuarios {
 
     // Metodo para dar de baja un usuario
     public boolean baja(Usuario usuario) throws SQLException {
+        // Consulta para eliminar el usuario por su DNI (la direccion se borra en cascada)
+        String sql = "DELETE FROM usuario WHERE dni = ?";
         // Valido que el usuario no sea nulo
         if (usuario == null) throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
-        // Consulta para eliminar el usuario por su DNI (la direccion se borra en cascada por BD)
-        try (PreparedStatement ps = Conexion.getInstancia().getJdbcConnection().prepareStatement("DELETE FROM usuario WHERE dni = ?")) {
+        // Ejecutamos la consulta
+        try (PreparedStatement ps = Conexion.getConexion().getJdbcConnection().prepareStatement(sql)) {
             ps.setString(1, usuario.getDni());
             // Devolvemos true si se ha eliminado el registro, false si no
             return ps.executeUpdate() > 0;
@@ -77,17 +88,19 @@ public class Usuarios {
     // Metodo para buscar un usuario en la base de datos
     public Usuario buscar(Usuario usuario) throws SQLException {
         // Valido que el usuario no sea nulo
-        if (usuario == null) return null;
+        if (usuario == null) {
+            return null;
+        }
         // Consulta para obtener los datos del usuario y su direccion mediante un JOIN
         String sql = "SELECT u.dni, u.nombre, u.email, d.via, d.numero, d.cp, d.localidad FROM usuario u JOIN direccion d ON u.dni = d.dni WHERE u.dni = ?";
         // Ejecutamos la consulta
-        try (PreparedStatement ps = Conexion.getInstancia().getJdbcConnection().prepareStatement(sql)) {
+        try (PreparedStatement ps = Conexion.getConexion().getJdbcConnection().prepareStatement(sql)) {
             ps.setString(1, usuario.getDni());
             try (ResultSet rs = ps.executeQuery()) {
                 // Si el usuario existe, creamos el objeto Direccion y el objeto Usuario
                 if (rs.next()) {
-                    Direccion dir = new Direccion(rs.getString("via"), rs.getString("numero"), rs.getString("cp"), rs.getString("localidad"));
-                    return new Usuario(rs.getString("dni"), rs.getString("nombre"), rs.getString("email"), dir);
+                    Direccion direccion = new Direccion(rs.getString("via"), rs.getString("numero"), rs.getString("cp"), rs.getString("localidad"));
+                    return new Usuario(rs.getString("dni"), rs.getString("nombre"), rs.getString("email"), direccion);
                 }
             }
         }
@@ -99,12 +112,14 @@ public class Usuarios {
         List<Usuario> lista = new ArrayList<>();
         // Consulta para obtener todos los usuarios ordenados por nombre
         String sql = "SELECT u.dni, u.nombre, u.email, d.via, d.numero, d.cp, d.localidad FROM usuario u JOIN direccion d ON u.dni = d.dni ORDER BY u.nombre";
+
         // Ejecutamos la consulta y recorremos los resultados
-        try (Statement st = Conexion.getInstancia().getJdbcConnection().createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        try (Statement st = Conexion.getConexion().getJdbcConnection().createStatement();
+            ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
-                Direccion dir = new Direccion(rs.getString("via"), rs.getString("numero"), rs.getString("cp"), rs.getString("localidad"));
-                lista.add(new Usuario(rs.getString("dni"), rs.getString("nombre"), rs.getString("email"), dir));
+                Direccion direccion = new Direccion(rs.getString("via"), rs.getString("numero"), rs.getString("cp"), rs.getString("localidad"));
+                // Construimos el objeto Usuario y lo añadimos a la lista
+                lista.add(new Usuario(rs.getString("dni"), rs.getString("nombre"), rs.getString("email"), direccion));
             }
         }
         // Devolvemos la lista de usuarios encontrados
