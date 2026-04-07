@@ -20,7 +20,7 @@ public class Consola {
         System.out.println("");
         System.out.println("1.- Insertar Usuario");
         System.out.println("2.- Borrar Usuario.");
-        System.out.println("3.- Mostrar Usuario");
+        System.out.println("3.- Mostrar Usuarios");
         System.out.println("4.- Insertar Libro");
         System.out.println("5.- Borrar Libro");
         System.out.println("6.- Mostrar Libros");
