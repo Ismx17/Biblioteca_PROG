@@ -41,7 +41,6 @@ public class Usuarios {
         try {
             // Desactivamos el auto commit para poder hacer las operaciones de manera atomica
             con.setAutoCommit(false);
-            
             // Insertamos el usuario en la tabla usuario
             try (PreparedStatement ps = con.prepareStatement("INSERT INTO usuario (dni, nombre, email) VALUES (?, ?, ?)")) {
                 ps.setString(1, usuario.getDni());
@@ -59,7 +58,6 @@ public class Usuarios {
                 ps.setString(5, usuario.getDireccion().getLocalidad());
                 ps.executeUpdate();
             }
-            
             // Commit de las operaciones anteriores 
             con.commit();
         } catch (SQLException e) {
@@ -73,7 +71,7 @@ public class Usuarios {
 
     // Metodo para dar de baja un usuario
     public boolean baja(Usuario usuario) throws SQLException {
-        // Consulta para eliminar el usuario por su DNI (la direccion se borra en cascada)
+        // Consulta para eliminar el usuario por su DNI (la direccion se borra en cascada segun el esquema de la BD)
         String sql = "DELETE FROM usuario WHERE dni = ?";
         // Valido que el usuario no sea nulo
         if (usuario == null) throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
@@ -112,7 +110,6 @@ public class Usuarios {
         List<Usuario> lista = new ArrayList<>();
         // Consulta para obtener todos los usuarios ordenados por nombre
         String sql = "SELECT u.dni, u.nombre, u.email, d.via, d.numero, d.cp, d.localidad FROM usuario u JOIN direccion d ON u.dni = d.dni ORDER BY u.nombre";
-
         // Ejecutamos la consulta y recorremos los resultados
         try (Statement st = Conexion.getConexion().getJdbcConnection().createStatement();
             ResultSet rs = st.executeQuery(sql)) {

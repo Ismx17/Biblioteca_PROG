@@ -10,6 +10,7 @@ public class Conexion {
     private static final String ESQUEMA = "dbbiblioteca";
     private static final String USUARIO = "admin";
     private static final String CONTRASENA = "biblioteca-2026";
+    
     private static final String URL = "jdbc:mysql://" + HOST + "/" + ESQUEMA;
     
     // Atributo privado donde se almacena la unica instancia de la clase permitida

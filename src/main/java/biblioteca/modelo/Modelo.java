@@ -17,9 +17,11 @@ public class Modelo {
 
     public void comenzar() {
         try {
+            // Iniciamos las conexiones con la base de datos
             Libros.getLibros().comenzar();
             Usuarios.getUsuarios().comenzar();
             Prestamos.getPrestamos().comenzar();
+            System.out.println("Conexiones abiertas. Modelo iniciado");
         } catch (SQLException e) {
             throw new RuntimeException("ERROR: No se pudo iniciar la conexión con la base de datos: " + e.getMessage());
         }
@@ -27,6 +29,7 @@ public class Modelo {
 
     public void terminar() {
         try {
+            // Terminamos las conexiones con la base de datos
             Libros.getLibros().terminar();
             Usuarios.getUsuarios().terminar();
             Prestamos.getPrestamos().terminar();

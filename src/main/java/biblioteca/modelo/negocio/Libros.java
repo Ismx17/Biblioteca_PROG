@@ -32,7 +32,6 @@ public class Libros {
     public void alta(Libro libro) throws SQLException {
         // Conexion con la base de datos
         Connection con = Conexion.getConexion().getJdbcConnection();
-
         try {
             // Desactivamos el auto commit para poder hacer las operaciones de manera atomica
             con.setAutoCommit(false);
@@ -44,7 +43,6 @@ public class Libros {
                 ps.setString(4, libro.getCategoria().name());
                 ps.executeUpdate();
             }
-
             // Si el libro es de tipo Audiolibro, insertamos sus datos especificos en la tabla audiolibro
             if (libro instanceof Audiolibro) {
                 // Casteamos el objeto Libro a Audiolibro
@@ -56,7 +54,6 @@ public class Libros {
                     ps.executeUpdate();
                 }
             }
-
             // Gestionamos los autores: obtener su ID o insertarlos si no existen, y crear la relacion N:M
             for (Autor autor : libro.getAutores()) {
                 int idAutor = obtenerOInsertarAutor(autor, con);
@@ -68,7 +65,6 @@ public class Libros {
             }
             // Confirmamos todas las operaciones de la transaccion
             con.commit();
-
         } catch (SQLException e) {
             // Si ocurre un error, deshacemos los cambios para evitar datos inconsistentes
             con.rollback(); 
@@ -83,7 +79,6 @@ public class Libros {
     private int obtenerOInsertarAutor(Autor a, Connection con) throws SQLException {
         // Consulta para verificar si el autor ya existe por sus datos unicos
         String sql = "SELECT idAutor FROM autor WHERE nombre=? AND apellidos=? AND nacionalidad=?";
-
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, a.getNombre());
             ps.setString(2, a.getApellidos());
@@ -92,7 +87,6 @@ public class Libros {
             // Si el autor ya esta en la BD, devolvemos su ID
             if (rs.next()) return rs.getInt(1);
         }
-
         // Si no existe, lo insertamos 
         try (PreparedStatement ps = con.prepareStatement("INSERT INTO autor (nombre, apellidos, nacionalidad) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, a.getNombre());
@@ -110,7 +104,6 @@ public class Libros {
     public Libro buscar(Libro libro) throws SQLException {
         // Consulta que une libro con audiolibro mediante un LEFT JOIN
         String sql = "SELECT l.*, a.duracion_segundos, a.formato FROM libro l LEFT JOIN audiolibro a ON l.isbn = a.isbn WHERE l.isbn = ?";
-
         try (PreparedStatement ps = Conexion.getConexion().getJdbcConnection().prepareStatement(sql)) {
             ps.setString(1, libro.getIsbn());
             ResultSet rs = ps.executeQuery();
@@ -120,14 +113,12 @@ public class Libros {
                 String titulo = rs.getString("titulo");
                 int anio = rs.getInt("anio");
                 Categoria cat = Categoria.valueOf(rs.getString("categoria"));
-
                 // Si tiene el campo formato, significa que es un audiolibro
                 if (rs.getString("formato") != null) {
                     encontrado = new Audiolibro(isbn, titulo, anio, cat, Duration.ofSeconds(rs.getLong("duracion_segundos")), rs.getString("formato"));
                 } else {
                     encontrado = new Libro(isbn, titulo, anio, cat);
                 }
-                
                 // Cargamos la lista de autores asociada al libro desde la tabla intermedia
                 cargarAutores(encontrado);
                 return encontrado;
@@ -140,11 +131,9 @@ public class Libros {
     private void cargarAutores(Libro l) throws SQLException {
         // Consulta para obtener los autores vinculados al ISBN del libro
         String sql = "SELECT a.* FROM autor a JOIN libro_autor la ON a.idAutor = la.idAutor WHERE la.isbn = ?";
-
         try (PreparedStatement ps = Conexion.getConexion().getJdbcConnection().prepareStatement(sql)) {
             ps.setString(1, l.getIsbn());
             ResultSet rs = ps.executeQuery();
-
             // Usamos while para recorrer todos los autores que pueda tener un libro
             while (rs.next()) {
                 l.addAutor(new Autor(rs.getString("nombre"), rs.getString("apellidos"), rs.getString("nacionalidad")));

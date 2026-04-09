@@ -34,11 +34,9 @@ public class Prestamos {
 
         String sqlCheck = "SELECT COUNT(*) FROM prestamo WHERE isbn = ? AND devuelto = false";
         String sqlInsert = "INSERT INTO prestamo (dni, isbn, fInicio, fLimite, devuelto) VALUES (?, ?, ?, ?, ?)";
-    
         try {
             // Iniciamos la transacción
             con.setAutoCommit(false);
-    
             // Validación para saber si el libro esta disponible
             try (PreparedStatement psCheck = con.prepareStatement(sqlCheck)) {
                 psCheck.setString(1, p.getLibro().getIsbn());
@@ -47,7 +45,6 @@ public class Prestamos {
                     throw new SQLException("El libro con ISBN " + p.getLibro().getIsbn() + " ya está prestado.");
                 }
             }
-    
             // Inserción del préstamo
             try (PreparedStatement psInsert = con.prepareStatement(sqlInsert)) {
                 psInsert.setString(1, p.getUsuario().getDni());
@@ -58,10 +55,8 @@ public class Prestamos {
                 // Ejecutamos la insercion
                 psInsert.executeUpdate();
             }
-    
             // Confirmamos los cambios
             con.commit();
-    
         } catch (SQLException e) {
             // Si algo falla deshacemos todo
             con.rollback();
@@ -76,13 +71,11 @@ public class Prestamos {
     public boolean devolver(Libro l, Usuario u, LocalDate fDev) throws SQLException {
         // Consulta para actualizar el estado del prestamo (solo si no ha sido devuelto ya)
         String sql = "UPDATE prestamo SET devuelto = true, fDevolucion = ? WHERE dni = ? AND isbn = ? AND fDevolucion IS NULL";
-
         // Ejecutamos la actualizacion con la fecha de devolucion proporcionada
         try (PreparedStatement ps = Conexion.getConexion().getJdbcConnection().prepareStatement(sql)) {
             ps.setDate(1, Date.valueOf(fDev));
             ps.setString(2, u.getDni());
             ps.setString(3, l.getIsbn());
-
             // Devolvemos true si se ha actualizado el registro, indicando que la devolucion fue exitosa
             return ps.executeUpdate() > 0;
         }
@@ -93,7 +86,6 @@ public class Prestamos {
         List<Prestamo> lista = new ArrayList<>();
         // Consulta para obtener todos los registros de la tabla prestamo ordenados por fecha de inicio descendente
         String sql = "SELECT * FROM prestamo ORDER BY fInicio DESC";
-
         // Ejecutamos la consulta y recorremos los resultados
         try (Statement st = Conexion.getConexion().getJdbcConnection().createStatement();
              ResultSet rs = st.executeQuery(sql)) {
@@ -101,7 +93,6 @@ public class Prestamos {
                 // Buscamos los objetos Usuario y Libro correspondientes
                 Usuario usuario = Usuarios.getUsuarios().buscar(new Usuario(rs.getString("dni"), "F", "a@a.com", new Direccion("V", "1", "11111", "L")));
                 Libro libro = Libros.getLibros().buscar(new Libro(rs.getString("isbn"), "F", 1, Categoria.OTROS));
-                
                 // Si ambos objetos existen, reconstruimos el objeto Prestamo
                 // Garantiza que siempre existan los objetos Usuario y Libro
                 if (usuario != null && libro != null) {
@@ -124,7 +115,6 @@ public class Prestamos {
         List<Prestamo> lista = new ArrayList<>();
         // Consulta para filtrar los prestamos por el DNI del usuario en orden de fecha de inicio descendente
         String sql = "SELECT * FROM prestamo WHERE dni = ? ORDER BY fInicio DESC";
-
         // Ejecutamos la consulta
         try (PreparedStatement ps = Conexion.getConexion().getJdbcConnection().prepareStatement(sql)) {
             ps.setString(1, usuario.getDni());
