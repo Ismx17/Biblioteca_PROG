@@ -1,43 +1,46 @@
-# 📚 Sistema de Gestión de Biblioteca (Java MVC)
+# 📚 Sistema de Gestión de Biblioteca (Java MVC) 🛠️ `En Desarrollo`
 
-Proyecto desarrollado para la asignatura de **Programación (DAM)** en el IES Al-Andalus. Esta aplicación implementa un sistema robusto de gestión bibliotecaria utilizando el patrón de diseño **Modelo-Vista-Controlador (MVC)**.
+Proyecto desarrollado para la asignatura de **Programación (DAM)** en el **IES Al-Andalus**. Esta aplicación implementa un sistema robusto de gestión bibliotecaria utilizando el patrón de diseño **Modelo-Vista-Controlador (MVC)**, asegurando un código escalable, organizado y profesional.
+
+> [!IMPORTANTE¡]
+> **Estado del proyecto:** Actualmente en desarrollo activo. Se están implementando las capas de lógica de préstamos y refinando la interacción con el usuario.
 
 ---
 
-## 🚀 Funcionalidades y Lógica de Negocio
+## 🚀 Funcionalidades y Arquitectura
 
-El sistema permite una gestión integral de los recursos de la biblioteca a través de una arquitectura desacoplada:
+El sistema se basa en una arquitectura desacoplada para facilitar el mantenimiento y la evolución del software:
 
-- **Gestión de Recursos Multimedia:** Soporte para diferentes tipos de materiales, incluyendo `Audiolibro` y `Libro`.
-- **Control de Préstamos:** Lógica de negocio para vincular `Usuarios` con recursos y gestionar fechas.
-- **Validación Estricta:** Uso de clases de apoyo como `Direccion` y `Autor` para garantizar la integridad del dominio.
-- **Interfaz de Usuario:** Sistema basado en consola (`Vista`, `Consola`, `Opcion`) para una interacción fluida y jerarquizada.
+- **Modelo de Dominio:** Implementación de entidades clave como `Libro`, `Audiolibro`, `Autor` y `Usuario`.
+- **Lógica de Negocio:** Gestión centralizada de colecciones en el paquete `negocio`, separando la estructura de datos de su manipulación.
+- **Interfaz MVC:** Comunicación fluida entre el `Modelo` y la `Vista` a través de un `Controlador` centralizado.
+- **Validación de Datos:** Uso de constructores y métodos con validaciones de seguridad para garantizar la integridad del sistema.
 
 ---
 
 ## 🛠️ Stack Tecnológico
 
-- **Lenguaje:** Java
+- **Lenguaje:** [Java](https://www.oracle.com/java/)
+- **Paradigma:** Programación Orientada a Objetos (POO).
 - **Arquitectura:** Modelo-Vista-Controlador (MVC).
-- **Entorno:** IntelliJ IDEA.
-- **Gestión de Datos:** Almacenamiento organizado en capas de `Negocio` y `Dominio`.
+- **IDE Sugerido:** IntelliJ IDEA / VS Code.
 
 ---
 
-## 📐 Estructura de Clases y Paquetes
+## 📂 Estructura del Proyecto
 
-La jerarquía del proyecto sigue los estándares de limpieza y organización de Java:
+La jerarquía de clases sigue los estándares de organización de Java, facilitando la lectura del código:
 
 ```text
 src/org/iesalandalus/programacion/biblioteca/
- ├── controlador/       # Orquestador entre el modelo y la vista
+ ├── controlador/       # Orquestador (Enlace entre Modelo y Vista)
  │    └── Controlador.java
  ├── modelo/            
- │    ├── dominio/      # Entidades (POJOs) y lógica de datos
+ │    ├── dominio/      # Entidades y objetos de datos (POJOs)
  │    │    ├── Libro, Audiolibro, Autor, Usuario, Prestamo...
- │    └── negocio/      # Lógica de gestión de colecciones
+ │    └── negocio/      # Lógica de gestión de colecciones y persistencia
  │         ├── Libros, Usuarios, Prestamos...
- │    └── Modelo.java   # Fachada del modelo
- ├── vista/             # Interfaz de usuario (Consola)
+ │    └── Modelo.java   # Fachada para la comunicación con el controlador
+ ├── vista/             # Interfaz de usuario (Entorno de Consola)
  │    ├── Vista, Consola, Opcion...
- └── AppBiblioteca.java # Punto de entrada (Main)
+ └── AppBiblioteca.java # Clase principal (Punto de entrada)
