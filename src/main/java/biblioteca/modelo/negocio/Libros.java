@@ -20,16 +20,24 @@ public class Libros {
     }
 
     // Metodos para establecer y cerrar la conexion con la base de datos
-    public void comenzar() throws SQLException { 
-        Conexion.getConexion().establecerConexion(); 
+    public void comenzar() { 
+        try {
+            Conexion.getConexion().establecerConexion(); 
+        } catch (SQLException e) {
+            System.out.println("ERROR: No se pudo establecer la conexión: " + e.getMessage());
+        }
     }
 
-    public void terminar() throws SQLException { 
-        Conexion.getConexion().cerrarConexion(); 
+    public void terminar() { 
+        try {
+            Conexion.getConexion().cerrarConexion(); 
+        } catch (SQLException e) {
+            System.out.println("ERROR: No se pudo cerrar la conexión: " + e.getMessage());
+        }
     }
 
     // Metodo para dar de alta un libro
-    public void alta(Libro libro) throws SQLException {
+    public void alta(Libro libro) {
         // Conexion con la base de datos
         Connection con = Conexion.getConexion().getJdbcConnection();
         try {
@@ -66,12 +74,19 @@ public class Libros {
             // Confirmamos todas las operaciones de la transaccion
             con.commit();
         } catch (SQLException e) {
-            // Si ocurre un error, deshacemos los cambios para evitar datos inconsistentes
-            con.rollback(); 
-            throw e;
+            try {
+                // Si ocurre un error, deshacemos los cambios para evitar datos inconsistentes
+                con.rollback(); 
+            } catch (SQLException ex) {
+                System.out.println("ERROR: No se pudo deshacer la transacción: " + ex.getMessage());
+            }
+            System.out.println("ERROR: No se pudo dar de alta el libro: " + e.getMessage());
         } finally { 
-            // Restauramos el modo de auto commit
-            con.setAutoCommit(true); 
+            try {
+                // Restauramos el modo de auto commit
+                con.setAutoCommit(true); 
+            } catch (SQLException ex) {
+            }
         }
     }
 
@@ -101,7 +116,7 @@ public class Libros {
     }
 
     // Metodo para buscar un libro por su ISBN, incluyendo audiolibro
-    public Libro buscar(Libro libro) throws SQLException {
+    public Libro buscar(Libro libro) {
         // Consulta que une libro con audiolibro mediante un LEFT JOIN
         String sql = "SELECT l.*, a.duracion_segundos, a.formato FROM libro l LEFT JOIN audiolibro a ON l.isbn = a.isbn WHERE l.isbn = ?";
         try (PreparedStatement ps = Conexion.getConexion().getJdbcConnection().prepareStatement(sql)) {
@@ -123,6 +138,8 @@ public class Libros {
                 cargarAutores(encontrado);
                 return encontrado;
             }
+        } catch (SQLException e) {
+            System.out.println("ERROR: No se pudo buscar el libro: " + e.getMessage());
         }
         return null;
     }
@@ -142,25 +159,38 @@ public class Libros {
     }
 
     // Metodo para dar de baja un libro de la base de datos
-    public boolean baja(Libro libro) throws SQLException {
+    public boolean baja(Libro libro) {
         // Consulta para eliminar el registro 
         try (PreparedStatement ps = Conexion.getConexion().getJdbcConnection().prepareStatement("DELETE FROM libro WHERE isbn = ?")) {
             ps.setString(1, libro.getIsbn());
             // Devolvemos true si se ha eliminado el registro, false si no existia
             return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("ERROR: No se pudo dar de baja el libro: " + e.getMessage());
+            return false;
         }
     }
 
     // Metodo para obtener el listado completo de libros
-    public List<Libro> todos() throws SQLException {
+    public List<Libro> todos() {
         List<Libro> lista = new ArrayList<>();
-        // Consulta para obtener todos los ISBN ordenados por titulo
-        try (Statement st = Conexion.getConexion().getJdbcConnection().createStatement();
-             ResultSet rs = st.executeQuery("SELECT isbn FROM libro ORDER BY titulo")) {
+        // Consulta para obtener todos los libros ordenados por titulo
+        String sql = "SELECT l.*, a.duracion_segundos, a.formato FROM libro l LEFT JOIN audiolibro a ON l.isbn = a.isbn ORDER BY l.titulo";
+        try (PreparedStatement ps = Conexion.getConexion().getJdbcConnection().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                // Reutilizamos el metodo buscar para obtener el objeto completo con sus autores y tipo correcto
-                lista.add(buscar(new Libro(rs.getString("isbn"), "Ficticio", 1, Categoria.OTROS)));
+                Libro encontrado;
+                Categoria cat = Categoria.valueOf(rs.getString("categoria"));
+                if (rs.getString("formato") != null) {
+                    encontrado = new Audiolibro(rs.getString("isbn"), rs.getString("titulo"), rs.getInt("anio"), cat, Duration.ofSeconds(rs.getLong("duracion_segundos")), rs.getString("formato"));
+                } else {
+                    encontrado = new Libro(rs.getString("isbn"), rs.getString("titulo"), rs.getInt("anio"), cat);
+                }
+                cargarAutores(encontrado);
+                lista.add(encontrado);
             }
+        } catch (SQLException e) {
+            System.out.println("ERROR: No se pudo obtener el listado de libros: " + e.getMessage());
         }
         return lista;
     }

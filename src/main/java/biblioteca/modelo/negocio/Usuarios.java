@@ -22,15 +22,23 @@ public class Usuarios {
     }
 
     // Metodos para establecer y cerrar la conexion con la base de datos
-    public void comenzar() throws SQLException { 
-        Conexion.getConexion().establecerConexion(); 
+    public void comenzar() { 
+        try {
+            Conexion.getConexion().establecerConexion(); 
+        } catch (SQLException e) {
+            System.out.println("ERROR: No se pudo establecer la conexión: " + e.getMessage());
+        }
     }
-    public void terminar() throws SQLException { 
-        Conexion.getConexion().cerrarConexion(); 
+    public void terminar() { 
+        try {
+            Conexion.getConexion().cerrarConexion(); 
+        } catch (SQLException e) {
+            System.out.println("ERROR: No se pudo cerrar la conexión: " + e.getMessage());
+        }
     }
 
     // Metodo para dar de alta un usuario y su direccion
-    public void alta(Usuario usuario) throws SQLException {
+    public void alta(Usuario usuario) {
         // Valido que el usuario no sea nulo
         if (usuario == null) {
             throw new IllegalArgumentException("ERROR: El usuario no puede ser nulo.");
@@ -61,16 +69,23 @@ public class Usuarios {
             // Commit de las operaciones anteriores 
             con.commit();
         } catch (SQLException e) {
-            // Si ocurre un error, se hace un rollback 
-            con.rollback(); throw e;
+            try {
+                // Si ocurre un error, se hace un rollback 
+                con.rollback(); 
+            } catch (SQLException ex) {
+            }
+            System.out.println("ERROR: No se pudo dar de alta el usuario: " + e.getMessage());
         } finally { 
-            // Restauramos el modo de auto commit
-            con.setAutoCommit(true); 
+            try {
+                // Restauramos el modo de auto commit
+                con.setAutoCommit(true); 
+            } catch (SQLException ex) {
+            }
         }
     }
 
     // Metodo para dar de baja un usuario
-    public boolean baja(Usuario usuario) throws SQLException {
+    public boolean baja(Usuario usuario) {
         // Consulta para eliminar el usuario por su DNI (la direccion se borra en cascada segun el esquema de la BD)
         String sql = "DELETE FROM usuario WHERE dni = ?";
         // Valido que el usuario no sea nulo
@@ -80,11 +95,14 @@ public class Usuarios {
             ps.setString(1, usuario.getDni());
             // Devolvemos true si se ha eliminado el registro, false si no
             return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("ERROR: No se pudo dar de baja el usuario: " + e.getMessage());
+            return false;
         }
     }
 
     // Metodo para buscar un usuario en la base de datos
-    public Usuario buscar(Usuario usuario) throws SQLException {
+    public Usuario buscar(Usuario usuario) {
         // Valido que el usuario no sea nulo
         if (usuario == null) {
             return null;
@@ -101,12 +119,14 @@ public class Usuarios {
                     return new Usuario(rs.getString("dni"), rs.getString("nombre"), rs.getString("email"), direccion);
                 }
             }
+        } catch (SQLException e) {
+            System.out.println("ERROR: No se pudo buscar el usuario: " + e.getMessage());
         }
         return null;
     }
 
     // Metodo para obtener todos los usuarios registrados
-    public List<Usuario> todos() throws SQLException {
+    public List<Usuario> todos() {
         List<Usuario> lista = new ArrayList<>();
         // Consulta para obtener todos los usuarios ordenados por nombre
         String sql = "SELECT u.dni, u.nombre, u.email, d.via, d.numero, d.cp, d.localidad FROM usuario u JOIN direccion d ON u.dni = d.dni ORDER BY u.nombre";
@@ -118,6 +138,8 @@ public class Usuarios {
                 // Construimos el objeto Usuario y lo añadimos a la lista
                 lista.add(new Usuario(rs.getString("dni"), rs.getString("nombre"), rs.getString("email"), direccion));
             }
+        } catch (SQLException e) {
+            System.out.println("ERROR: No se pudo obtener el listado de usuarios: " + e.getMessage());
         }
         // Devolvemos la lista de usuarios encontrados
         return lista;

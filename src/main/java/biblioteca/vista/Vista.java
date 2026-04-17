@@ -157,24 +157,11 @@ public class Vista {
 
     private void nuevoPrestamo() {
         try {
-            // Buscamos el libro por ISBN
-            Libro libro = controlador.buscar(Consola.nuevoLibro(true));
-            // Si el libro no existe mostramos mensaje de error y salimos del metodo
-            if (libro == null) {
-                System.out.println("ERROR: No se encuentra el libro.");
-                return;
-            }
-            // Buscamos el usuario por DNI
-            Usuario usuario = controlador.buscar(Consola.nuevoUsuario(true));
-            // Si el usuario no existe mostramos mensaje de error y salimos del metodo
-            if (usuario == null) {
-                System.out.println("ERROR: No se encuentra el usuario.");
-                return;
-            }
-            LocalDate fecha = Consola.leerFecha("Introduce la fecha de préstamo"); // Pedimos la fecha de prestamo
-            // Intento dar de alta el prestamo
+            Libro libro = Consola.nuevoLibro(true);
+            Usuario usuario = Consola.nuevoUsuario(true);
+            LocalDate fecha = Consola.leerFecha("Introduce la fecha de préstamo");
             controlador.prestar(libro, usuario, fecha);
-            System.out.println("Libro prestado correctamente.");
+            System.out.println("Proceso de préstamo finalizado.");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
