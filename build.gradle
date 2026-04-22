@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group = 'org.iesalandalus.programacion.biblioteca'
@@ -10,8 +11,20 @@ repositories {
 }
 
 dependencies {
-    // Incluyo la libreria Entrada
+    // Definimos la versión de JavaFX
+    def javafx_version = "21"
+
+    // Dependencias de JavaFX
+    implementation "org.openjfx:javafx-controls:$javafx_version:win"
+    implementation "org.openjfx:javafx-fxml:$javafx_version:win"
+    implementation "org.openjfx:javafx-graphics:$javafx_version:win"
+    implementation "org.openjfx:javafx-base:$javafx_version:win"
+
+    // Tus otras dependencias
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    // Driver MySQL
     implementation 'mysql:mysql-connector-java:8.0.28'
+}
+
+application {
+    mainClass = 'org.iesalandalus.programacion.biblioteca.AppBiblioteca'
 }
