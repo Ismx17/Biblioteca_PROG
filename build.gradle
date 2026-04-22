@@ -26,5 +26,5 @@ dependencies {
 }
 
 application {
-    mainClass = 'org.iesalandalus.programacion.biblioteca.AppBiblioteca'
+    mainClass = 'biblioteca.Main'
 }
