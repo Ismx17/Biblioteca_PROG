@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="750.0" prefWidth="1050.0" spacing="10.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="biblioteca.controlador.MainController">
+<VBox prefHeight="750.0" prefWidth="1050.0" spacing="10.0" stylesheets="@estilos.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="biblioteca.controlador.MainController">
     <children>
         <Label text="Gestión Biblioteca IES Al-Ándalus">
             <font> <Font name="System Bold" size="24.0" /> </font>
