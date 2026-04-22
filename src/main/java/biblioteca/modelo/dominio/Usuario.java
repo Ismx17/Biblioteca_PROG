@@ -98,7 +98,7 @@ public class Usuario implements Comparable<Usuario> {
 
     @Override
     public String toString() {
-        return "Usuario [dni=" + dni + ", nombre=" + nombre + ", email=" + email + ", direccion=" + direccion + "]";
+        return nombre + " (" + dni + ")";
     }
 
     @Override

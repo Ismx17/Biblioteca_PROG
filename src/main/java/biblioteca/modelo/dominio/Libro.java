@@ -129,11 +129,6 @@ public class Libro implements Comparable<Libro> {
     }
 
     @Override
-    public String toString() {
-        return "Libro [titulo=" + titulo + ", isbn=" + isbn + ", categoria=" + categoria + ", anio=" + anio + ", autores=" + autoresComoCadena() + "]";
-    }
-
-    @Override
     public int compareTo(Libro otro) {
         // Ordenamos alfabeticamente por titulo
         int resultado = titulo.compareToIgnoreCase(otro.titulo);
@@ -143,5 +138,10 @@ public class Libro implements Comparable<Libro> {
             return isbn.compareTo(otro.isbn); 
         }
         return resultado;
+    }
+
+    @Override
+    public String toString() {
+        return titulo;
     }
 }
