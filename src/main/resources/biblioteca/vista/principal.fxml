@@ -6,152 +6,137 @@
 <?import javafx.scene.text.Font?>
 
 <VBox prefHeight="750.0" prefWidth="1050.0" spacing="10.0" stylesheets="@estilos.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="biblioteca.controlador.MainController">
-    <children>
-        <Label text="Gestión Biblioteca IES Al-Ándalus">
-            <font> <Font name="System Bold" size="24.0" /> </font>
-            <VBox.margin> <Insets left="20.0" top="10.0" /> </VBox.margin>
-        </Label>
-        <TabPane prefHeight="700.0" tabClosingPolicy="UNAVAILABLE">
-            <tabs>
-                <Tab text="Catálogo de Libros">
-                    <content>
-                        <AnchorPane>
-                            <children>
-                                <SplitPane dividerPositions="0.65" prefHeight="600.0" prefWidth="1030.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
-                                    <items>
-                                        <VBox spacing="10.0">
-                                            <children>
-                                                <TableView fx:id="tvLibros" prefHeight="550.0">
-                                                    <columns>
-                                                        <TableColumn fx:id="colIsbn" prefWidth="110.0" text="ISBN" />
-                                                        <TableColumn fx:id="colTitulo" prefWidth="200.0" text="Título" />
-                                                        <TableColumn fx:id="colCategoria" prefWidth="90.0" text="Categoría" />
-                                                        <TableColumn fx:id="colAnio" prefWidth="60.0" text="Año" />
-                                                        <TableColumn fx:id="colInfoExtra" prefWidth="120.0" text="Detalles" />
-                                                    </columns>
-                                                </TableView>
-                                                <Button onAction="#handleEliminarLibro" style="-fx-background-color: #ff4444;" text="Eliminar Libro" textFill="WHITE" />
-                                            </children>
-                                            <padding> <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" /> </padding>
-                                        </VBox>
-                                        <ScrollPane fitToWidth="true">
-                                            <content>
-                                                <VBox spacing="10.0">
-                                                    <children>
-                                                        <Label text="Nuevo Registro"> <font> <Font name="System Bold" size="14.0" /> </font> </Label>
-                                                        <TextField fx:id="tfIsbn" promptText="ISBN (13 dígitos)" />
-                                                        <TextField fx:id="tfTitulo" promptText="Título" />
-                                                        <TextField fx:id="tfAnio" promptText="Año" />
-                                                        <ComboBox fx:id="cbCategoria" maxWidth="Infinity" promptText="Categoría" />
-                                                        <Separator />
-                                                        <Label text="Autor/es" style="-fx-font-weight: bold;" />
-                                                        <HBox spacing="5.0">
-                                                            <TextField fx:id="tfNombreAutor" promptText="Nombre" prefWidth="80.0" />
-                                                            <TextField fx:id="tfApellidosAutor" promptText="Apellidos" prefWidth="100.0" />
-                                                            <TextField fx:id="tfNacionalidadAutor" promptText="Nac." prefWidth="50.0" />
-                                                            <Button onAction="#handleAgregarAutorALista" text="+" />
-                                                        </HBox>
-                                                        <ListView fx:id="lvAutoresTemporales" prefHeight="80.0" />
-                                                        <CheckBox fx:id="chbEsAudiolibro" onAction="#handleCheckAudiolibro" text="¿Es Audiolibro?" />
-                                                        <VBox fx:id="vbCamposAudiolibro" managed="false" spacing="10.0" visible="false">
-                                                            <TextField fx:id="tfDuracion" promptText="Segundos" />
-                                                            <ComboBox fx:id="cbFormato" maxWidth="Infinity" promptText="Formato Audio" />
-                                                        </VBox>
-                                                        <Button maxWidth="Infinity" onAction="#handleAltaLibro" style="-fx-background-color: #2196F3;" text="Guardar Libro" textFill="WHITE" />
-                                                    </children>
-                                                    <padding> <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" /> </padding>
-                                                </VBox>
-                                            </content>
-                                        </ScrollPane>
-                                    </items>
-                                </SplitPane>
-                            </children>
-                        </AnchorPane>
-                    </content>
-                </Tab>
 
-                <Tab text="Usuarios">
-                    <content>
-                        <AnchorPane>
-                            <children>
-                                <SplitPane dividerPositions="0.65" prefHeight="600.0" prefWidth="1030.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
-                                    <items>
+    <Label text="Gestión Biblioteca IES Al-Ándalus">
+        <font> <Font name="System Bold" size="24.0" /> </font>
+        <VBox.margin> <Insets left="20.0" top="10.0" /> </VBox.margin>
+    </Label>
+
+    <TabPane prefHeight="700.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+            <Tab text="Catálogo de Libros">
+                <content>
+                    <AnchorPane>
+                        <SplitPane dividerPositions="0.65" prefHeight="600.0" prefWidth="1030.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                            <items>
+                                <VBox spacing="10.0">
+                                    <TableView fx:id="tvLibros" prefHeight="550.0">
+                                        <columns>
+                                            <TableColumn fx:id="colIsbn" prefWidth="110.0" text="ISBN" />
+                                            <TableColumn fx:id="colTitulo" prefWidth="200.0" text="Título" />
+                                            <TableColumn fx:id="colCategoria" prefWidth="90.0" text="Categoría" />
+                                            <TableColumn fx:id="colAnio" prefWidth="60.0" text="Año" />
+                                            <TableColumn fx:id="colInfoExtra" prefWidth="120.0" text="Detalles" />
+                                        </columns>
+                                    </TableView>
+                                    <Button onAction="#handleEliminarLibro" style="-fx-background-color: #ff4444;" text="Eliminar Libro" textFill="WHITE" />
+                                    <padding> <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" /> </padding>
+                                </VBox>
+
+                                <ScrollPane fitToWidth="true">
+                                    <content>
                                         <VBox spacing="10.0">
-                                            <children>
-                                                <TableView fx:id="tvUsuarios" prefHeight="550.0">
-                                                    <columns>
-                                                        <TableColumn fx:id="colDni" prefWidth="100.0" text="DNI" />
-                                                        <TableColumn fx:id="colNombreUsuario" prefWidth="200.0" text="Nombre" />
-                                                        <TableColumn fx:id="colEmail" prefWidth="200.0" text="Email" />
-                                                    </columns>
-                                                </TableView>
-                                                <Button onAction="#handleEliminarUsuario" style="-fx-background-color: #ff4444;" text="Eliminar Usuario" textFill="WHITE" />
-                                            </children>
-                                            <padding> <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" /> </padding>
-                                        </VBox>
-                                        <VBox spacing="10.0">
-                                            <children>
-                                                <Label text="Nuevo Usuario"> <font> <Font name="System Bold" size="14.0" /> </font> </Label>
-                                                <TextField fx:id="tfDni" promptText="DNI (8 números + Letra)" />
-                                                <TextField fx:id="tfNombreUsuario" promptText="Nombre completo" />
-                                                <TextField fx:id="tfEmail" promptText="Email" />
-                                                <Separator />
-                                                <Label text="Dirección" style="-fx-font-weight: bold;" />
-                                                <TextField fx:id="tfVia" promptText="Vía" />
-                                                <HBox spacing="5.0">
-                                                    <TextField fx:id="tfNumero" promptText="Nº" prefWidth="60.0" />
-                                                    <TextField fx:id="tfCp" promptText="C.P." HBox.hgrow="ALWAYS" />
-                                                </HBox>
-                                                <TextField fx:id="tfLocalidad" promptText="Localidad" />
-                                                <Button onAction="#handleAltaUsuario" maxWidth="Infinity" style="-fx-background-color: #4CAF50;" text="Registrar Usuario" textFill="WHITE" />
-                                            </children>
+                                            <Label text="Nuevo Registro"> <font> <Font name="System Bold" size="14.0" /> </font> </Label>
+                                            <TextField fx:id="tfIsbn" promptText="ISBN (13 dígitos)" />
+                                            <TextField fx:id="tfTitulo" promptText="Título" />
+                                            <TextField fx:id="tfAnio" promptText="Año" />
+                                            <ComboBox fx:id="cbCategoria" maxWidth="Infinity" promptText="Categoría" />
+                                            <Separator />
+                                            <Label text="Autor/es" style="-fx-font-weight: bold;" />
+                                            <HBox spacing="5.0">
+                                                <TextField fx:id="tfNombreAutor" prefWidth="80.0" promptText="Nombre" />
+                                                <TextField fx:id="tfApellidosAutor" prefWidth="100.0" promptText="Apellidos" />
+                                                <TextField fx:id="tfNacionalidadAutor" prefWidth="50.0" promptText="Nac." />
+                                                <Button onAction="#handleAgregarAutorALista" text="+" />
+                                            </HBox>
+                                            <ListView fx:id="lvAutoresTemporales" prefHeight="80.0" />
+                                            <CheckBox fx:id="chbEsAudiolibro" onAction="#handleCheckAudiolibro" text="¿Es Audiolibro?" />
+                                            <VBox fx:id="vbCamposAudiolibro" managed="false" spacing="10.0" visible="false">
+                                                <TextField fx:id="tfDuracion" promptText="Segundos" />
+                                                <ComboBox fx:id="cbFormato" maxWidth="Infinity" promptText="Formato Audio" />
+                                            </VBox>
+                                            <Button maxWidth="Infinity" onAction="#handleAltaLibro" style="-fx-background-color: #2196F3;" text="Guardar Libro" textFill="WHITE" />
                                             <padding> <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" /> </padding>
                                         </VBox>
-                                    </items>
-                                </SplitPane>
-                            </children>
-                        </AnchorPane>
-                    </content>
-                </Tab>
+                                    </content>
+                                </ScrollPane>
+                            </items>
+                        </SplitPane>
+                    </AnchorPane>
+                </content>
+            </Tab>
 
-                <Tab text="Préstamos">
-                    <content>
-                        <AnchorPane>
-                            <children>
-                                <SplitPane dividerPositions="0.65" prefHeight="600.0" prefWidth="1030.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
-                                    <items>
-                                        <VBox spacing="10.0">
-                                            <children>
-                                                <TableView fx:id="tvPrestamos" prefHeight="550.0">
-                                                    <columns>
-                                                        <TableColumn fx:id="colPrestamoLibro" prefWidth="200.0" text="Libro" />
-                                                        <TableColumn fx:id="colPrestamoUsuario" prefWidth="150.0" text="Usuario" />
-                                                        <TableColumn fx:id="colFInicio" prefWidth="100.0" text="Fecha Inicio" />
-                                                        <TableColumn fx:id="colFLimite" prefWidth="100.0" text="Fecha Límite" />
-                                                        <TableColumn fx:id="colEstado" prefWidth="150.0" text="Estado / Devolución" />
-                                                    </columns>
-                                                </TableView>
-                                                <Button onAction="#handleDevolverPrestamo" style="-fx-background-color: #FF9800;" text="Marcar Devuelto" textFill="WHITE" />
-                                            </children>
-                                            <padding> <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" /> </padding>
-                                        </VBox>
-                                        <VBox spacing="15.0">
-                                            <children>
-                                                <Label text="Nuevo Préstamo"> <font> <Font name="System Bold" size="14.0" /> </font> </Label>
-                                                <ComboBox fx:id="cbLibrosPrestamo" maxWidth="Infinity" promptText="Seleccionar Libro" />
-                                                <ComboBox fx:id="cbUsuariosPrestamo" maxWidth="Infinity" promptText="Seleccionar Usuario" />
-                                                <DatePicker fx:id="dpFechaPrestamo" maxWidth="Infinity" promptText="Fecha Inicio" />
-                                                <Button onAction="#handleNuevoPrestamo" maxWidth="Infinity" prefHeight="50.0" style="-fx-background-color: #673AB7;" text="Prestar" textFill="WHITE" />
-                                            </children>
-                                            <padding> <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" /> </padding>
-                                        </VBox>
-                                    </items>
-                                </SplitPane>
-                            </children>
-                        </AnchorPane>
-                    </content>
-                </Tab>
-            </tabs>
-        </TabPane>
-    </children>
+            <Tab text="Usuarios">
+                <content>
+                    <AnchorPane>
+                        <SplitPane dividerPositions="0.65" prefHeight="600.0" prefWidth="1030.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                            <items>
+                                <VBox spacing="10.0">
+                                    <TableView fx:id="tvUsuarios" prefHeight="550.0">
+                                        <columns>
+                                            <TableColumn fx:id="colDni" prefWidth="100.0" text="DNI" />
+                                            <TableColumn fx:id="colNombreUsuario" prefWidth="200.0" text="Nombre" />
+                                            <TableColumn fx:id="colEmail" prefWidth="200.0" text="Email" />
+                                        </columns>
+                                    </TableView>
+                                    <Button onAction="#handleEliminarUsuario" style="-fx-background-color: #ff4444;" text="Eliminar Usuario" textFill="WHITE" />
+                                    <padding> <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" /> </padding>
+                                </VBox>
+
+                                <VBox spacing="10.0">
+                                    <Label text="Nuevo Usuario"> <font> <Font name="System Bold" size="14.0" /> </font> </Label>
+                                    <TextField fx:id="tfDni" promptText="DNI (8 números + Letra)" />
+                                    <TextField fx:id="tfNombreUsuario" promptText="Nombre completo" />
+                                    <TextField fx:id="tfEmail" promptText="Email" />
+                                    <Separator />
+                                    <Label text="Dirección" style="-fx-font-weight: bold;" />
+                                    <TextField fx:id="tfVia" promptText="Vía" />
+                                    <HBox spacing="5.0">
+                                        <TextField fx:id="tfNumero" prefWidth="60.0" promptText="Nº" />
+                                        <TextField fx:id="tfCp" promptText="C.P." HBox.hgrow="ALWAYS" />
+                                    </HBox>
+                                    <TextField fx:id="tfLocalidad" promptText="Localidad" />
+                                    <Button maxWidth="Infinity" onAction="#handleAltaUsuario" style="-fx-background-color: #4CAF50;" text="Registrar Usuario" textFill="WHITE" />
+                                    <padding> <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" /> </padding>
+                                </VBox>
+                            </items>
+                        </SplitPane>
+                    </AnchorPane>
+                </content>
+            </Tab>
+
+            <Tab text="Préstamos">
+                <content>
+                    <AnchorPane>
+                        <SplitPane dividerPositions="0.65" prefHeight="600.0" prefWidth="1030.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                            <items>
+                                <VBox spacing="10.0">
+                                    <TableView fx:id="tvPrestamos" prefHeight="550.0">
+                                        <columns>
+                                            <TableColumn fx:id="colPrestamoLibro" prefWidth="200.0" text="Libro" />
+                                            <TableColumn fx:id="colPrestamoUsuario" prefWidth="150.0" text="Usuario" />
+                                            <TableColumn fx:id="colFInicio" prefWidth="100.0" text="Fecha Inicio" />
+                                            <TableColumn fx:id="colFLimite" prefWidth="100.0" text="Fecha Límite" />
+                                            <TableColumn fx:id="colEstado" prefWidth="150.0" text="Estado / Devolución" />
+                                        </columns>
+                                    </TableView>
+                                    <Button onAction="#handleDevolverPrestamo" style="-fx-background-color: #FF9800;" text="Marcar Devuelto" textFill="WHITE" />
+                                    <padding> <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" /> </padding>
+                                </VBox>
+
+                                <VBox spacing="15.0">
+                                    <Label text="Nuevo Préstamo"> <font> <Font name="System Bold" size="14.0" /> </font> </Label>
+                                    <ComboBox fx:id="cbLibrosPrestamo" maxWidth="Infinity" promptText="Seleccionar Libro" />
+                                    <ComboBox fx:id="cbUsuariosPrestamo" maxWidth="Infinity" promptText="Seleccionar Usuario" />
+                                    <DatePicker fx:id="dpFechaPrestamo" maxWidth="Infinity" promptText="Fecha Inicio" />
+                                    <Button maxWidth="Infinity" onAction="#handleNuevoPrestamo" prefHeight="50.0" style="-fx-background-color: #673AB7;" text="Prestar" textFill="WHITE" />
+                                    <padding> <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" /> </padding>
+                                </VBox>
+                            </items>
+                        </SplitPane>
+                    </AnchorPane>
+                </content>
+            </Tab>
+        </tabs>
+    </TabPane>
 </VBox>
