@@ -36,13 +36,11 @@ public class Modelo {
     }
 
     public boolean baja(Libro libro) {
-        // Comprobamos la lógica de préstamos activos
         List<Prestamo> todos = Prestamos.getPrestamos().todos();
         for (Prestamo p : todos) {
             if (p.getLibro().getIsbn().equals(libro.getIsbn())) {
-                if (!p.isDevuelto()) {
-                    throw new IllegalStateException("ERROR: El libro tiene préstamos activos.");
-                }
+                // Eliminamos "if (!p.isDevuelto())" para que salte siempre
+                throw new IllegalStateException("ERROR: El libro tiene registros de préstamos asociados.");
             }
         }
         return Libros.getLibros().baja(libro);
