@@ -13,21 +13,26 @@
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
 
+    <!-- Barra Superior -->
     <Label text="Gestión Biblioteca IES Al-Ándalus">
         <font> <Font name="System Bold" size="24.0" /> </font>
         <VBox.margin> <Insets left="20.0" top="10.0" /> </VBox.margin>
     </Label>
 
+    <!-- Barra inferior -->
     <TabPane prefHeight="700.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
         <tabs>
+            <!-- Apartado de Libros -->
             <Tab text="Libros">
                 <SplitPane dividerPositions="0.65">
                     <VBox spacing="10.0">
                         <padding>
                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                         </padding>
+                        <!-- Lista de libros -->
                         <TableView fx:id="tvLibros" VBox.vgrow="ALWAYS">
                             <columns>
+                                <!-- Columnas de la tabla libro -->
                                 <TableColumn fx:id="colIsbn" prefWidth="110" text="ISBN" />
                                 <TableColumn fx:id="colTitulo" prefWidth="200" text="Título" />
                                 <TableColumn fx:id="colCategoria" prefWidth="90" text="Categoría" />
@@ -35,52 +40,64 @@
                                 <TableColumn fx:id="colInfoExtra" prefWidth="120" text="Detalles" />
                             </columns>
                         </TableView>
+                        <!-- Boton para eliminar un Libro -->
                         <Button onAction="#handleEliminarLibro" styleClass="btn-eliminar" text="Eliminar Libro" />
                     </VBox>
 
-                    <ScrollPane fitToWidth="true">
+                    <ScrollPane fitToWidth="true"> 
                         <VBox spacing="10.0">
                             <padding>
                                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                             </padding>
+                            <!-- Apartado de Alta Libro -->
                             <Label text="Nuevo Registro" style="-fx-font-weight: bold; -fx-font-size: 14;" />
+                            <!-- Campos de Alta de Lirbo -->
                             <TextField fx:id="tfIsbn" promptText="ISBN (13 dígitos)" />
                             <TextField fx:id="tfTitulo" promptText="Título" />
                             <TextField fx:id="tfAnio" promptText="Año" />
                             <ComboBox fx:id="cbCategoria" maxWidth="Infinity" promptText="Categoría" />
                             <Separator />
+                            <!-- Apartado de Autor de Libro -->
                             <Label text="Autor/es" style="-fx-font-weight: bold;" />
                             <HBox spacing="5.0">
+                                <!-- Campos de Autor de Libro -->
                                 <TextField fx:id="tfNombreAutor" prefWidth="80" promptText="Nombre" />
                                 <TextField fx:id="tfApellidosAutor" prefWidth="100" promptText="Apellidos" />
                                 <TextField fx:id="tfNacionalidadAutor" prefWidth="50" promptText="Nac." />
                                 <Button onAction="#handleAgregarAutorALista" text="+" />
                             </HBox>
                             <ListView fx:id="lvAutoresTemporales" prefHeight="80.0" />
+                            <!-- Apartado de Audiolibro -->
                             <CheckBox fx:id="chbEsAudiolibro" onAction="#handleCheckAudiolibro" text="¿Es Audiolibro?" />
                             <VBox fx:id="vbCamposAudiolibro" managed="false" spacing="10.0" visible="false">
+                                <!-- Campos de Audiolibro -->
                                 <TextField fx:id="tfDuracion" promptText="Segundos" />
                                 <ComboBox fx:id="cbFormato" maxWidth="Infinity" promptText="Formato Audio" />
                             </VBox>
+                            <!-- Boton para guardar el Libro -->
                             <Button maxWidth="Infinity" onAction="#handleAltaLibro" styleClass="btn-guardar" text="Guardar Libro" />
                         </VBox>
                     </ScrollPane>
                 </SplitPane>
             </Tab>
 
+            <!-- Apartado de Usuarios -->
             <Tab text="Usuarios">
                 <SplitPane dividerPositions="0.65">
                     <VBox spacing="10.0">
                         <padding>
                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                         </padding>
+                        <!-- Lista de Usuarios -->
                         <TableView fx:id="tvUsuarios" VBox.vgrow="ALWAYS">
                             <columns>
+                                <!-- Columnas de la tabla Usuario -->
                                 <TableColumn fx:id="colDni" prefWidth="100" text="DNI" />
                                 <TableColumn fx:id="colNombreUsuario" prefWidth="200" text="Nombre" />
                                 <TableColumn fx:id="colEmail" prefWidth="200" text="Email" />
                             </columns>
                         </TableView>
+                        <!-- Boton para eliminar el Usuario -->
                         <Button onAction="#handleEliminarUsuario" styleClass="btn-eliminar" text="Eliminar Usuario" />
                     </VBox>
 
@@ -88,12 +105,16 @@
                         <padding>
                             <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                         </padding>
+                        <!-- Apartado de Alta de Usuario-->
                         <Label text="Nuevo Usuario" style="-fx-font-weight: bold; -fx-font-size: 14;" />
+                        <!-- Campos de Alta de Usuario -->
                         <TextField fx:id="tfDni" promptText="DNI (8 números + Letra)" />
                         <TextField fx:id="tfNombreUsuario" promptText="Nombre completo" />
                         <TextField fx:id="tfEmail" promptText="Email" />
                         <Separator />
+                        <!-- Apartado de Direccion de Usuario-->
                         <Label text="Dirección" style="-fx-font-weight: bold;" />
+                        <!-- Campos de Direccion de Usuario -->
                         <TextField fx:id="tfVia" promptText="Vía" />
                         <HBox spacing="5.0">
                             <TextField fx:id="tfNumero" prefWidth="60" promptText="Nº" />
@@ -105,14 +126,17 @@
                 </SplitPane>
             </Tab>
 
+            <!-- Apartado de Prestamos -->
             <Tab text="Préstamos">
                 <SplitPane dividerPositions="0.65">
                     <VBox spacing="10.0">
                         <padding>
                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                         </padding>
+                        <!-- Lista de Prestamos -->
                         <TableView fx:id="tvPrestamos" VBox.vgrow="ALWAYS">
                             <columns>
+                                <!-- Columnas de la tabla Prestamo-->
                                 <TableColumn fx:id="colPrestamoLibro" prefWidth="200" text="Libro" />
                                 <TableColumn fx:id="colPrestamoUsuario" prefWidth="150" text="Usuario" />
                                 <TableColumn fx:id="colFInicio" prefWidth="100" text="Inicio" />
@@ -120,6 +144,7 @@
                                 <TableColumn fx:id="colEstado" prefWidth="150" text="Estado" />
                             </columns>
                         </TableView>
+                        <!-- Boton para devolver el Prestamo -->
                         <Button onAction="#handleDevolverPrestamo" styleClass="btn-devolver" text="Marcar Devuelto" />
                     </VBox>
 
@@ -127,7 +152,9 @@
                         <padding>
                             <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                         </padding>
+                        <!-- Apartado de Nuevo Prestamo -->
                         <Label text="Nuevo Préstamo" style="-fx-font-weight: bold; -fx-font-size: 14;" />
+                        <!-- Campos de Nuevo Prestamo -->
                         <ComboBox fx:id="cbLibrosPrestamo" maxWidth="Infinity" promptText="Libro" />
                         <ComboBox fx:id="cbUsuariosPrestamo" maxWidth="Infinity" promptText="Usuario" />
                         <DatePicker fx:id="dpFechaPrestamo" maxWidth="Infinity" promptText="Fecha Inicio" />

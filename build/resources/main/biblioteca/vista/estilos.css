@@ -23,7 +23,7 @@
     -fx-border-radius: 3;
 }
 
-/* ESTADOS DE VALIDACIÓN */
+/* Estados de validacion */
 .campo-error {
     -fx-border-color: #f44336 !important;
     -fx-border-width: 2px !important;
