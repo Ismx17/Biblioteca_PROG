@@ -13,7 +13,7 @@ public class AppBiblioteca extends Application {
     public void start(Stage stage) throws Exception {
         // Instanciar el modelo
         Modelo modelo = new Modelo();
-        modelo.comenzar(); // Inicia conexiones MySQL
+        modelo.comenzar(); // Iniciar conexiones MySQL
 
         // Cargar el FXML
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/biblioteca/vista/principal.fxml"));

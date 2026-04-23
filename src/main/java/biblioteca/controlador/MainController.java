@@ -57,7 +57,7 @@ public class MainController {
     // Formulario de gestión de Préstamos
     @FXML private ComboBox<Libro> cbLibrosPrestamo;
     @FXML private ComboBox<Usuario> cbUsuariosPrestamo;
-    @FXML private DatePicker dpFechaPrestamo;
+    @FXML private DatePicker dpFechaPrestamo; // Especifico para fechas
 
     /**
      * Método para establecer el modelo y cargar los datos iniciales de la BD.
@@ -202,7 +202,7 @@ public class MainController {
 
     @FXML
     private void handleEliminarLibro() {
-        Libro sel = tvLibros.getSelectionModel().getSelectedItem();
+        Libro sel = tvLibros.getSelectionModel().getSelectedItem(); 
         if (sel != null) {
             try {
                 if (modelo.baja(sel)) {
@@ -279,6 +279,9 @@ public class MainController {
         cbUsuariosPrestamo.setItems(FXCollections.observableArrayList(modelo.listadoUsuarios()));
     }
 
+    /**
+     * Limpia los campos del formulario de Libro.
+     */
     private void limpiarFormLibro() {
         tfIsbn.clear(); tfTitulo.clear(); tfAnio.clear(); tfDuracion.clear();
         listaAutoresObjetos.clear(); nombresAutoresTemporales.clear();
@@ -293,6 +296,7 @@ public class MainController {
      * Muestra un cuadro de diálogo de error crítico.
      */
     private void mostrarError(String cabecera, String mensaje) {
+        // Creamos el cuadro de dialogo de error
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText(cabecera);
         alert.setContentText(mensaje);
