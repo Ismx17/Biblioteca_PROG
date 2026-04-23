@@ -20,11 +20,14 @@ dependencies {
     implementation "org.openjfx:javafx-graphics:$javafx_version:win"
     implementation "org.openjfx:javafx-base:$javafx_version:win"
 
-    // Tus otras dependencias
+    // Libreria Entrada
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // Driver de MySQL
     implementation 'mysql:mysql-connector-java:8.0.28'
 }
 
+// Cambio la clase principal del programa de AppBiblioteca a Main
 application {
     mainClass = 'biblioteca.Main'
 }
