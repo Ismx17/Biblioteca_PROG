@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.*?>
 
-<VBox prefHeight="750.0" prefWidth="1050.0" spacing="10.0" stylesheets="@estilos.css"
-      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="biblioteca.controlador.MainController">
+<VBox prefHeight="750.0" prefWidth="1050.0" spacing="10.0" stylesheets="@estilos.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="biblioteca.controlador.MainController">
 
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
@@ -50,7 +48,7 @@
                                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                             </padding>
                             <!-- Apartado de Alta Libro -->
-                            <Label text="Nuevo Registro" style="-fx-font-weight: bold; -fx-font-size: 14;" />
+                            <Label style="-fx-font-weight: bold; -fx-font-size: 14;" text="Nuevo Registro" />
                             <!-- Campos de Alta de Lirbo -->
                             <TextField fx:id="tfIsbn" promptText="ISBN (13 dígitos)" />
                             <TextField fx:id="tfTitulo" promptText="Título" />
@@ -58,13 +56,13 @@
                             <ComboBox fx:id="cbCategoria" maxWidth="Infinity" promptText="Categoría" />
                             <Separator />
                             <!-- Apartado de Autor de Libro -->
-                            <Label text="Autor/es" style="-fx-font-weight: bold;" />
+                            <Label style="-fx-font-weight: bold;" text="Autor/es" />
                             <HBox spacing="5.0">
                                 <!-- Campos de Autor de Libro -->
                                 <TextField fx:id="tfNombreAutor" prefWidth="80" promptText="Nombre" />
                                 <TextField fx:id="tfApellidosAutor" prefWidth="100" promptText="Apellidos" />
                                 <TextField fx:id="tfNacionalidadAutor" prefWidth="50" promptText="Nac." />
-                                <Button onAction="#handleAgregarAutorALista" text="+" />
+                                <Button onAction="#handleAgregarAutorALista" text="Agregar" />
                             </HBox>
                             <ListView fx:id="lvAutoresTemporales" prefHeight="80.0" />
                             <!-- Apartado de Audiolibro -->
@@ -106,14 +104,14 @@
                             <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                         </padding>
                         <!-- Apartado de Alta de Usuario-->
-                        <Label text="Nuevo Usuario" style="-fx-font-weight: bold; -fx-font-size: 14;" />
+                        <Label style="-fx-font-weight: bold; -fx-font-size: 14;" text="Nuevo Usuario" />
                         <!-- Campos de Alta de Usuario -->
                         <TextField fx:id="tfDni" promptText="DNI (8 números + Letra)" />
                         <TextField fx:id="tfNombreUsuario" promptText="Nombre completo" />
                         <TextField fx:id="tfEmail" promptText="Email" />
                         <Separator />
                         <!-- Apartado de Direccion de Usuario-->
-                        <Label text="Dirección" style="-fx-font-weight: bold;" />
+                        <Label style="-fx-font-weight: bold;" text="Dirección" />
                         <!-- Campos de Direccion de Usuario -->
                         <TextField fx:id="tfVia" promptText="Vía" />
                         <HBox spacing="5.0">
@@ -153,7 +151,7 @@
                             <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                         </padding>
                         <!-- Apartado de Nuevo Prestamo -->
-                        <Label text="Nuevo Préstamo" style="-fx-font-weight: bold; -fx-font-size: 14;" />
+                        <Label style="-fx-font-weight: bold; -fx-font-size: 14;" text="Nuevo Préstamo" />
                         <!-- Campos de Nuevo Prestamo -->
                         <ComboBox fx:id="cbLibrosPrestamo" maxWidth="Infinity" promptText="Libro" />
                         <ComboBox fx:id="cbUsuariosPrestamo" maxWidth="Infinity" promptText="Usuario" />
