@@ -10,7 +10,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -312,5 +315,96 @@ public class MainController {
         alert.setHeaderText(cabecera);
         alert.setContentText(mensaje);
         alert.showAndWait();
+    }
+
+    @FXML
+    private void handleHacerCopiaSeguridad() {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirmar Copia de Seguridad");
+        confirm.setHeaderText("Hacer copia de seguridad");
+        confirm.setContentText("¿Desea exportar los datos actuales a ficheros XML?");
+        
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+            // Se utiliza DirectoryChooser (variante de FileChooser para carpetas)
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            directoryChooser.setTitle("Seleccionar carpeta para guardar la copia de seguridad");
+            File dir = directoryChooser.showDialog(tvLibros.getScene().getWindow());
+
+            if (dir != null) {
+                try {
+                    String path = dir.getAbsolutePath() + File.separator;
+                    biblioteca.modelo.negocio.Autores.getInstancia().escribirXML(path + "autores.xml");
+                    biblioteca.modelo.negocio.Libros.getInstancia().escribirXML(path + "libros.xml");
+                    biblioteca.modelo.negocio.Usuarios.getInstancia().escribirXML(path + "usuarios.xml");
+                    biblioteca.modelo.negocio.Prestamos.getInstancia().escribirXML(path + "prestamos.xml");
+
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setHeaderText("Copia de Seguridad");
+                    alert.setContentText("Copia de seguridad realizada correctamente en:\n" + dir.getAbsolutePath());
+                    alert.showAndWait();
+                } catch (Exception e) {
+                    mostrarError("Error en Copia de Seguridad", e.getMessage());
+                }
+            }
+        }
+    }
+
+    @FXML
+    private void handleCargarCopiaSeguridad() {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirmar Restauración");
+        confirm.setHeaderText("Cargar copia de seguridad");
+        confirm.setContentText("Se eliminarán los datos actuales y se reemplazarán por los de la copia de seguridad.\n¿Desea continuar?");
+        
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+            // Se utiliza DirectoryChooser para ubicar los ficheros de origen
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            directoryChooser.setTitle("Seleccionar carpeta con la copia de seguridad");
+            File dir = directoryChooser.showDialog(tvLibros.getScene().getWindow());
+
+            if (dir != null) {
+                try {
+                    String path = dir.getAbsolutePath() + File.separator;
+
+                    // Validación previa: comprobamos si los documentos existen y están bien formados
+                    org.w3c.dom.Document docAutores = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "autores.xml");
+                    org.w3c.dom.Document docLibros = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "libros.xml");
+                    org.w3c.dom.Document docUsuarios = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "usuarios.xml");
+                    org.w3c.dom.Document docPrestamos = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "prestamos.xml");
+
+                    if (docAutores == null || docLibros == null || docUsuarios == null || docPrestamos == null) {
+                        throw new Exception("Error de validación: Algunos ficheros no existen o no están bien formados en la carpeta seleccionada.");
+                    }
+
+                    java.sql.Connection con = biblioteca.modelo.negocio.mysql.Conexion.getConexion().getJdbcConnection();
+                    try (java.sql.Statement st = con.createStatement()) {
+                        st.execute("SET FOREIGN_KEY_CHECKS = 0");
+                    }
+
+                    biblioteca.modelo.negocio.Prestamos.getInstancia().borrarTodos();
+                    biblioteca.modelo.negocio.Libros.getInstancia().borrarTodos();
+                    biblioteca.modelo.negocio.Usuarios.getInstancia().borrarTodos();
+                    biblioteca.modelo.negocio.Autores.getInstancia().borrarTodos();
+
+                    try (java.sql.Statement st = con.createStatement()) {
+                        st.execute("SET FOREIGN_KEY_CHECKS = 1");
+                    }
+
+                    // Carga en el orden de jerarquía establecido para evitar errores de restricción
+                    biblioteca.modelo.negocio.Autores.getInstancia().leerXML(path + "autores.xml");
+                    biblioteca.modelo.negocio.Libros.getInstancia().leerXML(path + "libros.xml");
+                    biblioteca.modelo.negocio.Usuarios.getInstancia().leerXML(path + "usuarios.xml");
+                    biblioteca.modelo.negocio.Prestamos.getInstancia().leerXML(path + "prestamos.xml");
+
+                    refrescarTablas();
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setHeaderText("Restauración");
+                    alert.setContentText("Copia de seguridad cargada correctamente desde:\n" + dir.getAbsolutePath());
+                    alert.showAndWait();
+                } catch (Exception e) {
+                    mostrarError("Error en Restauración", e.getMessage());
+                }
+            }
+        }
     }
 }
