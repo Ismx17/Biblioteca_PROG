@@ -325,7 +325,7 @@ public class MainController {
         confirm.setContentText("¿Desea exportar los datos actuales a ficheros XML?");
         
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-            // Se utiliza DirectoryChooser (variante de FileChooser para carpetas)
+            // Se utiliza DirectoryChooser 
             DirectoryChooser directoryChooser = new DirectoryChooser();
             directoryChooser.setTitle("Seleccionar carpeta para guardar la copia de seguridad");
             File dir = directoryChooser.showDialog(tvLibros.getScene().getWindow());
