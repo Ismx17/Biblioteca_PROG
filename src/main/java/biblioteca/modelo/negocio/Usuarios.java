@@ -3,6 +3,10 @@ package biblioteca.modelo.negocio;
 import biblioteca.modelo.dominio.Direccion;
 import biblioteca.modelo.dominio.Usuario;
 import biblioteca.modelo.negocio.mysql.Conexion;
+import biblioteca.utilidades.UtilidadesXML;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -14,7 +18,7 @@ public class Usuarios {
     private Usuarios() {}
 
     // Metodo para obtener la instancia de la clase Usuarios
-    public static synchronized Usuarios getUsuarios() {
+    public static synchronized Usuarios getInstancia() {
         if (usuarios == null) {
             usuarios = new Usuarios();
         }
@@ -28,8 +32,10 @@ public class Usuarios {
         } catch (SQLException e) {
             System.out.println("ERROR: No se pudo establecer la conexión: " + e.getMessage());
         }
+        leerXML(); // Leemos los usuarios desde el fichero XML
     }
     public void terminar() { 
+        escribirXML(); // Escribimos los usuarios nuevos en el fichero XML
         try {
             Conexion.getConexion().cerrarConexion(); 
         } catch (SQLException e) {
@@ -143,5 +149,110 @@ public class Usuarios {
         }
         // Devolvemos la lista de usuarios encontrados
         return lista;
+    }
+
+    // Metodo para convertir un elemento XML a un objeto Usuario
+    public Usuario elementToUsuario(Element elemento) {
+        // Extraer datos del usuario desde etiquetas hijas
+        String dni = getContenidoEtiqueta(elemento, "dni");
+        String nombre = getContenidoEtiqueta(elemento, "nombre");
+        String email = getContenidoEtiqueta(elemento, "email");
+        
+        // Extraer datos de la dirección (nodo anidado)
+        Element ed = (Element) elemento.getElementsByTagName("direccion").item(0);
+        Direccion dir = new Direccion(
+            getContenidoEtiqueta(ed, "via"),
+            getContenidoEtiqueta(ed, "numero"),
+            getContenidoEtiqueta(ed, "cp"),
+            getContenidoEtiqueta(ed, "localidad")
+        );
+        
+        return new Usuario(dni, nombre, email, dir);
+    }
+
+    // Metodo para leer los usuarios desde un fichero XML especifico
+    public void leerXML(String ruta) {
+        Document doc = UtilidadesXML.xmlToDom(ruta); // Cargamos el documento XML
+        if (doc != null) {
+            try {
+                NodeList nodos = doc.getElementsByTagName("usuario"); // Obtenemos los nodos del usuario
+                for (int i = 0; i < nodos.getLength(); i++) { // Recorremos los nodos
+                    Element eu = (Element) nodos.item(i); // Obtenemos el elemento del usuario
+                    Usuario u = elementToUsuario(eu); // Convertimos el elemento XML a un objeto Usuario
+                    try { alta(u); } catch (Exception e) { /* Ignorar si ya existe */ } // Si ya existe, lo ignoramos
+                }
+            } catch (Exception e) {
+                System.out.println("ERROR: Datos XML incorrectos al leer " + ruta + ": " + e.getMessage());
+            }
+        }
+    }
+
+    // Metodo para leer los usuarios desde el fichero XML por defecto
+    public void leerXML() {
+        leerXML("usuarios.xml");
+    }
+
+    // Metodo para convertir un objeto Usuario a un elemento XML
+    public Element usuarioToElement(Document dom, Usuario usuario) {
+        Element eu = dom.createElement("usuario");
+        
+        // Crear nodos hijos para los atributos del usuario
+        crearHijoTexto(dom, eu, "dni", usuario.getDni());
+        crearHijoTexto(dom, eu, "nombre", usuario.getNombre());
+        crearHijoTexto(dom, eu, "email", usuario.getEmail());
+        
+        // Crear nodo dirección y sus hijos
+        Element ed = dom.createElement("direccion");
+        crearHijoTexto(dom, ed, "via", usuario.getDireccion().getVia());
+        crearHijoTexto(dom, ed, "numero", usuario.getDireccion().getNumero());
+        crearHijoTexto(dom, ed, "cp", usuario.getDireccion().getCp());
+        crearHijoTexto(dom, ed, "localidad", usuario.getDireccion().getLocalidad());
+        
+        eu.appendChild(ed);
+        return eu;
+    }
+
+    // Metodo para escribir los usuarios en un fichero XML especifico
+    public void escribirXML(String ruta) {
+        try {
+            Document doc = UtilidadesXML.crearDomVacio("usuarios"); // Creamos el documento XML
+            if (doc == null) return; // Si el documento es nulo, devolvemos
+            for (Usuario u : todos()) { // Recorremos los usuarios
+                doc.getDocumentElement().appendChild(usuarioToElement(doc, u)); // Añadimos el usuario al documento XML
+            }
+            UtilidadesXML.domToXml(doc, ruta); // Guardamos el documento XML
+        } catch (Exception e) {
+            System.out.println("ERROR al guardar " + ruta + ": " + e.getMessage());
+        }
+    }
+
+    // Metodo para escribir los usuarios en el fichero XML por defecto
+    public void escribirXML() {
+        escribirXML("usuarios.xml");
+    }
+
+    public void borrarTodos() {
+        try (Statement st = Conexion.getConexion().getJdbcConnection().createStatement()) {
+            st.executeUpdate("DELETE FROM direccion");
+            st.executeUpdate("DELETE FROM usuario");
+        } catch (SQLException e) {
+            System.out.println("ERROR: No se pudieron borrar los usuarios: " + e.getMessage());
+        }
+    }
+
+    // Metodos auxiliares para simplificar la creacion de nodos de texto
+    // Metodo para crear un nodo de texto
+    private void crearHijoTexto(Document doc, Element padre, String etiqueta, String valor) {
+        Element hijo = doc.createElement(etiqueta);
+        hijo.setTextContent(valor != null ? valor : ""); 
+        padre.appendChild(hijo); 
+    }
+    // Metodo para obtener el texto de una etiqueta
+    private String getContenidoEtiqueta(Element padre, String etiqueta) {
+        NodeList lista = padre.getElementsByTagName(etiqueta);
+        if (lista != null && lista.getLength() > 0) {
+            return lista.item(0).getTextContent(); 
+        }
+        return "";
     }
 }

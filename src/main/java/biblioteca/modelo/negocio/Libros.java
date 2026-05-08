@@ -2,6 +2,10 @@ package biblioteca.modelo.negocio;
 
 import biblioteca.modelo.dominio.*;
 import biblioteca.modelo.negocio.mysql.Conexion;
+import biblioteca.utilidades.UtilidadesXML;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import java.sql.*;
 import java.time.Duration;
@@ -14,7 +18,7 @@ public class Libros {
     private Libros() {}
 
     // Metodo para obtener la instancia de la clase Libros
-    public static synchronized Libros getLibros() {
+    public static synchronized Libros getInstancia() {
         if (libros == null) libros = new Libros();
         return libros;
     }
@@ -26,9 +30,11 @@ public class Libros {
         } catch (SQLException e) {
             System.out.println("ERROR: No se pudo establecer la conexión: " + e.getMessage());
         }
+        leerXML();
     }
 
     public void terminar() { 
+        escribirXML();
         try {
             Conexion.getConexion().cerrarConexion(); 
         } catch (SQLException e) {
@@ -193,5 +199,126 @@ public class Libros {
             System.out.println("ERROR: No se pudo obtener el listado de libros: " + e.getMessage());
         }
         return lista;
+    }
+
+    public Libro elementToLibro(Element el) {
+        // Obtenemos la categoria
+        Categoria cat = Categoria.valueOf(getContenidoEtiqueta(el, "categoria"));
+        
+        // Obtenemos los datos del libro
+        String isbn = getContenidoEtiqueta(el, "isbn");
+        String titulo = getContenidoEtiqueta(el, "titulo");
+        int anio = Integer.parseInt(getContenidoEtiqueta(el, "anio"));
+        
+        Libro l = new Libro(isbn, titulo, anio, cat);
+    
+        // Procesamos los autores con nombre y apellidos
+        NodeList nlAutores = el.getElementsByTagName("autor");
+        for (int j = 0; j < nlAutores.getLength(); j++) {
+            String nombreCompleto = nlAutores.item(j).getTextContent();
+    
+            String[] partes = nombreCompleto.split(" ", 2);
+            String nombre = partes[0];
+            String apellidos = (partes.length > 1) ? partes[1] : "";
+            
+            l.addAutor(new Autor(nombre, apellidos, "")); // Nacionalidad vacía ya que no aparece en el xml de ejemplo
+        }
+        return l;
+    }
+
+    // Metodo para leer los libros desde un fichero XML especifico
+    public void leerXML(String ruta) {
+        Document doc = UtilidadesXML.xmlToDom(ruta); // Cargamos el documento XML
+        if (doc != null) { // Si el documento es nulo, devolvemos
+            try {
+                NodeList nodos = doc.getElementsByTagName("libro"); // Obtenemos los nodos del libro
+                for (int i = 0; i < nodos.getLength(); i++) { // Recorremos los nodos
+                    Element el = (Element) nodos.item(i); // Obtenemos el elemento del libro
+                    Libro l = elementToLibro(el); // Convertimos el elemento XML a un objeto Libro
+                    try { alta(l); } catch (Exception e) { /* Ignorar si ya existe */ } // Si el libro ya existe, lo ignoramos
+                }
+            } catch (Exception e) {
+                System.out.println("ERROR: Datos XML incorrectos al leer " + ruta + ": " + e.getMessage());
+            }
+        }
+    }
+
+    // Metodo para leer los libros desde el fichero XML por defecto
+    public void leerXML() {
+        leerXML("libros.xml");
+    }
+
+    // Metodo para convertir un objeto Libro a un elemento XML
+    public Element libroToElement(Document dom, Libro l) {
+        Element el = dom.createElement("libro");
+        
+        // 1. ISBN
+        crearHijoTexto(dom, el, "isbn", l.getIsbn());
+        // 2. Titulo
+        crearHijoTexto(dom, el, "titulo", l.getTitulo());
+        // 3. Año
+        crearHijoTexto(dom, el, "anio", String.valueOf(l.getAnio()));
+        // 4. Categoria
+        crearHijoTexto(dom, el, "categoria", l.getCategoria().name());
+        // 5. Autores (Solo nombre y apellidos juntos, sin nacionalidad)
+        for (Autor a : l.getAutores()) {
+            Element ea = dom.createElement("autor");
+            // Concatenamos nombre y apellidos para que aparezcan seguidos
+            ea.setTextContent(a.getNombre() + " " + a.getApellidos());
+            el.appendChild(ea);
+        }
+        // 6. Tipo (AudioLibro o Libro)
+        if (l instanceof Libro) {
+            crearHijoTexto(dom, el, "tipo", "libro");
+        }
+        else if (l instanceof Audiolibro) {
+            Audiolibro al = (Audiolibro) l;
+            crearHijoTexto(dom, el, "tipo", "audiolibro");
+            crearHijoTexto(dom, el, "duracion", String.valueOf(al.getDuracion().getSeconds()));
+            crearHijoTexto(dom, el, "formato", al.getFormato());
+        }
+    
+        return el;
+    }
+
+    // Metodo para escribir los libros en un fichero XML especifico
+    public void escribirXML(String ruta) {
+        Document doc = UtilidadesXML.crearDomVacio("libros"); // Creamos el documento XML
+        if (doc == null) return; // Si el documento es nulo, devolvemos
+        for (Libro l : todos()) { // Recorremos los libros
+            doc.getDocumentElement().appendChild(libroToElement(doc, l)); // Añadimos el libro al documento XML
+        }
+        UtilidadesXML.domToXml(doc, ruta); // Guardamos el documento XML
+    }
+
+    // Metodo para escribir los libros en el fichero XML por defecto
+    public void escribirXML() {
+        escribirXML("libros.xml");
+    }
+
+    public void borrarTodos() {
+        try (Statement st = Conexion.getConexion().getJdbcConnection().createStatement()) {
+            st.executeUpdate("DELETE FROM audiolibro");
+            st.executeUpdate("DELETE FROM libro_autor");
+            st.executeUpdate("DELETE FROM libro");
+        } catch (SQLException e) {
+            System.out.println("ERROR: No se pudieron borrar los libros: " + e.getMessage());
+        }
+    }
+
+    // Metodos auxiliares para simplificar la creacion de nodos de texto
+    // Metodo para crear un nodo de texto
+    private void crearHijoTexto(Document doc, Element padre, String etiqueta, String valor) {
+        Element hijo = doc.createElement(etiqueta);
+        hijo.setTextContent(valor != null ? valor : ""); 
+        padre.appendChild(hijo); 
+    }
+    // Metodo para obtener el texto de una etiqueta
+    private String getContenidoEtiqueta(Element padre, String etiqueta) {
+        NodeList lista = padre.getElementsByTagName(etiqueta);
+        if (lista != null && lista.getLength() > 0) {
+            return lista.item(0).getTextContent(); 
+        }
+        return "";
     }
 }
