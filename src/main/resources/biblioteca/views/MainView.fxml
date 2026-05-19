@@ -65,6 +65,7 @@
                         <HBox spacing="5.0">
                             <TextField fx:id="tfNombreAutor" promptText="Nombre" HBox.hgrow="ALWAYS" />
                             <TextField fx:id="tfApellidosAutor" promptText="Apellidos" HBox.hgrow="ALWAYS" />
+                            <TextField fx:id="tfNacionalidadAutor" promptText="Nacionalidad" HBox.hgrow="ALWAYS" />
                             <Button onAction="#handleAgregarAutorALista" text="+" />
                         </HBox>
                         <ListView fx:id="lvAutoresTemporales" prefHeight="80.0" />

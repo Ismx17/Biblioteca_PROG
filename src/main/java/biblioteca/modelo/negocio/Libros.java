@@ -24,19 +24,19 @@ public class Libros {
     }
 
     // Metodos para establecer y cerrar la conexion con la base de datos
-    public void comenzar() { 
+    public void comenzar() {
         try {
-            Conexion.getConexion().establecerConexion(); 
+            Conexion.getConexion().establecerConexion();
         } catch (SQLException e) {
             System.out.println("ERROR: No se pudo establecer la conexión: " + e.getMessage());
         }
-        leerXML();
+        leerXML("src/main/java/biblioteca/fichero/libros.xml");
     }
 
-    public void terminar() { 
-        escribirXML();
+    public void terminar() {
+        escribirXML("src/main/java/biblioteca/fichero/libros.xml");
         try {
-            Conexion.getConexion().cerrarConexion(); 
+            Conexion.getConexion().cerrarConexion();
         } catch (SQLException e) {
             System.out.println("ERROR: No se pudo cerrar la conexión: " + e.getMessage());
         }
@@ -202,11 +202,11 @@ public class Libros {
     }
 
     public Libro elementToLibro(Element el) {
-        String isbn = el.getAttribute("isbn");
-        int anio = Integer.parseInt(el.getAttribute("anio"));
-        Categoria cat = Categoria.valueOf(el.getAttribute("categoria"));
+        String isbn = getContenidoEtiqueta(el, "isbn");
         String titulo = getContenidoEtiqueta(el, "titulo");
-        
+        int anio = Integer.parseInt(getContenidoEtiqueta(el, "anio"));
+        Categoria cat = Categoria.valueOf(getContenidoEtiqueta(el, "categoria"));
+
         Libro l;
         Element tipoElement = (Element) el.getElementsByTagName("tipo").item(0);
         if (tipoElement.getAttribute("tipo").equals("audiolibro")) {
@@ -216,28 +216,41 @@ public class Libros {
         } else {
             l = new Libro(isbn, titulo, anio, cat);
         }
-    
+
         NodeList nlAutores = el.getElementsByTagName("autor");
         for (int j = 0; j < nlAutores.getLength(); j++) {
             Element autorElement = (Element) nlAutores.item(j);
-            String nombre = autorElement.getAttribute("nombre");
-            String apellidos = autorElement.getAttribute("apellidos");
-            String nacionalidad = autorElement.getAttribute("nacionalidad");
-            l.addAutor(new Autor(nombre, apellidos, nacionalidad));
+            String nombreCompleto = getContenidoEtiqueta(autorElement, "nombre");
+            String nombre;
+            String apellidos;
+
+            int primerEspacio = nombreCompleto.indexOf(" ");
+            if (primerEspacio != -1) {
+                nombre = nombreCompleto.substring(0, primerEspacio);
+                apellidos = nombreCompleto.substring(primerEspacio + 1);
+            } else {
+                nombre = nombreCompleto;
+                apellidos = "";
+            }
+            l.addAutor(new Autor(nombre, apellidos, ""));
         }
         return l;
     }
 
     // Metodo para leer los libros desde un fichero XML especifico
     public void leerXML(String ruta) {
-        Document doc = UtilidadesXML.xmlToDom(ruta); // Cargamos el documento XML
-        if (doc != null) { // Si el documento es nulo, devolvemos
+        Document doc = UtilidadesXML.xmlToDom(ruta);
+        if (doc != null) {
             try {
-                NodeList nodos = doc.getElementsByTagName("libro"); // Obtenemos los nodos del libro
-                for (int i = 0; i < nodos.getLength(); i++) { // Recorremos los nodos
-                    Element el = (Element) nodos.item(i); // Obtenemos el elemento del libro
-                    Libro l = elementToLibro(el); // Convertimos el elemento XML a un objeto Libro
-                    try { alta(l); } catch (Exception e) { /* Ignorar si ya existe */ } // Si el libro ya existe, lo ignoramos
+                NodeList nodos = doc.getElementsByTagName("libro");
+                for (int i = 0; i < nodos.getLength(); i++) {
+                    Element el = (Element) nodos.item(i);
+                    Libro l = elementToLibro(el);
+                    try {
+                        alta(l);
+                    } catch (Exception e) {
+                        System.out.println("ERROR al insertar libro del XML: " + e.getMessage());
+                    }
                 }
             } catch (Exception e) {
                 System.out.println("ERROR: Datos XML incorrectos al leer " + ruta + ": " + e.getMessage());
@@ -245,31 +258,23 @@ public class Libros {
         }
     }
 
-    // Metodo para leer los libros desde el fichero XML por defecto
-    public void leerXML() {
-        leerXML("libros.xml");
-    }
-
     // Metodo para convertir un objeto Libro a un elemento XML
     public Element libroToElement(Document dom, Libro l) {
         Element el = dom.createElement("libro");
-        
-        el.setAttribute("isbn", l.getIsbn());
-        el.setAttribute("anio", String.valueOf(l.getAnio()));
-        el.setAttribute("categoria", l.getCategoria().name());
-        
+
+        crearHijoTexto(dom, el, "isbn", l.getIsbn());
         crearHijoTexto(dom, el, "titulo", l.getTitulo());
-        
+        crearHijoTexto(dom, el, "anio", String.valueOf(l.getAnio()));
+        crearHijoTexto(dom, el, "categoria", l.getCategoria().name());
+
         Element autores = dom.createElement("autores");
         for (Autor a : l.getAutores()) {
             Element ea = dom.createElement("autor");
-            ea.setAttribute("nombre", a.getNombre());
-            ea.setAttribute("apellidos", a.getApellidos());
-            ea.setAttribute("nacionalidad", a.getNacionalidad());
+            crearHijoTexto(dom, ea, "nombre", a.getNombre() + " " + a.getApellidos());
             autores.appendChild(ea);
         }
         el.appendChild(autores);
-        
+
         Element tipo = dom.createElement("tipo");
         if (l instanceof Audiolibro) {
             Audiolibro al = (Audiolibro) l;
@@ -280,23 +285,23 @@ public class Libros {
             tipo.setAttribute("tipo", "libro");
         }
         el.appendChild(tipo);
-    
+
         return el;
     }
 
+
     // Metodo para escribir los libros en un fichero XML especifico
     public void escribirXML(String ruta) {
-        Document doc = UtilidadesXML.crearDomVacio("libros"); // Creamos el documento XML
-        if (doc == null) return; // Si el documento es nulo, devolvemos
-        for (Libro l : todos()) { // Recorremos los libros
-            doc.getDocumentElement().appendChild(libroToElement(doc, l)); // Añadimos el libro al documento XML
+        try {
+            Document doc = UtilidadesXML.crearDomVacio("libros");
+            if (doc == null) return;
+            for (Libro l : todos()) {
+                doc.getDocumentElement().appendChild(libroToElement(doc, l));
+            }
+            UtilidadesXML.domToXml(doc, ruta);
+        } catch (Exception e) {
+            System.out.println("ERROR al guardar " + ruta + ": " + e.getMessage());
         }
-        UtilidadesXML.domToXml(doc, ruta); // Guardamos el documento XML
-    }
-
-    // Metodo para escribir los libros en el fichero XML por defecto
-    public void escribirXML() {
-        escribirXML("libros.xml");
     }
 
     public void borrarTodos() {

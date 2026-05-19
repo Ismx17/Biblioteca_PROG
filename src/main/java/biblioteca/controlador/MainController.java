@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import org.w3c.dom.Document;
 
@@ -277,35 +278,27 @@ public class MainController {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirmar Copia de Seguridad");
         confirm.setHeaderText("Hacer copia de seguridad");
-        confirm.setContentText("¿Desea exportar los datos actuales a ficheros XML?");
+        confirm.setContentText("Los datos se guardarán automáticamente en la carpeta fichero del proyecto. ¿Desea continuar?");
         
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Guardar copia de seguridad (Seleccione un archivo XML)");
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos XML", "*.xml"));
+            File ficheroDir = new File("src/main/java/biblioteca/fichero");
+            if (!ficheroDir.exists()) {
+                ficheroDir.mkdirs();
+            }
 
-            File selectedFile = fileChooser.showSaveDialog(tvLibros.getScene().getWindow());
+            String path = ficheroDir.getAbsolutePath() + File.separator;
+            try {
+                biblioteca.modelo.negocio.Autores.getInstancia().escribirXML(path + "autores.xml");
+                biblioteca.modelo.negocio.Libros.getInstancia().escribirXML(path + "libros.xml");
+                biblioteca.modelo.negocio.Usuarios.getInstancia().escribirXML(path + "usuarios.xml");
+                biblioteca.modelo.negocio.Prestamos.getInstancia().escribirXML(path + "prestamos.xml");
 
-            if (selectedFile != null) {
-                File parentDir = selectedFile.getParentFile();
-                File ficheroDir = new File(parentDir, "fichero");
-                if (!ficheroDir.exists()) {
-                    ficheroDir.mkdirs(); // Crea el directorio fichero si no existe
-                }
-                String path = ficheroDir.getAbsolutePath() + File.separator;
-                try {
-                    biblioteca.modelo.negocio.Autores.getInstancia().escribirXML(path + "autores.xml");
-                    biblioteca.modelo.negocio.Libros.getInstancia().escribirXML(path + "libros.xml");
-                    biblioteca.modelo.negocio.Usuarios.getInstancia().escribirXML(path + "usuarios.xml");
-                    biblioteca.modelo.negocio.Prestamos.getInstancia().escribirXML(path + "prestamos.xml");
-
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setHeaderText("Copia de Seguridad");
-                    alert.setContentText("Copia de seguridad realizada correctamente en:\n" + ficheroDir.getAbsolutePath());
-                    alert.showAndWait();
-                } catch (Exception e) {
-                    mostrarError("Error en Copia de Seguridad", e.getMessage());
-                }
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setHeaderText("Copia de Seguridad");
+                alert.setContentText("Copia de seguridad realizada correctamente en:\n" + ficheroDir.getAbsolutePath());
+                alert.showAndWait();
+            } catch (Exception e) {
+                mostrarError("Error en Copia de Seguridad", e.getMessage());
             }
         }
     }
@@ -319,19 +312,20 @@ public class MainController {
         
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Cargar copia de seguridad (Seleccione cualquier archivo XML de la copia)");
+            fileChooser.setTitle("Cargar copia de seguridad (Seleccione cualquier archivo XML de la carpeta 'fichero')");
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos XML", "*.xml"));
+            
+            // Por defecto, abrir en el directorio fichero si existe
+            File ficheroDir = new File("src/main/java/biblioteca/fichero");
+            if (ficheroDir.exists() && ficheroDir.isDirectory()) {
+                fileChooser.setInitialDirectory(ficheroDir);
+            }
 
             File selectedFile = fileChooser.showOpenDialog(tvLibros.getScene().getWindow());
 
             if (selectedFile != null) {
-                File parentDir = selectedFile.getParentFile();
-                File ficheroDir = new File(parentDir, "fichero");
-                if (!ficheroDir.exists()) {
-                    mostrarError("Error de Restauración", "No se encontró la carpeta 'fichero' en el directorio seleccionado.");
-                    return;
-                }
-                String path = ficheroDir.getAbsolutePath() + File.separator;
+                File backupDir = selectedFile.getParentFile();
+                String path = backupDir.getAbsolutePath() + File.separator;
 
                 try {
                     // Comprobamos si los documentos existen y están bien formados
@@ -341,7 +335,7 @@ public class MainController {
                     Document docPrestamos = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "prestamos.xml");
 
                     if (docAutores == null || docLibros == null || docUsuarios == null || docPrestamos == null) {
-                        throw new Exception("Error de validación: Algunos ficheros no existen o no están bien formados en la carpeta 'fichero' seleccionada.");
+                        throw new Exception("Error de validación: La carpeta seleccionada no contiene todos los archivos de la copia de seguridad (.xml) o están corruptos.");
                     }
 
                     java.sql.Connection con = biblioteca.modelo.negocio.mysql.Conexion.getConexion().getJdbcConnection();
@@ -367,7 +361,7 @@ public class MainController {
                     refrescarTablas();
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setHeaderText("Restauración");
-                    alert.setContentText("Copia de seguridad cargada correctamente desde:\n" + ficheroDir.getAbsolutePath());
+                    alert.setContentText("Copia de seguridad cargada correctamente desde:\n" + backupDir.getAbsolutePath());
                     alert.showAndWait();
                 } catch (Exception e) {
                     mostrarError("Error en Restauración", e.getMessage());

@@ -24,32 +24,32 @@ public class Prestamos {
     }
 
     // Metodos para establecer y cerrar la conexion con la base de datos
-    public void comenzar() { 
+    public void comenzar() {
         try {
-            Conexion.getConexion().establecerConexion(); 
+            Conexion.getConexion().establecerConexion();
         } catch (SQLException e) {
             System.out.println("ERROR: No se pudo establecer la conexión: " + e.getMessage());
         }
-        leerXML();
+        leerXML("src/main/java/biblioteca/fichero/prestamos.xml");
     }
 
-    public void terminar() { 
-        escribirXML();
+    public void terminar() {
+        escribirXML("src/main/java/biblioteca/fichero/prestamos.xml");
         try {
-            Conexion.getConexion().cerrarConexion(); 
+            Conexion.getConexion().cerrarConexion();
         } catch (SQLException e) {
             System.out.println("ERROR: No se pudo cerrar la conexión: " + e.getMessage());
         }
     }
 
     // Metodo para dar de alta un nuevo prestamo
-    public void prestar(Libro libroFicticio, Usuario usuarioFicticio, LocalDate fInicio) {        
+    public void prestar(Libro libroFicticio, Usuario usuarioFicticio, LocalDate fInicio) {
         Libro libro = Libros.getInstancia().buscar(libroFicticio);
         if (libro == null) {
             System.out.println("ERROR: El libro no existe.");
             return;
         }
-        
+
         Usuario usuario = Usuarios.getInstancia().buscar(usuarioFicticio);
         if (usuario == null) {
             System.out.println("ERROR: El usuario no existe.");
@@ -59,44 +59,66 @@ public class Prestamos {
         Connection con = Conexion.getConexion().getJdbcConnection();
         String sqlCheck = "SELECT COUNT(*) FROM prestamo WHERE isbn = ? AND devuelto = false";
         String sqlInsert = "INSERT INTO prestamo (dni, isbn, fInicio, fLimite, devuelto) VALUES (?, ?, ?, ?, ?)";
+
         try {
             // Iniciamos la transacción
             con.setAutoCommit(false);
-            // Validación para saber si el libro esta disponible
+
+            boolean disponible = true;
+
+            // Validación para saber si el libro está disponible
             try (PreparedStatement psCheck = con.prepareStatement(sqlCheck)) {
-                psCheck.setString(1, libro.getIsbn());
-                ResultSet rs = psCheck.executeQuery();
-                if (rs.next() && rs.getInt(1) > 0) {
-                    System.out.println("ERROR: El libro con ISBN " + libro.getIsbn() + " ya está prestado.");
-                    return;
+                psCheck.setString(1, libro.getIsbn()); // ¡Corregido! Antes decía 'ps'
+                try (ResultSet rs = psCheck.executeQuery()) {
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        System.out.println("ERROR: El libro con ISBN " + libro.getIsbn() + " ya está prestado.");
+                        disponible = false;
+                    }
                 }
             }
-            
-            Prestamo p = new Prestamo(libro, usuario, fInicio);
-            // Inserción del préstamo
-            try (PreparedStatement psInsert = con.prepareStatement(sqlInsert)) {
-                psInsert.setString(1, p.getUsuario().getDni());
-                psInsert.setString(2, p.getLibro().getIsbn());
-                psInsert.setDate(3, Date.valueOf(p.getfInicio()));
-                psInsert.setDate(4, Date.valueOf(p.getfLimite()));
-                psInsert.setBoolean(5, false);
-                // Ejecutamos la insercion
-                psInsert.executeUpdate();
+
+            // Solo continuamos si el libro está disponible
+            if (disponible) {
+                Prestamo p = new Prestamo(libro, usuario, fInicio);
+
+                // Inserción del préstamo
+                try (PreparedStatement psInsert = con.prepareStatement(sqlInsert)) {
+                    psInsert.setString(1, p.getUsuario().getDni());
+                    psInsert.setString(2, p.getLibro().getIsbn());
+                    psInsert.setDate(3, Date.valueOf(p.getfInicio()));
+                    psInsert.setDate(4, Date.valueOf(p.getfLimite()));
+                    psInsert.setBoolean(5, false);
+
+                    // Ejecutamos la inserción
+                    psInsert.executeUpdate();
+                }
+
+                // Confirmamos los cambios si todo ha ido bien
+                con.commit();
+                System.out.println("Préstamo registrado con éxito.");
+            } else {
+                // Si no estaba disponible, revertimos para asegurar que no quede nada colgado
+                con.rollback();
             }
-            // Confirmamos los cambios
-            con.commit();
+
         } catch (SQLException e) {
             try {
-                // Si algo falla deshacemos todo
-                con.rollback();
+                // Si algo falla en la inserción o base de datos, deshacemos todo
+                if (con != null) {
+                    con.rollback();
+                }
             } catch (SQLException ex) {
+                System.out.println("ERROR al hacer rollback: " + ex.getMessage());
             }
             System.out.println("ERROR: No se ha podido registrar el préstamo: " + e.getMessage());
         } finally {
             try {
-                // Restauramos el estado de la conexión
-                con.setAutoCommit(true);
+                if (con != null) {
+                    // Restauramos el estado de la conexión siempre
+                    con.setAutoCommit(true);
+                }
             } catch (SQLException ex) {
+                System.out.println("ERROR al restaurar autoCommit: " + ex.getMessage());
             }
         }
     }
@@ -180,17 +202,17 @@ public class Prestamos {
     }
 
     public Prestamo elementToPrestamo(Element ep) {
-        String dni = ep.getAttribute("dni");
-        String isbn = ep.getAttribute("isbn");
-        String fInicioStr = ep.getAttribute("fechaInicio");
+        String dni = getContenidoEtiqueta(ep, "usuario");
+        String isbn = getContenidoEtiqueta(ep, "libro");
+        String fInicioStr = getContenidoEtiqueta(ep, "fechaInicio");
     
         Usuario u = new Usuario(dni, "", "", new Direccion("", "", "", ""));
         Libro l = new Libro(isbn, "", 0, Categoria.OTROS);
         
         Prestamo p = new Prestamo(l, u, LocalDate.parse(fInicioStr));
         
-        String fDevStr = ep.getAttribute("fechaDevolucion");
-        if (fDevStr != null && !fDevStr.isEmpty()) {
+        String fDevStr = getContenidoEtiqueta(ep, "fechaDevolucion");
+        if (!fDevStr.isEmpty()) {
             p.marcarDevuelto(LocalDate.parse(fDevStr));
         }
         
@@ -213,21 +235,16 @@ public class Prestamos {
         }
     }
 
-    // Metodo para leer los prestamos desde el fichero XML por defecto
-    public void leerXML() {
-        leerXML("prestamos.xml");
-    }
-
     // Metodo para convertir un objeto Prestamo a un elemento XML
     public Element prestamoToElement(Document dom, Prestamo p) {
         Element ep = dom.createElement("prestamo");
     
-        ep.setAttribute("dni", p.getUsuario().getDni());
-        ep.setAttribute("isbn", p.getLibro().getIsbn());
-        ep.setAttribute("fechaInicio", p.getfInicio().toString());
+        crearHijoTexto(dom, ep, "usuario", p.getUsuario().getDni());
+        crearHijoTexto(dom, ep, "libro", p.getLibro().getIsbn());
+        crearHijoTexto(dom, ep, "fechaInicio", p.getfInicio().toString());
     
         if (p.isDevuelto() && p.getfDevolucion() != null) {
-            ep.setAttribute("fechaDevolucion", p.getfDevolucion().toString());
+            crearHijoTexto(dom, ep, "fechaDevolucion", p.getfDevolucion().toString());
         }
     
         return ep;
@@ -247,11 +264,6 @@ public class Prestamos {
         } catch (Exception e) {
             System.err.println("Error al exportar " + ruta + ": " + e.getMessage());
         }
-    }
-
-    // Metodo para escribir los prestamos en el fichero XML por defecto
-    public void escribirXML() {
-        escribirXML("prestamos.xml");
     }
 
     public void borrarTodos() {

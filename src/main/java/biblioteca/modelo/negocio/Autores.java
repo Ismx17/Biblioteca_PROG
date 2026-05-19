@@ -24,19 +24,19 @@ public class Autores {
     }
 
     // Metodos para establecer y cerrar la conexion con la base de datos
-    public void comenzar() { 
+    public void comenzar() {
         try {
-            Conexion.getConexion().establecerConexion(); 
+            Conexion.getConexion().establecerConexion();
         } catch (SQLException e) {
             System.out.println("ERROR: No se pudo establecer la conexión: " + e.getMessage());
         }
-        leerXML(); // Leemos los autores desde el fichero XML
+        leerXML("src/main/java/biblioteca/fichero/autores.xml");
     }
 
-    public void terminar() { 
-        escribirXML(); // Escribimos los autores nuevos en el fichero XML
+    public void terminar() {
+        escribirXML("src/main/java/biblioteca/fichero/autores.xml");
         try {
-            Conexion.getConexion().cerrarConexion(); 
+            Conexion.getConexion().cerrarConexion();
         } catch (SQLException e) {
             System.out.println("ERROR: No se pudo cerrar la conexión: " + e.getMessage());
         }
@@ -78,22 +78,35 @@ public class Autores {
 
     // Metodo para convertir un elemento XML a un objeto Autor
     public Autor elementToAutor(Element ea) {
-        String nombre = ea.getAttribute("nombre");
-        String apellidos = ea.getAttribute("apellidos");
-        String nacionalidad = ea.getAttribute("nacionalidad");
-        
-        return new Autor(nombre, apellidos, nacionalidad);
+        String nombreCompleto = getContenidoEtiqueta(ea, "nombre"); // Obtener el contenido de la etiqueta <nombre>
+        String nombre;
+        String apellidos;
+
+        int primerEspacio = nombreCompleto.indexOf("");
+        if (primerEspacio != -1) {
+            nombre = nombreCompleto.substring(0, primerEspacio);
+            apellidos = nombreCompleto.substring(primerEspacio + 1);
+        } else {
+            nombre = nombreCompleto;
+            apellidos = "";
+        }
+        return new Autor(nombre, apellidos, "");
     }
 
     // Metodo para leer los autores desde un fichero XML especifico
     public void leerXML(String ruta) {
-        Document doc = UtilidadesXML.xmlToDom(ruta); // Cargamos el documento XML
-        if (doc != null) { // Si el documento es nulo, devolvemos
+        Document doc = UtilidadesXML.xmlToDom(ruta);
+        if (doc != null) {
             try {
-                NodeList nodos = doc.getElementsByTagName("autor"); // Obtenemos los nodos del autor
-                for (int i = 0; i < nodos.getLength(); i++) { // Recorremos los nodos
-                    Element ea = (Element) nodos.item(i); // Obtenemos el elemento del Autor
-                    insertar(elementToAutor(ea)); // Convertimos el elemento XML a un objeto Autor y lo insertamos en la BD
+                NodeList nodos = doc.getElementsByTagName("autor");
+                for (int i = 0; i < nodos.getLength(); i++) {
+                    Element ea = (Element) nodos.item(i);
+                    Autor a = elementToAutor(ea);
+                    try {
+                        insertar(a);
+                    } catch (Exception e) {
+                        System.out.println("ERROR al insertar autor del XML: " + e.getMessage());
+                    }
                 }
             } catch (Exception e) {
                 System.out.println("ERROR: Datos XML incorrectos al leer " + ruta + ": " + e.getMessage());
@@ -101,39 +114,25 @@ public class Autores {
         }
     }
 
-    // Metodo para leer los autores desde el fichero XML por defecto
-    public void leerXML() {
-        leerXML("autores.xml");
-    }
-
     // Metodo para convertir un objeto Autor a un elemento XML
     public Element autorToElement(Document dom, Autor a) {
         Element ea = dom.createElement("autor");
-        
-        ea.setAttribute("nombre", a.getNombre());
-        ea.setAttribute("apellidos", a.getApellidos());
-        ea.setAttribute("nacionalidad", a.getNacionalidad());
-        
+        crearHijoTexto(dom, ea, "nombre", a.getNombre() + " " + a.getApellidos());
         return ea;
     }
 
     // Metodo para escribir los autores en un fichero XML especifico
     public void escribirXML(String ruta) {
         try {
-            Document doc = UtilidadesXML.crearDomVacio("autores"); // Creamos el documento XML
-            if (doc == null) return; // Si el documento es nulo, devolvemos
-            for (Autor a : todos()) { // Recorremos los autores
-                doc.getDocumentElement().appendChild(autorToElement(doc, a)); // Añadimos el autor al documento XML
+            Document doc = UtilidadesXML.crearDomVacio("autores");
+            if (doc == null) return;
+            for (Autor a : todos()) {
+                doc.getDocumentElement().appendChild(autorToElement(doc, a));
             }
-            UtilidadesXML.domToXml(doc, ruta); // Guardamos el documento XML
+            UtilidadesXML.domToXml(doc, ruta);
         } catch (Exception e) {
             System.out.println("ERROR al guardar " + ruta + ": " + e.getMessage());
         }
-    }
-
-    // Metodo para escribir los autores en el fichero XML por defecto
-    public void escribirXML() {
-        escribirXML("autores.xml");
     }
 
     // Metodos auxiliares para simplificar la creacion de nodos de texto

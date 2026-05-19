@@ -26,18 +26,19 @@ public class Usuarios {
     }
 
     // Metodos para establecer y cerrar la conexion con la base de datos
-    public void comenzar() { 
+    public void comenzar() {
         try {
-            Conexion.getConexion().establecerConexion(); 
+            Conexion.getConexion().establecerConexion();
         } catch (SQLException e) {
             System.out.println("ERROR: No se pudo establecer la conexión: " + e.getMessage());
         }
-        leerXML(); // Leemos los usuarios desde el fichero XML
+        leerXML("src/main/java/biblioteca/fichero/usuarios.xml");
     }
-    public void terminar() { 
-        escribirXML(); // Escribimos los usuarios nuevos en el fichero XML
+
+    public void terminar() {
+        escribirXML("src/main/java/biblioteca/fichero/usuarios.xml");
         try {
-            Conexion.getConexion().cerrarConexion(); 
+            Conexion.getConexion().cerrarConexion();
         } catch (SQLException e) {
             System.out.println("ERROR: No se pudo cerrar la conexión: " + e.getMessage());
         }
@@ -153,31 +154,34 @@ public class Usuarios {
 
     // Metodo para convertir un elemento XML a un objeto Usuario
     public Usuario elementToUsuario(Element elemento) {
-        String dni = elemento.getAttribute("dni");
+        String dni = getContenidoEtiqueta(elemento, "dni");
         String nombre = getContenidoEtiqueta(elemento, "nombre");
         String email = getContenidoEtiqueta(elemento, "email");
-        
+
         Element ed = (Element) elemento.getElementsByTagName("direccion").item(0);
         Direccion dir = new Direccion(
-            ed.getAttribute("via"),
-            ed.getAttribute("numero"),
-            ed.getAttribute("cp"),
-            ed.getAttribute("localidad")
+                getContenidoEtiqueta(ed, "via"),
+                getContenidoEtiqueta(ed, "numero"),
+                getContenidoEtiqueta(ed, "cp"),
+                getContenidoEtiqueta(ed, "localidad")
         );
-        
+
         return new Usuario(dni, nombre, email, dir);
     }
 
     // Metodo para leer los usuarios desde un fichero XML especifico
     public void leerXML(String ruta) {
-        Document doc = UtilidadesXML.xmlToDom(ruta); // Cargamos el documento XML
+        Document doc = UtilidadesXML.xmlToDom(ruta);
         if (doc != null) {
             try {
-                NodeList nodos = doc.getElementsByTagName("usuario"); // Obtenemos los nodos del usuario
-                for (int i = 0; i < nodos.getLength(); i++) { // Recorremos los nodos
-                    Element eu = (Element) nodos.item(i); // Obtenemos el elemento del usuario
-                    Usuario u = elementToUsuario(eu); // Convertimos el elemento XML a un objeto Usuario
-                    try { alta(u); } catch (Exception e) { /* Ignorar si ya existe */ } // Si ya existe, lo ignoramos
+                NodeList nodos = doc.getElementsByTagName("usuario");
+                for (int i = 0; i < nodos.getLength(); i++) {
+                    Element eu = (Element) nodos.item(i);
+                    Usuario u = elementToUsuario(eu);
+                    try {
+                        alta(u);
+                    } catch (Exception e) {
+                    }
                 }
             } catch (Exception e) {
                 System.out.println("ERROR: Datos XML incorrectos al leer " + ruta + ": " + e.getMessage());
@@ -185,26 +189,21 @@ public class Usuarios {
         }
     }
 
-    // Metodo para leer los usuarios desde el fichero XML por defecto
-    public void leerXML() {
-        leerXML("usuarios.xml");
-    }
-
     // Metodo para convertir un objeto Usuario a un elemento XML
     public Element usuarioToElement(Document dom, Usuario usuario) {
         Element eu = dom.createElement("usuario");
-        eu.setAttribute("dni", usuario.getDni());
-        
+
+        crearHijoTexto(dom, eu, "dni", usuario.getDni());
         crearHijoTexto(dom, eu, "nombre", usuario.getNombre());
         crearHijoTexto(dom, eu, "email", usuario.getEmail());
-        
+
         Element ed = dom.createElement("direccion");
         Direccion dir = usuario.getDireccion();
-        ed.setAttribute("via", dir.getVia());
-        ed.setAttribute("numero", dir.getNumero());
-        ed.setAttribute("cp", dir.getCp());
-        ed.setAttribute("localidad", dir.getLocalidad());
-        
+        crearHijoTexto(dom, ed, "via", dir.getVia());
+        crearHijoTexto(dom, ed, "numero", dir.getNumero());
+        crearHijoTexto(dom, ed, "cp", dir.getCp());
+        crearHijoTexto(dom, ed, "localidad", dir.getLocalidad());
+
         eu.appendChild(ed);
         return eu;
     }
@@ -212,20 +211,16 @@ public class Usuarios {
     // Metodo para escribir los usuarios en un fichero XML especifico
     public void escribirXML(String ruta) {
         try {
-            Document doc = UtilidadesXML.crearDomVacio("usuarios"); // Creamos el documento XML
-            if (doc == null) return; // Si el documento es nulo, devolvemos
-            for (Usuario u : todos()) { // Recorremos los usuarios
-                doc.getDocumentElement().appendChild(usuarioToElement(doc, u)); // Añadimos el usuario al documento XML
+            Document doc = UtilidadesXML.crearDomVacio("usuarios");
+            if (doc == null) return;
+
+            for (Usuario u : todos()) {
+                doc.getDocumentElement().appendChild(usuarioToElement(doc, u));
             }
-            UtilidadesXML.domToXml(doc, ruta); // Guardamos el documento XML
+            UtilidadesXML.domToXml(doc, ruta);
         } catch (Exception e) {
             System.out.println("ERROR al guardar " + ruta + ": " + e.getMessage());
         }
-    }
-
-    // Metodo para escribir los usuarios en el fichero XML por defecto
-    public void escribirXML() {
-        escribirXML("usuarios.xml");
     }
 
     public void borrarTodos() {

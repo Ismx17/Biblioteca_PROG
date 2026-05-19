@@ -45,3 +45,6 @@ temp/
 
 ### Gradle ###
 .gradle/
+
+# Custom additions
+fichero/

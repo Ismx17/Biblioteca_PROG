@@ -42,7 +42,6 @@ public class Modelo {
         List<Prestamo> todos = Prestamos.getInstancia().todos();
         for (Prestamo p : todos) {
             if (p.getLibro().getIsbn().equals(libro.getIsbn())) {
-                // Eliminamos "if (!p.isDevuelto())" para que salte siempre
                 throw new IllegalStateException("ERROR: El libro tiene registros de préstamos asociados.");
             }
         }
