@@ -35,8 +35,6 @@ public class AppBiblioteca extends Application implements LocalizadorRecursos {
 
     @Override
     public URL getFxmlResource(String fxmlFileName) {
-        // Asumiendo que los FXML están en el mismo paquete que MainView.fxml o en una ruta relativa similar
-        // El path completo sería /biblioteca/views/nombreArchivo.fxml
         return getClass().getResource("/biblioteca/views/" + fxmlFileName);
     }
 

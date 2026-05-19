@@ -10,8 +10,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import org.w3c.dom.Document;
 
 import java.io.File;
 import java.time.Duration;
@@ -27,9 +27,7 @@ public class MainController {
     // Listas auxiliares para gestionar la creación de libros con múltiples autores antes de guardarlos
     private ObservableList<String> nombresAutoresTemporales = FXCollections.observableArrayList();
     private List<Autor> listaAutoresObjetos = new ArrayList<>();
-
-    // ELEMENTOS FXML: Componentes inyectados desde el archivo MainView.fxml
-
+    
     // Tablas de la interfaz
     @FXML private TableView<Libro> tvLibros;
     @FXML private TableColumn<Libro, String> colIsbn, colTitulo, colCategoria, colInfoExtra;
@@ -282,14 +280,20 @@ public class MainController {
         confirm.setContentText("¿Desea exportar los datos actuales a ficheros XML?");
         
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-            // Se utiliza DirectoryChooser 
-            DirectoryChooser directoryChooser = new DirectoryChooser();
-            directoryChooser.setTitle("Seleccionar carpeta para guardar la copia de seguridad");
-            File dir = directoryChooser.showDialog(tvLibros.getScene().getWindow());
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Guardar copia de seguridad (Seleccione un archivo XML)");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos XML", "*.xml"));
 
-            if (dir != null) {
+            File selectedFile = fileChooser.showSaveDialog(tvLibros.getScene().getWindow());
+
+            if (selectedFile != null) {
+                File parentDir = selectedFile.getParentFile();
+                File ficheroDir = new File(parentDir, "fichero");
+                if (!ficheroDir.exists()) {
+                    ficheroDir.mkdirs(); // Crea el directorio fichero si no existe
+                }
+                String path = ficheroDir.getAbsolutePath() + File.separator;
                 try {
-                    String path = dir.getAbsolutePath() + File.separator;
                     biblioteca.modelo.negocio.Autores.getInstancia().escribirXML(path + "autores.xml");
                     biblioteca.modelo.negocio.Libros.getInstancia().escribirXML(path + "libros.xml");
                     biblioteca.modelo.negocio.Usuarios.getInstancia().escribirXML(path + "usuarios.xml");
@@ -297,7 +301,7 @@ public class MainController {
 
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setHeaderText("Copia de Seguridad");
-                    alert.setContentText("Copia de seguridad realizada correctamente en:\n" + dir.getAbsolutePath());
+                    alert.setContentText("Copia de seguridad realizada correctamente en:\n" + ficheroDir.getAbsolutePath());
                     alert.showAndWait();
                 } catch (Exception e) {
                     mostrarError("Error en Copia de Seguridad", e.getMessage());
@@ -314,23 +318,30 @@ public class MainController {
         confirm.setContentText("Se eliminarán los datos actuales y se reemplazarán por los de la copia de seguridad.\n¿Desea continuar?");
         
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-            // Se utiliza DirectoryChooser para ubicar los ficheros de origen
-            DirectoryChooser directoryChooser = new DirectoryChooser();
-            directoryChooser.setTitle("Seleccionar carpeta con la copia de seguridad");
-            File dir = directoryChooser.showDialog(tvLibros.getScene().getWindow());
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Cargar copia de seguridad (Seleccione cualquier archivo XML de la copia)");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos XML", "*.xml"));
 
-            if (dir != null) {
+            File selectedFile = fileChooser.showOpenDialog(tvLibros.getScene().getWindow());
+
+            if (selectedFile != null) {
+                File parentDir = selectedFile.getParentFile();
+                File ficheroDir = new File(parentDir, "fichero");
+                if (!ficheroDir.exists()) {
+                    mostrarError("Error de Restauración", "No se encontró la carpeta 'fichero' en el directorio seleccionado.");
+                    return;
+                }
+                String path = ficheroDir.getAbsolutePath() + File.separator;
+
                 try {
-                    String path = dir.getAbsolutePath() + File.separator;
-
-                    // Validación previa: comprobamos si los documentos existen y están bien formados
-                    org.w3c.dom.Document docAutores = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "autores.xml");
-                    org.w3c.dom.Document docLibros = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "libros.xml");
-                    org.w3c.dom.Document docUsuarios = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "usuarios.xml");
-                    org.w3c.dom.Document docPrestamos = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "prestamos.xml");
+                    // Comprobamos si los documentos existen y están bien formados
+                    Document docAutores = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "autores.xml");
+                    Document docLibros = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "libros.xml");
+                    Document docUsuarios = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "usuarios.xml");
+                    Document docPrestamos = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "prestamos.xml");
 
                     if (docAutores == null || docLibros == null || docUsuarios == null || docPrestamos == null) {
-                        throw new Exception("Error de validación: Algunos ficheros no existen o no están bien formados en la carpeta seleccionada.");
+                        throw new Exception("Error de validación: Algunos ficheros no existen o no están bien formados en la carpeta 'fichero' seleccionada.");
                     }
 
                     java.sql.Connection con = biblioteca.modelo.negocio.mysql.Conexion.getConexion().getJdbcConnection();
@@ -356,7 +367,7 @@ public class MainController {
                     refrescarTablas();
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setHeaderText("Restauración");
-                    alert.setContentText("Copia de seguridad cargada correctamente desde:\n" + dir.getAbsolutePath());
+                    alert.setContentText("Copia de seguridad cargada correctamente desde:\n" + ficheroDir.getAbsolutePath());
                     alert.showAndWait();
                 } catch (Exception e) {
                     mostrarError("Error en Restauración", e.getMessage());

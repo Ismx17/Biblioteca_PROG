@@ -2,6 +2,8 @@
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+.idea/
+*.iml
 
 ### Eclipse ###
 .apt_generated
@@ -27,3 +29,19 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Build Artifacts ###
+target/
+build/
+*.jar
+*.war
+*.ear
+*.class
+
+### Logs and Temporary Files ###
+*.log
+tmp/
+temp/
+
+### Gradle ###
+.gradle/
