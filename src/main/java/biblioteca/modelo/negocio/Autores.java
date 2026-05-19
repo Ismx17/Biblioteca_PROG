@@ -78,10 +78,9 @@ public class Autores {
 
     // Metodo para convertir un elemento XML a un objeto Autor
     public Autor elementToAutor(Element ea) {
-        // Se usa el método auxiliar para obtener el texto de las subetiquetas
-        String nombre = getContenidoEtiqueta(ea, "nombre");
-        String apellidos = getContenidoEtiqueta(ea, "apellidos");
-        String nacionalidad = getContenidoEtiqueta(ea, "nacionalidad");
+        String nombre = ea.getAttribute("nombre");
+        String apellidos = ea.getAttribute("apellidos");
+        String nacionalidad = ea.getAttribute("nacionalidad");
         
         return new Autor(nombre, apellidos, nacionalidad);
     }
@@ -109,12 +108,11 @@ public class Autores {
 
     // Metodo para convertir un objeto Autor a un elemento XML
     public Element autorToElement(Document dom, Autor a) {
-        Element ea = dom.createElement("autor"); // Creamos el elemento autor
+        Element ea = dom.createElement("autor");
         
-        // Crear nodos hijos para los atributos del Autor
-        crearHijoTexto(dom, ea, "nombre", a.getNombre());
-        crearHijoTexto(dom, ea, "apellidos", a.getApellidos());
-        crearHijoTexto(dom, ea, "nacionalidad", a.getNacionalidad());
+        ea.setAttribute("nombre", a.getNombre());
+        ea.setAttribute("apellidos", a.getApellidos());
+        ea.setAttribute("nacionalidad", a.getNacionalidad());
         
         return ea;
     }

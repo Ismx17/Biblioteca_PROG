@@ -202,26 +202,28 @@ public class Libros {
     }
 
     public Libro elementToLibro(Element el) {
-        // Obtenemos la categoria
-        Categoria cat = Categoria.valueOf(getContenidoEtiqueta(el, "categoria"));
-        
-        // Obtenemos los datos del libro
-        String isbn = getContenidoEtiqueta(el, "isbn");
+        String isbn = el.getAttribute("isbn");
+        int anio = Integer.parseInt(el.getAttribute("anio"));
+        Categoria cat = Categoria.valueOf(el.getAttribute("categoria"));
         String titulo = getContenidoEtiqueta(el, "titulo");
-        int anio = Integer.parseInt(getContenidoEtiqueta(el, "anio"));
         
-        Libro l = new Libro(isbn, titulo, anio, cat);
+        Libro l;
+        Element tipoElement = (Element) el.getElementsByTagName("tipo").item(0);
+        if (tipoElement.getAttribute("tipo").equals("audiolibro")) {
+            long duracion = Long.parseLong(tipoElement.getAttribute("duracion"));
+            String formato = tipoElement.getAttribute("formato");
+            l = new Audiolibro(isbn, titulo, anio, cat, Duration.ofSeconds(duracion), formato);
+        } else {
+            l = new Libro(isbn, titulo, anio, cat);
+        }
     
-        // Procesamos los autores con nombre y apellidos
         NodeList nlAutores = el.getElementsByTagName("autor");
         for (int j = 0; j < nlAutores.getLength(); j++) {
-            String nombreCompleto = nlAutores.item(j).getTextContent();
-    
-            String[] partes = nombreCompleto.split(" ", 2);
-            String nombre = partes[0];
-            String apellidos = (partes.length > 1) ? partes[1] : "";
-            
-            l.addAutor(new Autor(nombre, apellidos, "")); // Nacionalidad vacía ya que no aparece en el xml de ejemplo
+            Element autorElement = (Element) nlAutores.item(j);
+            String nombre = autorElement.getAttribute("nombre");
+            String apellidos = autorElement.getAttribute("apellidos");
+            String nacionalidad = autorElement.getAttribute("nacionalidad");
+            l.addAutor(new Autor(nombre, apellidos, nacionalidad));
         }
         return l;
     }
@@ -252,31 +254,32 @@ public class Libros {
     public Element libroToElement(Document dom, Libro l) {
         Element el = dom.createElement("libro");
         
-        // 1. ISBN
-        crearHijoTexto(dom, el, "isbn", l.getIsbn());
-        // 2. Titulo
+        el.setAttribute("isbn", l.getIsbn());
+        el.setAttribute("anio", String.valueOf(l.getAnio()));
+        el.setAttribute("categoria", l.getCategoria().name());
+        
         crearHijoTexto(dom, el, "titulo", l.getTitulo());
-        // 3. Año
-        crearHijoTexto(dom, el, "anio", String.valueOf(l.getAnio()));
-        // 4. Categoria
-        crearHijoTexto(dom, el, "categoria", l.getCategoria().name());
-        // 5. Autores (Solo nombre y apellidos juntos, sin nacionalidad)
+        
+        Element autores = dom.createElement("autores");
         for (Autor a : l.getAutores()) {
             Element ea = dom.createElement("autor");
-            // Concatenamos nombre y apellidos para que aparezcan seguidos
-            ea.setTextContent(a.getNombre() + " " + a.getApellidos());
-            el.appendChild(ea);
+            ea.setAttribute("nombre", a.getNombre());
+            ea.setAttribute("apellidos", a.getApellidos());
+            ea.setAttribute("nacionalidad", a.getNacionalidad());
+            autores.appendChild(ea);
         }
-        // 6. Tipo (AudioLibro o Libro)
-        if (l instanceof Libro) {
-            crearHijoTexto(dom, el, "tipo", "libro");
-        }
-        else if (l instanceof Audiolibro) {
+        el.appendChild(autores);
+        
+        Element tipo = dom.createElement("tipo");
+        if (l instanceof Audiolibro) {
             Audiolibro al = (Audiolibro) l;
-            crearHijoTexto(dom, el, "tipo", "audiolibro");
-            crearHijoTexto(dom, el, "duracion", String.valueOf(al.getDuracion().getSeconds()));
-            crearHijoTexto(dom, el, "formato", al.getFormato());
+            tipo.setAttribute("tipo", "audiolibro");
+            tipo.setAttribute("duracion", String.valueOf(al.getDuracion().getSeconds()));
+            tipo.setAttribute("formato", al.getFormato());
+        } else {
+            tipo.setAttribute("tipo", "libro");
         }
+        el.appendChild(tipo);
     
         return el;
     }

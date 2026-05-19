@@ -33,5 +33,5 @@ dependencies {
 
 // Clase principal del programa
 application {
-    mainClass = 'biblioteca.Main'
+    mainClass = 'biblioteca.LanzadorAppBiblioteca'
 }

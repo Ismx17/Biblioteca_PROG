@@ -153,18 +153,16 @@ public class Usuarios {
 
     // Metodo para convertir un elemento XML a un objeto Usuario
     public Usuario elementToUsuario(Element elemento) {
-        // Extraer datos del usuario desde etiquetas hijas
-        String dni = getContenidoEtiqueta(elemento, "dni");
+        String dni = elemento.getAttribute("dni");
         String nombre = getContenidoEtiqueta(elemento, "nombre");
         String email = getContenidoEtiqueta(elemento, "email");
         
-        // Extraer datos de la dirección (nodo anidado)
         Element ed = (Element) elemento.getElementsByTagName("direccion").item(0);
         Direccion dir = new Direccion(
-            getContenidoEtiqueta(ed, "via"),
-            getContenidoEtiqueta(ed, "numero"),
-            getContenidoEtiqueta(ed, "cp"),
-            getContenidoEtiqueta(ed, "localidad")
+            ed.getAttribute("via"),
+            ed.getAttribute("numero"),
+            ed.getAttribute("cp"),
+            ed.getAttribute("localidad")
         );
         
         return new Usuario(dni, nombre, email, dir);
@@ -195,18 +193,17 @@ public class Usuarios {
     // Metodo para convertir un objeto Usuario a un elemento XML
     public Element usuarioToElement(Document dom, Usuario usuario) {
         Element eu = dom.createElement("usuario");
+        eu.setAttribute("dni", usuario.getDni());
         
-        // Crear nodos hijos para los atributos del usuario
-        crearHijoTexto(dom, eu, "dni", usuario.getDni());
         crearHijoTexto(dom, eu, "nombre", usuario.getNombre());
         crearHijoTexto(dom, eu, "email", usuario.getEmail());
         
-        // Crear nodo dirección y sus hijos
         Element ed = dom.createElement("direccion");
-        crearHijoTexto(dom, ed, "via", usuario.getDireccion().getVia());
-        crearHijoTexto(dom, ed, "numero", usuario.getDireccion().getNumero());
-        crearHijoTexto(dom, ed, "cp", usuario.getDireccion().getCp());
-        crearHijoTexto(dom, ed, "localidad", usuario.getDireccion().getLocalidad());
+        Direccion dir = usuario.getDireccion();
+        ed.setAttribute("via", dir.getVia());
+        ed.setAttribute("numero", dir.getNumero());
+        ed.setAttribute("cp", dir.getCp());
+        ed.setAttribute("localidad", dir.getLocalidad());
         
         eu.appendChild(ed);
         return eu;

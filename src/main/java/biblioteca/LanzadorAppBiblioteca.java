@@ -1,6 +1,6 @@
 package biblioteca;
 
-public class Main {
+public class LanzadorAppBiblioteca {
     public static void main(String[] args) {
         AppBiblioteca.main(args);
     }

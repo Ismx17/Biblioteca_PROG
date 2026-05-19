@@ -19,10 +19,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Clase controladora de la interfaz gráfica.
- * Actúa como intermediario entre la Vista y el Modelo.
- */
 public class MainController {
 
     // Referencia a la lógica de negocio
@@ -32,7 +28,7 @@ public class MainController {
     private ObservableList<String> nombresAutoresTemporales = FXCollections.observableArrayList();
     private List<Autor> listaAutoresObjetos = new ArrayList<>();
 
-    // ELEMENTOS FXML: Componentes inyectados desde el archivo principal.fxml
+    // ELEMENTOS FXML: Componentes inyectados desde el archivo MainView.fxml
 
     // Tablas de la interfaz
     @FXML private TableView<Libro> tvLibros;
@@ -62,17 +58,11 @@ public class MainController {
     @FXML private ComboBox<Usuario> cbUsuariosPrestamo;
     @FXML private DatePicker dpFechaPrestamo; // Especifico para fechas
 
-    /**
-     * Método para establecer el modelo y cargar los datos iniciales de la BD.
-     */
     public void setModelo(Modelo modelo) {
         this.modelo = modelo;
         refrescarTablas();
     }
 
-    /**
-     * Método automático de JavaFX que se ejecuta al cargar el FXML.
-     */
     @FXML
     private void initialize() {
         configurarColumnas();
@@ -91,9 +81,6 @@ public class MainController {
         configurarColoreadoFilas();
     }
 
-    /**
-     * Define qué atributo de cada objeto se mostrará en cada columna de las tablas.
-     */
     private void configurarColumnas() {
         // Mapeo simple usando los nombres de los atributos de la clase Libro
         colIsbn.setCellValueFactory(new PropertyValueFactory<>("isbn"));
@@ -135,9 +122,6 @@ public class MainController {
         });
     }
 
-    /**
-     * Cambia el color de fondo de las filas de préstamos según su estado.
-     */
     private void configurarColoreadoFilas() {
         tvPrestamos.setRowFactory(tv -> new TableRow<Prestamo>() {
             @Override
@@ -156,9 +140,6 @@ public class MainController {
         });
     }
 
-    /**
-     * Muestra u oculta los campos específicos de Audiolibro según el CheckBox.
-     */
     @FXML
     private void handleCheckAudiolibro() {
         boolean seleccionado = chbEsAudiolibro.isSelected();
@@ -166,9 +147,6 @@ public class MainController {
         vbCamposAudiolibro.setManaged(seleccionado); // Ajusta el espacio en el layout
     }
 
-    /**
-     * Añade un autor a la lista temporal antes de crear el libro definitivo.
-     */
     @FXML
     private void handleAgregarAutorALista() {
         try {
@@ -180,9 +158,6 @@ public class MainController {
         } catch (Exception e) { mostrarError("Autor", e.getMessage()); }
     }
 
-    /**
-     * Recoge los datos del formulario y solicita al modelo el alta de un nuevo libro.
-     */
     @FXML
     private void handleAltaLibro() {
         try {
@@ -247,9 +222,6 @@ public class MainController {
         }
     }
 
-    /**
-     * Crea un nuevo registro de préstamo llamando al modelo.
-     */
     @FXML
     private void handleNuevoPrestamo() {
         try {
@@ -258,9 +230,6 @@ public class MainController {
         } catch (Exception e) { mostrarError("Error Préstamo", e.getMessage()); }
     }
 
-    /**
-     * Registra la devolución de un libro seleccionado en la tabla.
-     */
     @FXML
     private void handleDevolverPrestamo() {
         Prestamo sel = tvPrestamos.getSelectionModel().getSelectedItem();
@@ -271,9 +240,6 @@ public class MainController {
         }
     }
 
-    /**
-     * Actualiza el contenido de todas las tablas y desplegables con los datos actuales del Modelo.
-     */
     private void refrescarTablas() {
         tvLibros.setItems(FXCollections.observableArrayList(modelo.listadoLibros()));
         tvUsuarios.setItems(FXCollections.observableArrayList(modelo.listadoUsuarios()));
@@ -282,9 +248,6 @@ public class MainController {
         cbUsuariosPrestamo.setItems(FXCollections.observableArrayList(modelo.listadoUsuarios()));
     }
 
-    /**
-     * Limpia los campos del formulario de Libro.
-     */
     private void limpiarFormLibro() {
         tfIsbn.clear(); tfTitulo.clear(); tfAnio.clear(); tfDuracion.clear();
         listaAutoresObjetos.clear(); nombresAutoresTemporales.clear();
@@ -295,9 +258,6 @@ public class MainController {
         tfVia.clear(); tfNumero.clear(); tfCp.clear(); tfLocalidad.clear();
     }
 
-    /**
-     * Muestra un cuadro de diálogo de error crítico.
-     */
     private void mostrarError(String cabecera, String mensaje) {
         // Creamos el cuadro de dialogo de error
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -306,9 +266,6 @@ public class MainController {
         alert.showAndWait();
     }
 
-    /**
-     * Muestra un aviso sobre reglas de negocio que no se han podido cumplir.
-     */
     private void mostrarAdvertencia(String cabecera, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Advertencia de Negocio");

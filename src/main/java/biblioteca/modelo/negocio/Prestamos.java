@@ -180,21 +180,17 @@ public class Prestamos {
     }
 
     public Prestamo elementToPrestamo(Element ep) {
-        // Extraemos datos usando las etiquetas correctas
-        String dni = getContenidoEtiqueta(ep, "usuario"); // dni -> usuario
-        String isbn = getContenidoEtiqueta(ep, "libro");  // isbn -> libro
-        String fInicioStr = getContenidoEtiqueta(ep, "fechaInicio"); // fInicio -> fechaInicio
+        String dni = ep.getAttribute("dni");
+        String isbn = ep.getAttribute("isbn");
+        String fInicioStr = ep.getAttribute("fechaInicio");
     
-        // Creamos los objetos de dominio con datos mínimos
         Usuario u = new Usuario(dni, "", "", new Direccion("", "", "", ""));
         Libro l = new Libro(isbn, "", 0, Categoria.OTROS);
         
-        // Construimos el objeto Prestamo
         Prestamo p = new Prestamo(l, u, LocalDate.parse(fInicioStr));
         
-        // Extraemos la fecha de devolucion si esta presente
-        String fDevStr = getContenidoEtiqueta(ep, "fechaDevolucion"); 
-        if (!fDevStr.isEmpty()) {
+        String fDevStr = ep.getAttribute("fechaDevolucion");
+        if (fDevStr != null && !fDevStr.isEmpty()) {
             p.marcarDevuelto(LocalDate.parse(fDevStr));
         }
         
@@ -226,14 +222,12 @@ public class Prestamos {
     public Element prestamoToElement(Document dom, Prestamo p) {
         Element ep = dom.createElement("prestamo");
     
-        // Etiquetas de Prestamo
-        crearHijoTexto(dom, ep, "usuario", p.getUsuario().getDni()); // dni -> usuario
-        crearHijoTexto(dom, ep, "libro", p.getLibro().getIsbn());   // isbn -> libro
-        crearHijoTexto(dom, ep, "fechaInicio", p.getfInicio().toString()); // fInicio -> fechaInicio
+        ep.setAttribute("dni", p.getUsuario().getDni());
+        ep.setAttribute("isbn", p.getLibro().getIsbn());
+        ep.setAttribute("fechaInicio", p.getfInicio().toString());
     
-        // Etiqueta opcional en caso de estar devuelto
-        if (p.isDevuelto() && p.getfDevolucion() != null) { // Si ya ha sido devuelto creamos la etiqueta
-            crearHijoTexto(dom, ep, "fechaDevolucion", p.getfDevolucion().toString()); // fDevolucion -> fechaDevolucion
+        if (p.isDevuelto() && p.getfDevolucion() != null) {
+            ep.setAttribute("fechaDevolucion", p.getfDevolucion().toString());
         }
     
         return ep;

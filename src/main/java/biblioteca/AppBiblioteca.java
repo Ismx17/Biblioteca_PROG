@@ -2,12 +2,15 @@ package biblioteca;
 
 import biblioteca.controlador.MainController;
 import biblioteca.modelo.Modelo;
+import biblioteca.vista.LocalizadorRecursos;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class AppBiblioteca extends Application {
+import java.net.URL;
+
+public class AppBiblioteca extends Application implements LocalizadorRecursos {
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -16,7 +19,7 @@ public class AppBiblioteca extends Application {
         modelo.comenzar(); // Iniciar conexiones MySQL
 
         // Cargar el FXML
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/biblioteca/vista/principal.fxml"));
+        FXMLLoader loader = new FXMLLoader(getFxmlResource("MainView.fxml"));
         Scene scene = new Scene(loader.load());
 
         // Conectar el controlador con el modelo
@@ -28,6 +31,13 @@ public class AppBiblioteca extends Application {
         stage.setScene(scene);
         stage.setOnCloseRequest(e -> modelo.terminar()); // Cierra conexiones al salir
         stage.show();
+    }
+
+    @Override
+    public URL getFxmlResource(String fxmlFileName) {
+        // Asumiendo que los FXML están en el mismo paquete que MainView.fxml o en una ruta relativa similar
+        // El path completo sería /biblioteca/views/nombreArchivo.fxml
+        return getClass().getResource("/biblioteca/views/" + fxmlFileName);
     }
 
     public static void main(String[] args) {
