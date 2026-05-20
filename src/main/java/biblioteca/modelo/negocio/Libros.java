@@ -30,11 +30,9 @@ public class Libros {
         } catch (SQLException e) {
             System.out.println("ERROR: No se pudo establecer la conexión: " + e.getMessage());
         }
-        leerXML("src/main/java/biblioteca/fichero/libros.xml");
     }
 
     public void terminar() {
-        escribirXML("src/main/java/biblioteca/fichero/libros.xml");
         try {
             Conexion.getConexion().cerrarConexion();
         } catch (SQLException e) {
@@ -288,7 +286,6 @@ public class Libros {
 
         return el;
     }
-
 
     // Metodo para escribir los libros en un fichero XML especifico
     public void escribirXML(String ruta) {

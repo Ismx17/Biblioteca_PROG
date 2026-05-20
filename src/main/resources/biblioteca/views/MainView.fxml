@@ -23,7 +23,7 @@
     </MenuBar>
 
     <HBox alignment="CENTER_LEFT" spacing="20.0">
-        <Label text="Gestión Biblioteca IES Al-Ándalus">
+        <Label text="Gestión Biblioteca">
             <font> <Font name="System Bold" size="24.0" /> </font>
         </Label>
         <Region HBox.hgrow="ALWAYS" />
@@ -62,6 +62,11 @@
                         <ComboBox fx:id="cbCategoria" maxWidth="Infinity" promptText="Categoría" />
                         <Separator />
                         <Label text="Autor/es del libro" />
+                        <HBox spacing="5.0">
+                            <ComboBox fx:id="cbAutoresExistentes" promptText="Seleccionar autor" HBox.hgrow="ALWAYS" />
+                            <Button onAction="#handleAgregarAutorExistente" text="Añadir" />
+                        </HBox>
+                        <Label text="O crear nuevo autor:" />
                         <HBox spacing="5.0">
                             <TextField fx:id="tfNombreAutor" promptText="Nombre" HBox.hgrow="ALWAYS" />
                             <TextField fx:id="tfApellidosAutor" promptText="Apellidos" HBox.hgrow="ALWAYS" />
@@ -143,6 +148,34 @@
                         <ComboBox fx:id="cbUsuariosPrestamo" maxWidth="Infinity" promptText="Seleccionar Usuario" />
                         <DatePicker fx:id="dpFechaPrestamo" maxWidth="Infinity" promptText="Fecha de Inicio" />
                         <Button maxWidth="Infinity" onAction="#handleNuevoPrestamo" prefHeight="40.0" text="Realizar Préstamo" />
+                    </VBox>
+                </HBox>
+            </Tab>
+
+            <Tab text="Autores">
+                <HBox spacing="20.0">
+                    <padding>
+                        <Insets top="10.0" />
+                    </padding>
+                    <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                        <TableView fx:id="tvAutores" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="colAutorNombre" prefWidth="150" text="Nombre" />
+                                <TableColumn fx:id="colAutorApellidos" prefWidth="200" text="Apellidos" />
+                                <TableColumn fx:id="colAutorNacionalidad" prefWidth="150" text="Nacionalidad" />
+                            </columns>
+                        </TableView>
+                        <Button onAction="#handleEliminarTodosLosAutores" text="Eliminar todos los Autores"/>
+                    </VBox>
+                    <VBox spacing="10.0" prefWidth="300.0">
+                        <padding>
+                            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                        </padding>
+                        <Label text="Formulario de Autor" />
+                        <TextField fx:id="tfAutorNombre" promptText="Nombre" />
+                        <TextField fx:id="tfAutorApellidos" promptText="Apellidos" />
+                        <TextField fx:id="tfAutorNacionalidad" promptText="Nacionalidad" />
+                        <Button maxWidth="Infinity" text="Guardar Autor" />
                     </VBox>
                 </HBox>
             </Tab>

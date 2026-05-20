@@ -30,11 +30,9 @@ public class Autores {
         } catch (SQLException e) {
             System.out.println("ERROR: No se pudo establecer la conexión: " + e.getMessage());
         }
-        leerXML("src/main/java/biblioteca/fichero/autores.xml");
     }
 
     public void terminar() {
-        escribirXML("src/main/java/biblioteca/fichero/autores.xml");
         try {
             Conexion.getConexion().cerrarConexion();
         } catch (SQLException e) {
@@ -78,14 +76,14 @@ public class Autores {
 
     // Metodo para convertir un elemento XML a un objeto Autor
     public Autor elementToAutor(Element ea) {
-        String nombreCompleto = getContenidoEtiqueta(ea, "nombre"); // Obtener el contenido de la etiqueta <nombre>
+        String nombreCompleto = getContenidoEtiqueta(ea, "nombre").trim();
         String nombre;
         String apellidos;
+        int primerEspacio = nombreCompleto.indexOf(" ");
 
-        int primerEspacio = nombreCompleto.indexOf("");
         if (primerEspacio != -1) {
-            nombre = nombreCompleto.substring(0, primerEspacio);
-            apellidos = nombreCompleto.substring(primerEspacio + 1);
+            nombre = nombreCompleto.substring(0, primerEspacio).trim();
+            apellidos = nombreCompleto.substring(primerEspacio + 1).trim();
         } else {
             nombre = nombreCompleto;
             apellidos = "";

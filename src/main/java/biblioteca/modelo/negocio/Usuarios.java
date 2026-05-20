@@ -32,11 +32,9 @@ public class Usuarios {
         } catch (SQLException e) {
             System.out.println("ERROR: No se pudo establecer la conexión: " + e.getMessage());
         }
-        leerXML("src/main/java/biblioteca/fichero/usuarios.xml");
     }
 
     public void terminar() {
-        escribirXML("src/main/java/biblioteca/fichero/usuarios.xml");
         try {
             Conexion.getConexion().cerrarConexion();
         } catch (SQLException e) {

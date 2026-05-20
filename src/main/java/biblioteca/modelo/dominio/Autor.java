@@ -52,20 +52,12 @@ public class Autor {
     }
 
     public void setNacionalidad(String nacionalidad) {
-        if (nacionalidad == null || nacionalidad.trim().isEmpty()) {
-            throw new IllegalArgumentException("ERROR: La nacionalidad del autor no puede ser nula o vacía.");
-        }
         this.nacionalidad = nacionalidad;
     }
 
     // Metodo para obtener el nombre completo del autor
     public String getNombreCompleto() {
         return nombre + " " + apellidos;
-    }
-
-    // Metodo para obtener las iniciales del autor
-    public String iniciales() {
-        return nombre.substring(0, 1) + "." + apellidos.substring(0, 1) + ".";
     }
 
     @Override

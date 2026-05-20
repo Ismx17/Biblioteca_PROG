@@ -30,11 +30,9 @@ public class Prestamos {
         } catch (SQLException e) {
             System.out.println("ERROR: No se pudo establecer la conexión: " + e.getMessage());
         }
-        leerXML("src/main/java/biblioteca/fichero/prestamos.xml");
     }
 
     public void terminar() {
-        escribirXML("src/main/java/biblioteca/fichero/prestamos.xml");
         try {
             Conexion.getConexion().cerrarConexion();
         } catch (SQLException e) {

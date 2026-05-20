@@ -2,6 +2,11 @@ package biblioteca.controlador;
 
 import biblioteca.modelo.Modelo;
 import biblioteca.modelo.dominio.*;
+import biblioteca.modelo.negocio.Autores;
+import biblioteca.modelo.negocio.Libros;
+import biblioteca.modelo.negocio.Prestamos;
+import biblioteca.modelo.negocio.Usuarios;
+import biblioteca.utilidades.UtilidadesXML;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -11,7 +16,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import org.w3c.dom.Document;
 
 import java.io.File;
@@ -41,10 +45,15 @@ public class MainController {
     @FXML private TableColumn<Prestamo, String> colPrestamoLibro, colPrestamoUsuario, colEstado;
     @FXML private TableColumn<Prestamo, LocalDate> colFInicio, colFLimite;
 
+    // Tabla y columnas para Autores
+    @FXML private TableView<Autor> tvAutores;
+    @FXML private TableColumn<Autor, String> colAutorNombre, colAutorApellidos, colAutorNacionalidad;
+
     // Formulario de inserción de Libros
     @FXML private TextField tfIsbn, tfTitulo, tfAnio, tfDuracion, tfNombreAutor, tfApellidosAutor, tfNacionalidadAutor;
     @FXML private ComboBox<Categoria> cbCategoria;
     @FXML private ComboBox<String> cbFormato;
+    @FXML private ComboBox<Autor> cbAutoresExistentes;
     @FXML private CheckBox chbEsAudiolibro;
     @FXML private VBox vbCamposAudiolibro; // Contenedor que se oculta/muestra
     @FXML private ListView<String> lvAutoresTemporales;
@@ -78,6 +87,30 @@ public class MainController {
 
         // Aplicar estilos visuales dinámicos a las filas
         configurarColoreadoFilas();
+
+        // Configurar cómo se muestran los autores en el ComboBox
+        cbAutoresExistentes.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Autor item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.getNombreCompleto());
+                }
+            }
+        });
+        cbAutoresExistentes.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(Autor item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.getNombreCompleto());
+                }
+            }
+        });
     }
 
     private void configurarColumnas() {
@@ -119,6 +152,11 @@ public class MainController {
                 return new SimpleStringProperty("En curso");
             }
         });
+
+        // Configuración de columnas de Autores
+        colAutorNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        colAutorApellidos.setCellValueFactory(new PropertyValueFactory<>("apellidos"));
+        colAutorNacionalidad.setCellValueFactory(new PropertyValueFactory<>("nacionalidad"));
     }
 
     private void configurarColoreadoFilas() {
@@ -143,18 +181,59 @@ public class MainController {
     private void handleCheckAudiolibro() {
         boolean seleccionado = chbEsAudiolibro.isSelected();
         vbCamposAudiolibro.setVisible(seleccionado);
-        vbCamposAudiolibro.setManaged(seleccionado); // Ajusta el espacio en el layout
+        vbCamposAudiolibro.setManaged(seleccionado);
     }
 
     @FXML
     private void handleAgregarAutorALista() {
         try {
             Autor nuevoAutor = new Autor(tfNombreAutor.getText(), tfApellidosAutor.getText(), tfNacionalidadAutor.getText());
-            listaAutoresObjetos.add(nuevoAutor);
-            nombresAutoresTemporales.add(nuevoAutor.getNombreCompleto());
-            // Limpiar campos del autor para el siguiente
-            tfNombreAutor.clear(); tfApellidosAutor.clear(); tfNacionalidadAutor.clear();
+            if (!listaAutoresObjetos.contains(nuevoAutor)) {
+                listaAutoresObjetos.add(nuevoAutor);
+                nombresAutoresTemporales.add(nuevoAutor.getNombreCompleto());
+                // Limpiar campos del autor para el siguiente
+                tfNombreAutor.clear(); tfApellidosAutor.clear(); tfNacionalidadAutor.clear();
+            } else {
+                mostrarAdvertencia("Autor Duplicado", "Este autor ya ha sido añadido a la lista o ya existe un autor idéntico.");
+            }
         } catch (Exception e) { mostrarError("Autor", e.getMessage()); }
+    }
+
+    @FXML
+    private void handleAgregarAutorExistente() {
+        Autor autorSeleccionado = cbAutoresExistentes.getValue();
+        if (autorSeleccionado != null) {
+            if (!listaAutoresObjetos.contains(autorSeleccionado)) {
+                listaAutoresObjetos.add(autorSeleccionado);
+                nombresAutoresTemporales.add(autorSeleccionado.getNombreCompleto());
+            } else {
+                mostrarAdvertencia("Autor Duplicado", "Este autor ya ha sido añadido a la lista.");
+            }
+        } else {
+            mostrarAdvertencia("Selección Vacía", "Por favor, selecciona un autor de la lista.");
+        }
+    }
+
+    @FXML
+    private void handleEliminarTodosLosAutores() {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirmar Eliminación");
+        confirm.setHeaderText("Eliminar todos los autores");
+        confirm.setContentText("¿Está seguro de que desea eliminar TODOS los autores de la base de datos? Esta acción no se puede deshacer y podría fallar si hay libros asociados.");
+
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+            try {
+                Autores.getInstancia().borrarTodos();
+                refrescarTablas();
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setHeaderText("Éxito");
+                alert.setContentText("Todos los autores han sido eliminados correctamente.");
+                alert.showAndWait();
+            } catch (Exception e) {
+                mostrarError("Error al eliminar autores", e.getMessage());
+            }
+        }
     }
 
     @FXML
@@ -186,7 +265,6 @@ public class MainController {
                     refrescarTablas();
                 }
             } catch (IllegalStateException e) {
-                // Manejo de excepción de negocio
                 mostrarAdvertencia("Restricción de Borrado", e.getMessage());
             } catch (Exception e) {
                 mostrarError("Error al eliminar", e.getMessage());
@@ -243,8 +321,10 @@ public class MainController {
         tvLibros.setItems(FXCollections.observableArrayList(modelo.listadoLibros()));
         tvUsuarios.setItems(FXCollections.observableArrayList(modelo.listadoUsuarios()));
         tvPrestamos.setItems(FXCollections.observableArrayList(modelo.listadoPrestamos()));
+        tvAutores.setItems(FXCollections.observableArrayList(Autores.getInstancia().todos()));
         cbLibrosPrestamo.setItems(FXCollections.observableArrayList(modelo.listadoLibros()));
         cbUsuariosPrestamo.setItems(FXCollections.observableArrayList(modelo.listadoUsuarios()));
+        cbAutoresExistentes.setItems(FXCollections.observableArrayList(Autores.getInstancia().todos()));
     }
 
     private void limpiarFormLibro() {
@@ -258,7 +338,6 @@ public class MainController {
     }
 
     private void mostrarError(String cabecera, String mensaje) {
-        // Creamos el cuadro de dialogo de error
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText(cabecera);
         alert.setContentText(mensaje);
@@ -278,7 +357,8 @@ public class MainController {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirmar Copia de Seguridad");
         confirm.setHeaderText("Hacer copia de seguridad");
-        confirm.setContentText("Los datos se guardarán automáticamente en la carpeta fichero del proyecto. ¿Desea continuar?");
+        confirm.setContentText("Los datos se guardarán automáticamente en la carpeta fichero del proyecto. " +
+                "\n¿Desea continuar?");
         
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
             File ficheroDir = new File("src/main/java/biblioteca/fichero");
@@ -288,10 +368,10 @@ public class MainController {
 
             String path = ficheroDir.getAbsolutePath() + File.separator;
             try {
-                biblioteca.modelo.negocio.Autores.getInstancia().escribirXML(path + "autores.xml");
-                biblioteca.modelo.negocio.Libros.getInstancia().escribirXML(path + "libros.xml");
-                biblioteca.modelo.negocio.Usuarios.getInstancia().escribirXML(path + "usuarios.xml");
-                biblioteca.modelo.negocio.Prestamos.getInstancia().escribirXML(path + "prestamos.xml");
+                Autores.getInstancia().escribirXML(path + "autores.xml");
+                Libros.getInstancia().escribirXML(path + "libros.xml");
+                Usuarios.getInstancia().escribirXML(path + "usuarios.xml");
+                Prestamos.getInstancia().escribirXML(path + "prestamos.xml");
 
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setHeaderText("Copia de Seguridad");
@@ -311,31 +391,30 @@ public class MainController {
         confirm.setContentText("Se eliminarán los datos actuales y se reemplazarán por los de la copia de seguridad.\n¿Desea continuar?");
         
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Cargar copia de seguridad (Seleccione cualquier archivo XML de la carpeta 'fichero')");
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos XML", "*.xml"));
+            // Uso DirectoryChooser para poder seleccionar la carpeta de destino
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            directoryChooser.setTitle("Cargar copia de seguridad (Seleccione la carpeta fichero)");
             
             // Por defecto, abrir en el directorio fichero si existe
-            File ficheroDir = new File("src/main/java/biblioteca/fichero");
-            if (ficheroDir.exists() && ficheroDir.isDirectory()) {
-                fileChooser.setInitialDirectory(ficheroDir);
+            File directorioDefault = new File("src/main/java/biblioteca/fichero");
+            if (directorioDefault.exists() && directorioDefault.isDirectory()) {
+                directoryChooser.setInitialDirectory(directorioDefault);
             }
 
-            File selectedFile = fileChooser.showOpenDialog(tvLibros.getScene().getWindow());
+            File selectedDirectory = directoryChooser.showDialog(tvLibros.getScene().getWindow());
 
-            if (selectedFile != null) {
-                File backupDir = selectedFile.getParentFile();
-                String path = backupDir.getAbsolutePath() + File.separator;
+            if (selectedDirectory != null) {
+                String path = selectedDirectory.getAbsolutePath() + File.separator;
 
                 try {
                     // Comprobamos si los documentos existen y están bien formados
-                    Document docAutores = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "autores.xml");
-                    Document docLibros = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "libros.xml");
-                    Document docUsuarios = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "usuarios.xml");
-                    Document docPrestamos = biblioteca.utilidades.UtilidadesXML.xmlToDom(path + "prestamos.xml");
+                    Document docAutores = UtilidadesXML.xmlToDom(path + "autores.xml");
+                    Document docLibros = UtilidadesXML.xmlToDom(path + "libros.xml");
+                    Document docUsuarios = UtilidadesXML.xmlToDom(path + "usuarios.xml");
+                    Document docPrestamos = UtilidadesXML.xmlToDom(path + "prestamos.xml");
 
                     if (docAutores == null || docLibros == null || docUsuarios == null || docPrestamos == null) {
-                        throw new Exception("Error de validación: La carpeta seleccionada no contiene todos los archivos de la copia de seguridad (.xml) o están corruptos.");
+                        throw new Exception("Error: La carpeta seleccionada no contiene todos los archivos de la copia de seguridad");
                     }
 
                     java.sql.Connection con = biblioteca.modelo.negocio.mysql.Conexion.getConexion().getJdbcConnection();
@@ -343,28 +422,29 @@ public class MainController {
                         st.execute("SET FOREIGN_KEY_CHECKS = 0");
                     }
 
-                    biblioteca.modelo.negocio.Prestamos.getInstancia().borrarTodos();
-                    biblioteca.modelo.negocio.Libros.getInstancia().borrarTodos();
-                    biblioteca.modelo.negocio.Usuarios.getInstancia().borrarTodos();
-                    biblioteca.modelo.negocio.Autores.getInstancia().borrarTodos();
+                    // Borramos en el orden inverso
+                    Prestamos.getInstancia().borrarTodos();
+                    Libros.getInstancia().borrarTodos();
+                    Usuarios.getInstancia().borrarTodos();
+                    Autores.getInstancia().borrarTodos();
 
                     try (java.sql.Statement st = con.createStatement()) {
                         st.execute("SET FOREIGN_KEY_CHECKS = 1");
                     }
 
-                    // Carga en el orden de jerarquía establecido para evitar errores de restricción
-                    biblioteca.modelo.negocio.Autores.getInstancia().leerXML(path + "autores.xml");
-                    biblioteca.modelo.negocio.Libros.getInstancia().leerXML(path + "libros.xml");
-                    biblioteca.modelo.negocio.Usuarios.getInstancia().leerXML(path + "usuarios.xml");
-                    biblioteca.modelo.negocio.Prestamos.getInstancia().leerXML(path + "prestamos.xml");
+                    // Cargar en orden de jerarquía establecido para evitar errores de restricción
+                    Autores.getInstancia().leerXML(path + "autores.xml");
+                    Usuarios.getInstancia().leerXML(path + "usuarios.xml");
+                    Libros.getInstancia().leerXML(path + "libros.xml");
+                    Prestamos.getInstancia().leerXML(path + "prestamos.xml");
 
                     refrescarTablas();
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setHeaderText("Restauración");
-                    alert.setContentText("Copia de seguridad cargada correctamente desde:\n" + backupDir.getAbsolutePath());
+                    alert.setContentText("Copia de seguridad cargada correctamente desde:\n" + selectedDirectory.getAbsolutePath());
                     alert.showAndWait();
                 } catch (Exception e) {
-                    mostrarError("Error en Restauración", e.getMessage());
+                    mostrarError("Error al restaurar", e.getMessage());
                 }
             }
         }
